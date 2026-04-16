@@ -4,24 +4,28 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ClinicRecord; 
+use App\Models\Medicine;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ClinicRecordController extends Controller
 {
-    /**
-     * Display a listing of the records with Multi-Column Search and Age Filters.
-     */
     public function index(Request $request): View
     {
         $search = $request->input('search');
         $ageGroup = $request->input('age_group');
 
-        // 1. Prepare the query, sorting by the latest date first
-        $query = ClinicRecord::orderBy('consultation_date', 'desc');
+        // Group records by patient_name and get the latest ID for unique history rows
+        $latestRecordIds = ClinicRecord::selectRaw('MAX(id) as id')
+            ->groupBy('patient_name')
+            ->pluck('id');
 
-        // 2. Handle Multi-Column Search (Name, Diagnosis, Age, or Medicines)
+        $query = ClinicRecord::whereIn('id', $latestRecordIds)
+            ->orderBy('consultation_date', 'desc');
+
+        // Multi-Column Search
         if ($request->filled('search')) {
             $query->where(function($q) use ($search) {
                 $q->where('patient_name', 'like', "%{$search}%")
@@ -31,48 +35,47 @@ class ClinicRecordController extends Controller
             });
         }
 
-        // 3. Handle Specific Age Group Filtering (Infants, Children, Seniors)
+        // Age Group Filtering logic
         if ($request->filled('age_group')) {
             $today = now();
-            
             if ($ageGroup == 'infant') {
-                // 0-11 Months: Birthday is within the last 11 months
                 $query->where('birthday', '>=', $today->copy()->subMonths(11));
-            } 
-            elseif ($ageGroup == 'child') {
-                // 12-59 Months: Birthday is between 1 year and 5 years ago
+            } elseif ($ageGroup == 'child') {
                 $query->whereBetween('birthday', [
                     $today->copy()->subMonths(59), 
                     $today->copy()->subMonths(12)
                 ]);
-            } 
-            elseif ($ageGroup == 'senior') {
-                // Senior Citizen: Age 60 and above
+            } elseif ($ageGroup == 'senior') {
                 $query->where('birthday', '<=', $today->copy()->subYears(60));
             }
         }
 
-        // 4. Execute and filter to show only the most recent entry per patient
-        $records = $query->get()->unique('patient_name');
+        $records = $query->get();
 
         return view('record.index', [
-            'records'  => $records,
-            'search'   => $search,
+            'records'   => $records,
+            'search'    => $search,
             'age_group' => $ageGroup
         ]);
     }
 
-    /**
-     * Show the form for creating a new record.
-     */
     public function create(): View
     {
-        return view('record.create');
+        /**
+         * UPDATED: FEFO (First Expiry, First Out) Logic
+         * We sort by expiration_date first so that unique() picks the batch 
+         * expiring soonest (the "Priority" batch).
+         */
+        $allMedicines = Medicine::where('stock', '>', 0)
+            ->orderBy('expiration_date', 'asc') 
+            ->get()
+            ->unique('name'); // Removes duplicates from the dropdown
+
+        return view('record.create', [
+            'allMedicines' => $allMedicines
+        ]);
     }
 
-    /**
-     * Store a newly created record in database.
-     */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -81,23 +84,51 @@ class ClinicRecordController extends Controller
             'birthday'          => 'required|date',
             'gender'            => 'required|string',
             'diagnosis'         => 'nullable|string',
-            'medicines_given'   => 'nullable|string',
+            'medicines'         => 'nullable|array', 
         ]);
 
-        // Calculate age automatically using Carbon based on birthday
-        $validated['age'] = Carbon::parse($request->birthday)->age;
+        $validated['patient_name'] = trim($request->patient_name);
 
-        ClinicRecord::create($validated);
+        DB::transaction(function () use ($request, $validated) {
+            $medicineDescriptions = [];
 
-        return redirect()->route('record.index')->with('success', 'Record saved successfully!');
+            if ($request->has('medicines')) {
+                foreach ($request->medicines as $item) {
+                    $medicine = Medicine::find($item['id']);
+                    $qty = $item['quantity'];
+
+                    if ($medicine && $medicine->stock >= $qty) {
+                        $medicine->decrement('stock', $qty);
+                        $medicineDescriptions[] = "{$medicine->name} (x{$qty})";
+                    }
+                }
+            }
+
+            $validated['medicines_given'] = implode(', ', $medicineDescriptions);
+
+            /**
+             * UPDATED: Age Format Sync
+             * Calculates age in months for infants (0-11) to match your 
+             * table display and filtering needs.
+             */
+            $birth = Carbon::parse($request->birthday);
+            $now = Carbon::now();
+            $diff = $birth->diff($now);
+
+            if ($diff->y === 0) {
+                $validated['age'] = $diff->m . ' Mon';
+            } else {
+                $validated['age'] = $diff->y . ' yrs';
+            }
+
+            ClinicRecord::create($validated);
+        });
+
+        return redirect()->route('record.index')->with('success', 'Record saved and stock updated!');
     }
 
-    /**
-     * Display the specified record and all historical visits for this patient.
-     */
     public function show(ClinicRecord $record): View
     {
-        // Find every consultation ever logged for this specific patient name
         $history = ClinicRecord::where('patient_name', $record->patient_name)
             ->orderBy('consultation_date', 'desc')
             ->get();
@@ -105,6 +136,17 @@ class ClinicRecordController extends Controller
         return view('record.show', [
             'record'  => $record,
             'history' => $history 
+        ]);
+    }
+
+    public function dashboard()
+    {
+        $totalPatients = ClinicRecord::count();
+        $lowStock = Medicine::where('stock', '<=', 10)->count();
+
+        return view('dashboard', [
+            'totalPatients' => $totalPatients,
+            'lowStock' => $lowStock
         ]);
     }
 }
