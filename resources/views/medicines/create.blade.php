@@ -1,82 +1,43 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-2xl mx-auto py-6 px-4"> {{-- Reduced max-width and vertical padding --}}
-    <div class="mb-6"> {{-- Reduced margin --}}
+<div class="max-w-2xl mx-auto py-6 px-4">
+    <div class="mb-6">
         <a href="{{ route('medicines.index') }}" class="text-blue-600 hover:text-blue-800 flex items-center gap-2 mb-3 text-sm font-medium transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Back to Inventory
         </a>
-        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Add New Medicine</h1> {{-- Smaller Heading --}}
-        <p class="text-gray-500 text-sm mt-1">Select the medicine to register in the system.</p>
+        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Add New Medicine</h1>
+        <p class="text-gray-500 text-sm mt-1">Input the brand and generic details to register the medicine.</p>
     </div>
 
-    <div class="bg-white rounded-[1.5rem] shadow-sm border border-gray-100 p-8"> {{-- Slightly tighter padding and radius --}}
-        <form action="{{ route('medicines.store') }}" method="POST">
+    <div class="bg-white rounded-[1.5rem] shadow-sm border border-gray-100 p-8">
+        <form action="{{ route('medicines.store') }}" method="POST" id="medicineForm">
             @csrf
             
             <input type="hidden" name="stock" value="0">
             <input type="hidden" name="expiration_date" value="{{ now()->addYear()->format('Y-m-d') }}">
             <input type="hidden" name="arrival_date" value="{{ now()->format('Y-m-d') }}">
+            
+            {{-- This hidden input will hold the combined name sent to the database --}}
+            <input type="hidden" name="name" id="combined_name">
 
             <div class="space-y-5">
+                {{-- Brand Name Input --}}
                 <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Medicine Name</label>
-                    <div class="relative">
-                        <select name="name" required autofocus
-                            class="w-full px-5 py-3.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-white appearance-none cursor-pointer">
-                            <option value="" disabled selected>Select a medicine...</option>
-                            
-                            {{-- Analgesics & Antipyretics --}}
-                            <optgroup label="Pain & Fever">
-                                <option value="Biogesic (Paracetamol 500mg Tablet)">Biogesic (Paracetamol 500mg Tablet)</option>
-                                <option value="Alaxan FR (Ibuprofen 200mg + Paracetamol 325mg Capsule)">Alaxan FR (Ibuprofen + Paracetamol Capsule)</option>
-                                <option value="Tempra (Paracetamol 120mg/5ml Syrup)">Tempra (Paracetamol 120mg/5ml Syrup)</option>
-                                <option value="Advil (Ibuprofen 200mg Softgel)">Advil (Ibuprofen 200mg Softgel)</option>
-                            </optgroup>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Brand Name</label>
+                    <input type="text" id="brand_name" placeholder="e.g. Biogesic" required autofocus
+                        class="w-full px-5 py-3.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition">
+                </div>
 
-                            {{-- Cough, Cold & Allergy --}}
-                            <optgroup label="Cough & Cold">
-                                <option value="Neozep Forte (Phenylephrine + Chlorphenamine + Paracetamol Tablet)">Neozep Forte (Tablet)</option>
-                                <option value="Bioflu (Phenylephrine + Chlorphenamine + Paracetamol Tablet)">Bioflu (Tablet)</option>
-                                <option value="Solmux (Carbocisteine 500mg Capsule)">Solmux (Carbocisteine 500mg Capsule)</option>
-                                <option value="Solmux Kids (Carbocisteine 200mg/5ml Syrup)">Solmux Kids (Carbocisteine Syrup)</option>
-                                <option value="Allerta (Loratadine 10mg Tablet)">Allerta (Loratadine 10mg Tablet)</option>
-                                <option value="Virlix (Cetirizine 10mg Tablet)">Virlix (Cetirizine 10mg Tablet)</option>
-                            </optgroup>
-
-                            {{-- Antibiotics & Infection --}}
-                            <optgroup label="Antibiotics">
-                                <option value="Amoxicillin (Generic 500mg Capsule)">Amoxicillin (Generic 500mg Capsule)</option>
-                                <option value="Amoxicillin (Generic 250mg/5ml Syrup)">Amoxicillin (Generic 250mg/5ml Syrup)</option>
-                                <option value="Bactrim (Sulfamethoxazole + Trimethoprim 400mg/80mg Tablet)">Bactrim (Tablet)</option>
-                            </optgroup>
-
-                            {{-- Digestive Health --}}
-                            <optgroup label="Digestive Health">
-                                <option value="Kremil-S (Aluminum Hydroxide + Magnesium Hydroxide Tablet)">Kremil-S (Antacid Tablet)</option>
-                                <option value="Diatabs (Loperamide 2mg Capsule)">Diatabs (Loperamide 2mg Capsule)</option>
-                                <option value="Gaviscon (Sodium Alginate + Bicarbonate Liquid Sachet/Syrup)">Gaviscon (Liquid Syrup)</option>
-                                <option value="Buscopan (Hyoscine N-butylbromide 10mg Tablet)">Buscopan (10mg Tablet)</option>
-                            </optgroup>
-
-                            {{-- Vitamins & Supplements --}}
-                            <optgroup label="Vitamins">
-                                <option value="Enervon (Vitamin B-Complex + Vitamin C Tablet)">Enervon (Tablet)</option>
-                                <option value="Ceelin (Ascorbic Acid 100mg/ml Drops)">Ceelin (Vitamin C Drops)</option>
-                                <option value="Potencee (Ascorbic Acid 500mg Tablet)">Potencee (Vitamin C 500mg Tablet)</option>
-                                <option value="Sangobion (Ferrous Gluconate + Vitamins Capsule)">Sangobion (Iron Capsule)</option>
-                            </optgroup>
-                        </select>
-                        
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-5 text-gray-400">
-                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                            </svg>
-                        </div>
-                    </div>
+                {{-- Generic Name Input --}}
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Generic Name</label>
+                    <input type="text" id="generic_name" placeholder="e.g. Paracetamol tablet 500mg" required
+                        class="w-full px-5 py-3.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition">
+                    <p class="mt-2 text-[10px] text-gray-400 italic">Example output: Brand (Generic Name)</p>
                 </div>
             </div>
 
@@ -91,4 +52,14 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.getElementById('medicineForm').addEventListener('submit', function(e) {
+        const brand = document.getElementById('brand_name').value.trim();
+        const generic = document.getElementById('generic_name').value.trim();
+        
+        // Combines them into "Brand (Generic)" format before sending to Controller
+        document.getElementById('combined_name').value = `${brand} (${generic})`;
+    });
+</script>
 @endsection

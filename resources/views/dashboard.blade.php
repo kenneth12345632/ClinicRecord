@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Welcome to Clinic Records Dashboard</h1>
+        <h1 class="text-3xl font-bold text-gray-800">Barangay Banilad Health Care Center</h1>
         <p class="text-gray-600 mt-2">Manage your patient records and daily consultations.</p>
     </div>
 
