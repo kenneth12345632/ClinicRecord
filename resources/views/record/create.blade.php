@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+<div id="medicine-data" data-list='@json($allMedicines ?? [])' style="display: none;"></div>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <div class="max-w-4xl mx-auto py-8">
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-8 border-b border-gray-50 flex justify-between items-center">
@@ -32,7 +35,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Date of Consultation</label>
-                    <input type="date" name="consultation_date" value="{{ date('Y-m-d') }}" required
+                    <input type="date" name="consultation_date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" required
                         class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition">
                 </div>
                 <div>
@@ -89,7 +92,7 @@
                     class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition"></textarea>
             </div>
 
-            {{-- Optimized Medicines Given Section --}}
+            {{-- Medicines Given Section --}}
             <div class="border border-slate-100 rounded-2xl p-6 mt-8 bg-white">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-sm font-bold text-slate-500 uppercase">Medicines Given</h3>
@@ -103,7 +106,7 @@
                 </div>
 
                 <div id="medicine-rows-container" class="space-y-4">
-                    {{-- Rows are injected via JS --}}
+                    {{-- Rows are injected via JavaScript --}}
                 </div>
             </div>
 
@@ -118,6 +121,30 @@
         </form>
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<style>
+    /* Styling to make Select2 match your Tailwind inputs */
+    .select2-container--default .select2-selection--single {
+        height: 48px !important;
+        border-radius: 12px !important;
+        border: 1px solid #e2e8f0 !important;
+        display: flex;
+        align-items: center;
+        padding-left: 8px !important;
+        background-color: #f9fafb !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 46px !important;
+    }
+    .select2-dropdown {
+        border-radius: 12px !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+    }
+</style>
 
 <script>
     function calculateAge() {
@@ -141,54 +168,62 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        const container = document.getElementById('medicine-rows-container');
-        const addBtn = document.getElementById('add-medicine-btn');
-        let rowIndex = 0;
+    const container = document.getElementById('medicine-rows-container');
+    const addBtn = document.getElementById('add-medicine-btn');
+    let rowIndex = 0;
 
-        // Medicines data from Controller
-const allMedicines = {!! json_encode($allMedicines) !!};
+    // FIX: Retrieve data from the HTML element to avoid Blade/JS syntax conflicts
+    const dataProvider = document.getElementById('medicine-data');
+    const allMedicines = dataProvider ? JSON.parse(dataProvider.dataset.list) : [];
 
-        function createMedicineRow() {
-            const rowId = `medicine-row-${rowIndex}`;
-            const div = document.createElement('div');
-            div.id = rowId;
-            div.className = "flex items-center gap-4 transition-all duration-300 opacity-0 transform -translate-y-2";
-            
-            let options = '<option value="" disabled selected>Click to select medicine...</option>';
-            allMedicines.forEach(med => {
-                options += `<option value="${med.id}">${med.name} (Available: ${med.stock})</option>`;
-            });
+    function createMedicineRow() {
+        const rowId = `medicine-row-${rowIndex}`;
+        const selectId = `select-med-${rowIndex}`; 
+        const div = document.createElement('div');
+        div.id = rowId;
+        div.className = "flex items-center gap-4 transition-all duration-300 opacity-0 transform -translate-y-2";
+        
+        let options = '<option value="" disabled selected>Search medicine...</option>';
+        allMedicines.forEach(med => {
+            options += `<option value="${med.id}">${med.name} (Stock: ${med.stock})</option>`;
+        });
 
-            div.innerHTML = `
-                <div class="flex-1">
-                    <select name="medicines[${rowIndex}][id]" required class="w-full px-4 py-2.5 border border-blue-600 rounded-xl focus:ring-1 focus:ring-blue-600 outline-none text-sm transition bg-white shadow-sm">
-                        ${options}
-                    </select>
-                </div>
-                <div class="w-32">
-                    <input type="number" name="medicines[${rowIndex}][quantity]" placeholder="Qty" required min="1" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-1 focus:ring-slate-400 outline-none text-sm placeholder:text-slate-300 transition shadow-sm">
-                </div>
-                <div>
-                    <button type="button" class="text-red-300 hover:text-red-500 transition text-2xl px-2 leading-none" onclick="this.parentElement.parentElement.remove()">
-                        &times;
-                    </button>
-                </div>
-            `;
+        div.innerHTML = `
+            <div class="flex-1">
+                <select name="medicines[${rowIndex}][id]" id="${selectId}" required class="w-full">
+                    ${options}
+                </select>
+            </div>
+            <div class="w-32">
+                <input type="number" name="medicines[${rowIndex}][quantity]" placeholder="Qty" required min="1" 
+                       class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-1 focus:ring-slate-400 outline-none text-sm h-[48px] shadow-sm">
+            </div>
+            <button type="button" class="text-red-300 hover:text-red-500 text-2xl px-2 leading-none" onclick="this.parentElement.remove()">
+                &times;
+            </button>
+        `;
 
-            container.appendChild(div);
-            
-            // Animation trigger
-            requestAnimationFrame(() => {
-                div.classList.remove('opacity-0', '-translate-y-2');
-            });
+        container.appendChild(div);
+        
+        // Initialize Select2 for the searchable dropdown
+        $(`#${selectId}`).select2({
+            placeholder: "Search medicine...",
+            width: '100%'
+        });
 
-            rowIndex++;
-        }
+        requestAnimationFrame(() => {
+            div.classList.remove('opacity-0', '-translate-y-2');
+        });
 
+        rowIndex++;
+    }
+
+    if (addBtn) {
         addBtn.addEventListener('click', createMedicineRow);
+    }
 
-        // Auto-add first row
-        createMedicineRow();
-    });
+    // Auto-add the first medicine row on load
+    createMedicineRow();
+});
 </script>
 @endsection

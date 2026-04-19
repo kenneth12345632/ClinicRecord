@@ -9,11 +9,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        /* Custom scrollbar for a cleaner look */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-down { animation: fadeInDown 0.3s ease-out; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
@@ -24,27 +29,34 @@
                 <span class="text-blue-500">✚</span> CLINIC OS
             </div>
             
-          <nav class="mt-6 flex-1 px-4 space-y-1">
-    <a href="{{ route('dashboard') }}" 
-       class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-        Dashboard
-    </a>
-    
-    <a href="{{ route('record.index') }}" 
-       class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('record.index') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-        Clinic Records
-    </a>
-    
-    <a href="{{ route('medicines.index') }}" 
-       class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-        Inventory Medicine
-    </a>
+            <nav class="mt-6 flex-1 px-4 space-y-1">
+                {{-- Dashboard --}}
+                <a href="{{ route('dashboard') }}" 
+                   class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    Dashboard
+                </a>
+                
+                {{-- Clinic Records (Using wildcard * to stay active when viewing specific records) --}}
+                <a href="{{ route('record.index') }}" 
+                   class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('record.*') && !request()->routeIs('record.create') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    Clinic Records
+                </a>
+                
+                {{-- Inventory Medicine --}}
+                <a href="{{ route('medicines.index') }}" 
+                   class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    Inventory Medicine
+                </a>
 
-    <a href="{{ route('record.create') }}" 
-       class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('record.create') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-        <span class="mr-2 text-blue-500 font-bold">+</span> Add New Consultation
-    </a>
-</nav>
+                <div class="pt-4 mt-4 border-t border-slate-800">
+                    {{-- Add New Consultation --}}
+                    <a href="{{ route('record.create') }}" 
+                       class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('record.create') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        <span class="mr-2 text-blue-500 font-bold">+</span> Add New Consultation
+                    </a>
+                </div>
+            </nav>
+
             <div class="p-4 border-t border-slate-800">
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
@@ -56,8 +68,7 @@
             </div>
         </aside>
 
-        <main class="flex-1 p-10 overflow-y-auto relative">
-            
+        <main class="flex-1 p-10 overflow-y-auto relative bg-slate-50">
             @if(session('success'))
                 <div id="alert-msg" class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 shadow-sm rounded-r-lg flex justify-between items-center animate-fade-in-down">
                     <span>{{ session('success') }}</span>
@@ -72,7 +83,11 @@
     <script>
         setTimeout(() => {
             const alert = document.getElementById('alert-msg');
-            if (alert) alert.style.display = 'none';
+            if (alert) {
+                alert.style.opacity = '0';
+                alert.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => alert.remove(), 500);
+            }
         }, 3000);
     </script>
 </body>

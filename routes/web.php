@@ -3,22 +3,13 @@
 use App\Http\Controllers\ClinicRecordController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\AppointmentController;
+use App\Models\ClinicRecord;
+use App\Models\Medicine;
 
-Route::prefix('record')->name('record.')->group(function () {
-    // This handles showing the consultation form with the medicine list
-    Route::get('/create', [AppointmentController::class, 'create'])->name('create');
-    
-    // This handles the form submission and inventory deduction
-    Route::post('/store', [AppointmentController::class, 'store'])->name('store');
-    
-    // Your existing index and show routes...
-    Route::get('/', [AppointmentController::class, 'index'])->name('index');
-});
-
-// 1. Root Route - Smart Redirect
+// 1. ROOT REDIRECT
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -34,28 +25,53 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
-// 3. AUTH ROUTES
+// 3. AUTH PROTECTED ROUTES
 Route::middleware('auth')->group(function () {
     
-    // Dashboard
-    Route::get('/dashboard', [ClinicRecordController::class, 'dashboard'])->name('dashboard');
-    
-    // Medicines - Custom Group Delete (Must be above resource)
-    Route::delete('/medicines/destroy-group', [MedicineController::class, 'destroyGroup'])->name('medicines.destroy_group');
-    
+    // --- DASHBOARD (Fixed with Name & Unique Count Logic) ---
+    Route::get('/dashboard', function () {
+        // Count unique patients by name and birthday to avoid double-counting
+        $totalPatients = ClinicRecord::select('first_name', 'last_name', 'birthday')
+            ->groupBy('first_name', 'last_name', 'birthday')
+            ->get()
+            ->count();
+
+        // Count every consultation entry created today
+        $todayConsultations = ClinicRecord::whereDate('consultation_date', today())->count();
+
+        // Check for low stock items for the alert card
+        $lowStockCount = Medicine::where('stock', '<', 10)->count();
+
+        // Fetch 5 most recent unique patient interactions
+        $recentRecords = ClinicRecord::latest('consultation_date')
+            ->get()
+            ->unique(fn($item) => $item->first_name . $item->last_name . $item->birthday)
+            ->take(5);
+
+        return view('dashboard', [
+            'totalPatients'      => $totalPatients,
+            'todayConsultations' => $todayConsultations,
+            'lowStockCount'      => $lowStockCount,
+            'recentRecords'      => $recentRecords,
+        ]);
+    })->name('dashboard'); // This fixes your RouteNotFoundException
+
+    // --- CLINIC RECORDS & APPOINTMENTS ---
+    Route::prefix('record')->name('record.')->group(function () {
+        Route::get('/create', [AppointmentController::class, 'create'])->name('create');
+        Route::post('/store', [AppointmentController::class, 'store'])->name('store');
+        Route::post('/quick-add', [ClinicRecordController::class, 'quickStore'])->name('quickStore');
+        Route::get('/{id}/edit', [ClinicRecordController::class, 'edit'])->name('edit');
+    });
+
     // Resources
-    Route::resource('record', ClinicRecordController::class);
+    Route::resource('record', ClinicRecordController::class)->except(['create', 'store', 'edit']);
     Route::resource('medicines', MedicineController::class);
     
+    // Medicines - Custom Group Delete
+    Route::delete('/medicines-destroy-group', [MedicineController::class, 'destroyGroup'])->name('medicines.destroy_group');
+
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-    Route::post('/records/quick-add', [ClinicRecordController::class, 'quickStore'])->name('record.quickStore');
-// routes/web.php
-
-// Show the form with the medicine list
-Route::get('/appointment/create', [AppointmentController::class, 'create'])->name('appointment.create');
-
-// Process the form submission and deduct stock
-Route::post('/appointment/store', [AppointmentController::class, 'store'])->name('appointment.store');
-    });
+    Route::get('/record/{id}/print', [ClinicRecordController::class, 'print'])->name('record.print');
+});
