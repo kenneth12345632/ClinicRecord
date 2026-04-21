@@ -223,6 +223,9 @@
                                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Medicines Given</label>
                                 <button type="button" onclick="createMedicineRow()" class="text-blue-600 text-[10px] font-bold hover:text-blue-800 transition uppercase tracking-widest">+ Add Item</button>
                             </div>
+                            <p class="mb-2 ml-1 text-[10px] text-amber-600 font-semibold uppercase tracking-wide">
+                                Dispensing uses earliest expiry first (FEFO).
+                            </p>
                             <div id="medicine-rows-container" class="space-y-3"></div>
                         </div>
                     </div>
@@ -301,7 +304,7 @@ let rowIndex = 0;
 function createMedicineRow() {
     const div = document.createElement('div');
     const selectId = `med-select-${rowIndex}`;
-    div.className = "flex items-end gap-3 p-3 bg-gray-50/50 rounded-xl border border-gray-100 animate-in fade-in slide-in-from-top-1";
+    div.className = "grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_120px_auto] gap-3 p-3 bg-gray-50/50 rounded-xl border border-gray-100 animate-in fade-in slide-in-from-top-1";
     
     let options = '<option value="">Search medicine...</option>';
     allMedicines.forEach(med => {
@@ -309,14 +312,16 @@ function createMedicineRow() {
     });
 
     div.innerHTML = `
-        <div class="flex-1">
+        <div>
+            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Medicine</label>
             <select id="${selectId}" name="medicines[${rowIndex}][id]" required class="w-full">${options}</select>
         </div>
-        <div class="w-24">
-            <input type="number" name="medicines[${rowIndex}][quantity]" placeholder="Qty" required min="1" 
+        <div>
+            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Quantity</label>
+            <input type="number" name="medicines[${rowIndex}][quantity]" placeholder="Qty" required min="1" value="1"
                    class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-semibold h-[42px] outline-none focus:border-blue-400">
         </div>
-        <button type="button" class="text-gray-300 hover:text-red-500 mb-2 transition" onclick="this.parentElement.remove()">
+        <button type="button" class="text-gray-300 hover:text-red-500 self-end mb-1 transition justify-self-end" title="Remove medicine row" onclick="this.parentElement.remove()">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
     `;
