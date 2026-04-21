@@ -2,36 +2,35 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ClinicRecord extends Model
 {
-    protected $fillable = [
-        'first_name', 
-        'middle_name', 
-        'last_name', 
-        'consultation_date', 
-        'birthday', 
-        'gender', 
-        'civil_status', 
-        'contact_number', 
-        'address_purok', 
-        'age', 
-        'diagnosis', 
-        'medicines_given' // Kept for legacy support, though we use the relationship now
-    ];
+    use HasFactory;
 
-    protected $casts = [
-        'consultation_date' => 'date',
-        'birthday' => 'date',
-    ];
-
-    /**
-     * The medicines that belong to the clinic record.
-     * This fixes the "Call to undefined relationship" error.
-     */
-    public function medicines(): BelongsToMany
+protected $fillable = [
+    'first_name', 
+    'middle_name', 
+    'last_name', 
+    'birthday', 
+    'age', 
+    'gender', 
+    'civil_status', 
+    'address_purok', 
+    'consultation_date',
+    'temp',   // Add this
+    'bp',     // Add this
+    'pr',     // Add this
+    'rr',     // Add this
+    'weight', // Add this
+    'height', // Add this
+    'bmi',    // Add this
+    'subjective', 
+    'objective', 
+    'diagnosis'
+];
+    public function medicines()
     {
         return $this->belongsToMany(Medicine::class, 'clinic_record_medicine')
                     ->withPivot('quantity')
