@@ -1,122 +1,160 @@
 @extends('layouts.app')
 
 @section('content')
+{{-- Hidden data provider for JavaScript --}}
 <div id="medicine-data" data-list='@json($allMedicines ?? [])' style="display: none;"></div>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-<div class="max-w-4xl mx-auto py-8">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-8 border-b border-gray-50 flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-gray-800">Add New Consultation</h2>
+<div class="max-w-6xl mx-auto py-8 px-4">
+    {{-- Error Alerts --}}
+    @if ($errors->any())
+        <div class="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-xl shadow-sm">
+            <div class="flex">
+                <div class="ml-3">
+                    <p class="text-sm text-red-700 font-bold">Please correct the following errors:</p>
+                    <ul class="text-xs text-red-600 list-disc ml-5 mt-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
         </div>
+    @endif
 
-        <form action="{{ route('record.store') }}" method="POST" class="p-8 space-y-6">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <form action="{{ route('record.store') }}" method="POST">
             @csrf
 
-            {{-- Name Section --}}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {{-- Header Section --}}
+            <div class="p-8 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">First Name</label>
-                    <input type="text" name="first_name" placeholder="First Name" required
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-gray-50">
+                    <h2 class="text-2xl font-bold text-gray-800 uppercase">Individual Treatment Record</h2>
+                    <p class="text-sm text-gray-500 uppercase tracking-widest mt-1">Add New Consultation</p>
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Middle Name</label>
-                    <input type="text" name="middle_name" placeholder="Optional"
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-gray-50">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Last Name</label>
-                    <input type="text" name="last_name" placeholder="Last Name" required
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-gray-50">
+                <div class="text-right">
+                    <label class="block text-xs font-bold text-gray-400 uppercase">Consultation Date</label>
+                    <input type="date" name="consultation_date" value="{{ old('consultation_date', \Carbon\Carbon::now()->format('Y-m-d')) }}" 
+                        class="border-none bg-transparent font-bold text-gray-700 text-lg p-0 focus:ring-0 text-right outline-none">
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Date of Consultation</label>
-                    <input type="date" name="consultation_date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" required
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Birthday</label>
-                    <input type="date" name="birthday" id="birthday" onchange="calculateAge()" required
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-gray-50">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Gender</label>
-                    <select name="gender" required 
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-white">
-                        <option value="" disabled selected>Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Civil Status</label>
-                    <select name="civil_status" required 
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-white">
-                        <option value="" disabled selected>Select Status</option>
-                        <option value="Single">Single</option>
-                        <option value="Married">Married</option>
-                        <option value="Widowed">Widowed</option>
-                        <option value="Separated">Separated</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Age</label>
-                    <input type="text" id="age_display" placeholder="Auto-calculated" disabled
-                        class="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 text-gray-900 outline-none cursor-not-allowed">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Contact Number</label>
-                    <input type="text" name="contact_number" placeholder="09xxxxxxxxx"
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Address / Purok</label>
-                    <input type="text" name="address_purok" placeholder="Street, Purok, Brgy" required
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition">
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Diagnosis</label>
-                <textarea name="diagnosis" rows="3" placeholder="Describe symptoms/results" required
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition"></textarea>
-            </div>
-
-            {{-- Medicines Given Section --}}
-            <div class="border border-slate-100 rounded-2xl p-6 mt-8 bg-white">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-sm font-bold text-slate-500 uppercase">Medicines Given</h3>
+            <div class="p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
                     
-                    <button type="button" id="add-medicine-btn" class="flex items-center gap-2 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition active:scale-95 shadow-md">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                        </svg>
-                        ADD MEDICINE
-                    </button>
-                </div>
+                    {{-- LEFT COLUMN: PATIENT DATA --}}
+                    <div class="lg:col-span-5 space-y-6">
+                        <h3 class="font-bold text-blue-600 border-b pb-2 text-sm uppercase tracking-wider">Patient Information</h3>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-2">
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Full Name</label>
+                                <div class="flex gap-2">
+                                    <input type="text" name="last_name" placeholder="Last" value="{{ old('last_name') }}" required 
+                                        class="w-1/3 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-blue-400 outline-none uppercase">
+                                    <input type="text" name="first_name" placeholder="First" value="{{ old('first_name') }}" required 
+                                        class="w-1/3 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-blue-400 outline-none uppercase">
+                                    <input type="text" name="middle_name" placeholder="M.I." value="{{ old('middle_name') }}"
+                                        class="w-1/4 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-blue-400 outline-none uppercase">
+                                </div>
+                            </div>
 
-                <div id="medicine-rows-container" class="space-y-4">
-                    {{-- Rows are injected via JavaScript --}}
-                </div>
-            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Birthday</label>
+                                <input type="date" name="birthday" id="birthday" value="{{ old('birthday') }}" onchange="calculateAge()" required 
+                                    class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-blue-400 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Age</label>
+                                <input type="text" id="age_display" readonly placeholder="Auto"
+                                    class="w-full px-3 py-2 rounded-lg bg-gray-50 border-gray-100 text-sm text-gray-500 outline-none cursor-default">
+                                <input type="hidden" name="age" id="age_hidden" value="{{ old('age') }}">
+                            </div>
 
-            <div class="pt-6 flex gap-4">
-                <button type="submit" class="flex-grow bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 shadow-lg transition">
-                    Save Record
-                </button>
-                <a href="{{ route('record.index') }}" class="px-8 py-4 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition text-center">
-                    Cancel
-                </a>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Gender</label>
+                                <select name="gender" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none">
+                                    <option value="Male" {{ old('gender') == 'Male' ? 'selected' : '' }}>Male</option>
+                                    <option value="Female" {{ old('gender') == 'Female' ? 'selected' : '' }}>Female</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Civil Status</label>
+                                <select name="civil_status" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none">
+                                    <option value="Single" {{ old('civil_status') == 'Single' ? 'selected' : '' }}>Single</option>
+                                    <option value="Married" {{ old('civil_status') == 'Married' ? 'selected' : '' }}>Married</option>
+                                    <option value="Widowed" {{ old('civil_status') == 'Widowed' ? 'selected' : '' }}>Widowed</option>
+                                </select>
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Address / Purok</label>
+                                <input type="text" name="address_purok" value="{{ old('address_purok') }}" required
+                                    class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-blue-400 outline-none uppercase">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- RIGHT COLUMN: S.O.A.P. --}}
+                    <div class="lg:col-span-7 space-y-6 border-l border-gray-100 lg:pl-10">
+                        
+                        {{-- S - Subjective --}}
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">S</span>
+                                <label class="text-xs font-bold text-gray-700 uppercase">Subjective Findings</label>
+                            </div>
+                            <textarea name="subjective" rows="2" placeholder="Patient's complaints..." class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 outline-none">{{ old('subjective') }}</textarea>
+                        </div>
+
+                        {{-- O - Objective / Vital Signs --}}
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">O</span>
+                                <label class="text-xs font-bold text-gray-700 uppercase">Objective / Vitals</label>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <div class="relative"><span class="absolute left-2 top-2 text-[10px] font-bold text-gray-400">T</span><input type="text" name="temp" value="{{ old('temp') }}" placeholder="°C" class="w-full pl-6 pr-2 py-2 border rounded-lg text-xs outline-none"></div>
+                                <div class="relative"><span class="absolute left-2 top-2 text-[10px] font-bold text-gray-400">BP</span><input type="text" name="bp" value="{{ old('bp') }}" placeholder="0/0" class="w-full pl-8 pr-2 py-2 border rounded-lg text-xs outline-none"></div>
+                                <div class="relative"><span class="absolute left-2 top-2 text-[10px] font-bold text-gray-400">PR</span><input type="text" name="pr" value="{{ old('pr') }}" placeholder="bpm" class="w-full pl-8 pr-2 py-2 border rounded-lg text-xs outline-none"></div>
+                                <div class="relative"><span class="absolute left-2 top-2 text-[10px] font-bold text-gray-400">RR</span><input type="text" name="rr" value="{{ old('rr') }}" placeholder="cpm" class="w-full pl-8 pr-2 py-2 border rounded-lg text-xs outline-none"></div>
+                                <div class="relative"><span class="absolute left-2 top-2 text-[10px] font-bold text-gray-400">WT</span><input type="number" step="0.1" id="weight" name="weight" value="{{ old('weight') }}" oninput="calculateBMI()" placeholder="kg" class="w-full pl-8 pr-2 py-2 border rounded-lg text-xs outline-none"></div>
+                                <div class="relative"><span class="absolute left-2 top-2 text-[10px] font-bold text-gray-400">HT</span><input type="number" step="0.1" id="height" name="height" value="{{ old('height') }}" oninput="calculateBMI()" placeholder="cm" class="w-full pl-8 pr-2 py-2 border rounded-lg text-xs outline-none"></div>
+                                <div class="relative col-span-2">
+                                    <span class="absolute left-2 top-2 text-[10px] font-bold text-blue-500">BMI</span>
+                                    <input type="text" id="bmi_result" name="bmi" value="{{ old('bmi') }}" readonly placeholder="Auto" class="w-full pl-10 pr-2 py-2 border border-blue-100 bg-blue-50/50 rounded-lg text-xs font-bold text-blue-700">
+                                </div>
+                            </div>
+                            <textarea name="objective" rows="2" placeholder="Physical Examination details..." class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 outline-none">{{ old('objective') }}</textarea>
+                        </div>
+
+                        {{-- A - Assessment --}}
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">A</span>
+                                <label class="text-xs font-bold text-gray-700 uppercase">Assessment / Diagnosis</label>
+                            </div>
+                            <textarea name="diagnosis" rows="2" required placeholder="Medical assessment..." class="w-full px-4 py-3 rounded-xl border-2 border-blue-50 bg-blue-50/10 text-sm outline-none">{{ old('diagnosis') }}</textarea>
+                        </div>
+
+                        {{-- P - Plan / Medicines --}}
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">P</span>
+                                    <label class="text-xs font-bold text-gray-700 uppercase">Plan / Medicines</label>
+                                </div>
+                                <button type="button" id="add-medicine-btn" class="text-blue-600 hover:text-blue-800 text-[10px] font-bold tracking-widest">+ ADD ITEM</button>
+                            </div>
+                            <div id="medicine-rows-container" class="space-y-3"></div>
+                        </div>
+
+                        <div class="pt-6 flex gap-4">
+                            <button type="submit" class="flex-grow bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 shadow-lg transition active:scale-[0.98]">Save Patient Record</button>
+                            <a href="{{ route('record.index') }}" class="px-8 py-4 bg-gray-100 text-gray-500 rounded-xl font-bold hover:bg-gray-200 transition">Cancel</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
@@ -125,105 +163,81 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<style>
-    /* Styling to make Select2 match your Tailwind inputs */
-    .select2-container--default .select2-selection--single {
-        height: 48px !important;
-        border-radius: 12px !important;
-        border: 1px solid #e2e8f0 !important;
-        display: flex;
-        align-items: center;
-        padding-left: 8px !important;
-        background-color: #f9fafb !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 46px !important;
-    }
-    .select2-dropdown {
-        border-radius: 12px !important;
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
-    }
-</style>
-
 <script>
     function calculateAge() {
-        const birthdayInput = document.getElementById('birthday').value;
+        const bday = document.getElementById('birthday').value;
         const display = document.getElementById('age_display');
-        
-        if (!birthdayInput) return;
+        const hidden = document.getElementById('age_hidden');
+        if (!bday) return;
 
-        const birthDate = new Date(birthdayInput);
+        const birthDate = new Date(bday);
         const today = new Date();
-        
         let years = today.getFullYear() - birthDate.getFullYear();
         let months = today.getMonth() - birthDate.getMonth();
-
-        if (months < 0 || (months === 0 && today.getDate() < birthDate.getDate())) {
-            years--;
-            months += 12;
+        
+        if (months < 0 || (months === 0 && today.getDate() < birthDate.getDate())) { 
+            years--; 
+            months += 12; 
         }
+        
+        const ageString = (years <= 0) ? `${months} Mon` : `${years} yrs`;
+        display.value = ageString;
+        hidden.value = ageString;
+    }
 
-        display.value = (years === 0) ? `${months} Mon` : `${years} yrs`;
+    function calculateBMI() {
+        const w = parseFloat(document.getElementById('weight').value);
+        const h = parseFloat(document.getElementById('height').value);
+        const display = document.getElementById('bmi_result');
+        if (w > 0 && h > 0) {
+            const m = h / 100;
+            const bmi = w / (m * m);
+            display.value = bmi.toFixed(1);
+        } else { 
+            display.value = ""; 
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-    const container = document.getElementById('medicine-rows-container');
-    const addBtn = document.getElementById('add-medicine-btn');
-    let rowIndex = 0;
+        // Trigger initial calculations if values exist (e.g., after validation error)
+        if(document.getElementById('birthday').value) calculateAge();
+        if(document.getElementById('weight').value && document.getElementById('height').value) calculateBMI();
 
-    // FIX: Retrieve data from the HTML element to avoid Blade/JS syntax conflicts
-    const dataProvider = document.getElementById('medicine-data');
-    const allMedicines = dataProvider ? JSON.parse(dataProvider.dataset.list) : [];
+        const container = document.getElementById('medicine-rows-container');
+        const addBtn = document.getElementById('add-medicine-btn');
+        let rowIndex = 0;
+        const allMedicines = JSON.parse(document.getElementById('medicine-data').dataset.list || '[]');
 
-    function createMedicineRow() {
-        const rowId = `medicine-row-${rowIndex}`;
-        const selectId = `select-med-${rowIndex}`; 
-        const div = document.createElement('div');
-        div.id = rowId;
-        div.className = "flex items-center gap-4 transition-all duration-300 opacity-0 transform -translate-y-2";
-        
-        let options = '<option value="" disabled selected>Search medicine...</option>';
-        allMedicines.forEach(med => {
-            options += `<option value="${med.id}">${med.name} (Stock: ${med.stock})</option>`;
+        function createMedicineRow() {
+            const div = document.createElement('div');
+            div.className = "flex items-end gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 medicine-row";
+            
+            let options = '<option value="" disabled selected>Select Medicine</option>';
+            allMedicines.forEach(med => { 
+                options += `<option value="${med.id}">${med.name} (Stock: ${med.stock})</option>`; 
+            });
+
+            div.innerHTML = `
+                <div class="flex-1">
+                    <select name="medicines[${rowIndex}][id]" class="med-select" required>${options}</select>
+                </div>
+                <div class="w-24">
+                    <input type="number" name="medicines[${rowIndex}][quantity]" required min="1" placeholder="Qty" 
+                        class="w-full px-3 py-2 border border-gray-200 rounded-lg h-[42px] text-sm outline-none">
+                </div>
+                <button type="button" class="mb-2 text-gray-300 hover:text-red-500 remove-row">✕</button>
+            `;
+
+            container.appendChild(div);
+            $(div).find('.med-select').select2({ width: '100%' });
+            rowIndex++;
+        }
+
+        $(document).on('click', '.remove-row', function() {
+            $(this).closest('.medicine-row').remove();
         });
 
-        div.innerHTML = `
-            <div class="flex-1">
-                <select name="medicines[${rowIndex}][id]" id="${selectId}" required class="w-full">
-                    ${options}
-                </select>
-            </div>
-            <div class="w-32">
-                <input type="number" name="medicines[${rowIndex}][quantity]" placeholder="Qty" required min="1" 
-                       class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-1 focus:ring-slate-400 outline-none text-sm h-[48px] shadow-sm">
-            </div>
-            <button type="button" class="text-red-300 hover:text-red-500 text-2xl px-2 leading-none" onclick="this.parentElement.remove()">
-                &times;
-            </button>
-        `;
-
-        container.appendChild(div);
-        
-        // Initialize Select2 for the searchable dropdown
-        $(`#${selectId}`).select2({
-            placeholder: "Search medicine...",
-            width: '100%'
-        });
-
-        requestAnimationFrame(() => {
-            div.classList.remove('opacity-0', '-translate-y-2');
-        });
-
-        rowIndex++;
-    }
-
-    if (addBtn) {
         addBtn.addEventListener('click', createMedicineRow);
-    }
-
-    // Auto-add the first medicine row on load
-    createMedicineRow();
-});
+    });
 </script>
 @endsection
