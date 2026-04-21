@@ -3,7 +3,6 @@
 @section('content')
 {{-- 1. ADD SELECT2 DEPENDENCIES --}}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <style>
@@ -250,25 +249,21 @@ const recordRows = Array.from(document.querySelectorAll('#recordsTableBody .pati
 });
 
 function renderRecordPagination(filteredRows) {
-    const tableBody = document.getElementById('recordsTableBody');
-    const pager = $('#recordsPagination');
-
-    if (pager.data('pagination')) {
-        pager.pagination('destroy');
-    }
-
     if (filteredRows.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-16 text-center text-gray-400 italic">No patient records found.</td></tr>';
+        renderPaginationTable({
+            pagerSelector: '#recordsPagination',
+            tableBodySelector: '#recordsTableBody',
+            rows: [],
+            emptyRowHtml: '<tr><td colspan="6" class="px-6 py-16 text-center text-gray-400 italic">No patient records found.</td></tr>'
+        });
         return;
     }
 
-    pager.pagination({
-        dataSource: filteredRows,
-        pageSize: 10,
-        showSizeChanger: false,
-        callback: function (data) {
-            tableBody.innerHTML = data.map(item => item.html).join('');
-        }
+    renderPaginationTable({
+        pagerSelector: '#recordsPagination',
+        tableBodySelector: '#recordsTableBody',
+        rows: filteredRows.map(item => item.html),
+        emptyRowHtml: '<tr><td colspan="6" class="px-6 py-16 text-center text-gray-400 italic">No patient records found.</td></tr>'
     });
 }
 
