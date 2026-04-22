@@ -15,30 +15,24 @@
         body { background-color: white !important; padding: 0 !important; }
         .max-w-5xl { max-width: 100% !important; width: 100% !important; }
         .shadow-sm { box-shadow: none !important; border: 1px solid #eee !important; }
-        .rounded-\[2rem\] { border-radius: 0.5rem !important; } /* Standardize corners for print */
+        .rounded-\[2rem\] { border-radius: 0.5rem !important; }
     }
 </style>
 
 <div class="max-w-5xl mx-auto py-8 px-4">
-    {{-- Header --}}
     <div class="mb-8 flex justify-between items-center no-print">
         <div>
             <h1 class="text-2xl font-black text-gray-800 uppercase tracking-tight">Consultation Record</h1>
             <p class="text-gray-500 text-sm">Date: {{ \Carbon\Carbon::parse($record->consultation_date)->format('M d, Y') }}</p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('record.index') }}" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">
+            <a href="{{ route('doctor.record.index') }}" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">
                 ← Back
-            </a>
-            <a href="{{ route('record.print', $record->id) }}" target="_blank" class="px-4 py-2 bg-[#2D8A80] text-white rounded-xl font-bold hover:bg-[#246e66] transition shadow-lg shadow-teal-100">
-                Print Record
             </a>
         </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        {{-- Left Column: Patient Info --}}
         <div class="md:col-span-1 space-y-6">
             <div class="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm">
                 <h2 class="text-xs font-black text-gray-300 uppercase tracking-widest mb-4">Patient Information</h2>
@@ -51,7 +45,6 @@
                         <div>
                             <p class="text-[10px] font-bold text-gray-400 uppercase">Age / Sex</p>
                             <p class="font-bold text-gray-700">
-                                {{-- Robust Age Logic: Handles both strings like "22 yrs" and numeric decimals --}}
                                 {{ is_numeric($record->age) ? round($record->age) . ' yrs' : ($record->age ?: '--') }} / {{ $record->gender }}
                             </p>
                         </div>
@@ -67,13 +60,12 @@
                 </div>
             </div>
 
-            {{-- Visit History Sidebar (Hidden during print) --}}
             @if(isset($history) && $history->count() > 1)
             <div class="bg-gray-50 rounded-[2rem] p-6 no-print">
                 <h2 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Visit History</h2>
                 <div class="space-y-3">
                     @foreach($history as $visit)
-                        <a href="{{ route('record.show', $visit->id) }}" class="block p-3 rounded-xl border {{ $visit->id == $record->id ? 'bg-white border-[#2D8A80] shadow-sm' : 'border-transparent hover:bg-white' }} transition">
+                        <a href="{{ route('doctor.record.show', $visit->id) }}" class="block p-3 rounded-xl border {{ $visit->id == $record->id ? 'bg-white border-[#2D8A80] shadow-sm' : 'border-transparent hover:bg-white' }} transition">
                             <div class="flex items-start gap-3">
                                 @php
                                     $thumb = $visit->laboratoryFiles->first();
@@ -113,10 +105,7 @@
             @endif
         </div>
 
-        {{-- Right Column: SOAP & Vitals --}}
         <div class="md:col-span-2 space-y-6 print-full-width">
-            
-            {{-- S - Subjective --}}
             <div class="bg-white border border-gray-100 rounded-[2rem] p-8 shadow-sm">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
@@ -125,7 +114,6 @@
                 <p class="text-gray-600 text-sm leading-relaxed whitespace-pre-line">{{ $record->subjective ?: 'No complaints recorded.' }}</p>
             </div>
 
-            {{-- O - Objective / Vital Signs --}}
             <div class="bg-white border border-gray-100 rounded-[2rem] p-8 shadow-sm">
                 <div class="flex items-center gap-2 mb-6">
                     <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
@@ -182,7 +170,6 @@
                 </div>
             </div>
 
-            {{-- Assessment & Plan --}}
             <div class="bg-white border border-gray-100 rounded-[2rem] p-8 shadow-sm">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="w-3 h-3 bg-red-500 rounded-full"></span>
@@ -193,7 +180,6 @@
                 </div>
             </div>
 
-            {{-- Laboratory Files --}}
             <div class="bg-white border border-gray-100 rounded-[2rem] p-8 shadow-sm">
                 <div class="flex items-center justify-between gap-4 mb-4">
                     <div class="flex items-center gap-2">
@@ -262,3 +248,4 @@
     </div>
 </div>
 @endsection
+

@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\ClinicRecord; 
+use App\Models\ClinicRecord;
 use App\Models\ClinicRecordFile;
 use App\Models\Medicine;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
-class ClinicRecordController extends Controller
+class DoctorClinicRecordController extends Controller
 {
     private function normalizeMedicineName(string $name): string
     {
@@ -34,7 +32,6 @@ class ClinicRecordController extends Controller
             ->orderBy('expiration_date')
             ->orderBy('arrival_date')
             ->get()
-            // Group by normalized name so minor spacing/case differences do not duplicate entries.
             ->unique(fn ($item) => $this->normalizeMedicineName((string) $item->name))
             ->values();
     }
@@ -47,6 +44,29 @@ class ClinicRecordController extends Controller
         return ($diff->y === 0) ? $diff->m . ' Mon' : $diff->y . ' yrs';
     }
 
+    public function dashboard()
+    {
+        $totalPatients = ClinicRecord::select('first_name', 'last_name', 'birthday')
+            ->groupBy('first_name', 'last_name', 'birthday')
+            ->get()
+            ->count();
+
+        $todayConsultations = ClinicRecord::whereDate('consultation_date', today())->count();
+        $lowStockCount = Medicine::where('stock', '<', 10)->count();
+
+        $recentRecords = ClinicRecord::latest('consultation_date')
+            ->get()
+            ->unique(fn ($item) => $item->first_name . $item->last_name . $item->birthday)
+            ->take(5);
+
+        return view('doctor.dashboard', [
+            'totalPatients'      => $totalPatients,
+            'todayConsultations' => $todayConsultations,
+            'lowStockCount'      => $lowStockCount,
+            'recentRecords'      => $recentRecords,
+        ]);
+    }
+
     public function index(Request $request)
     {
         $search = $request->get('search');
@@ -57,80 +77,115 @@ class ClinicRecordController extends Controller
                 ->from('clinic_records')
                 ->groupBy('first_name', 'last_name', 'birthday');
         })
-        ->when($search, function($query) use ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('middle_name', 'like', "%{$search}%");
-            });
-        })
-        ->orderBy('consultation_date', 'desc')
-        ->get();
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('middle_name', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('consultation_date', 'desc')
+            ->get();
 
-        return view('record.index', [
+        return view('doctor.record.index', [
             'records' => $records,
-            // Use one primary lot per medicine name to avoid duplicate picker options.
-            'allMedicines' => $allMedicines
+            'allMedicines' => $allMedicines,
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $allMedicines = $this->getDispensableMedicinesForSelection();
+        $patientRecordId = $request->query('patient_record_id');
+        if (!$patientRecordId) {
+            return redirect()->route('doctor.record.index')->with('success', 'Select a patient first to add a new consultation.');
+        }
 
-        return view('record.create', [
-            // Keep quick/full consultation medicine list consistent and non-duplicated.
-            'allMedicines' => $allMedicines
+        $patient = ClinicRecord::findOrFail($patientRecordId);
+
+        $latest = ClinicRecord::where('first_name', $patient->first_name)
+            ->where('last_name', $patient->last_name)
+            ->where('birthday', $patient->birthday)
+            ->orderBy('consultation_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        return view('doctor.record.create', [
+            'allMedicines' => $allMedicines,
+            'patient' => $patient,
+            'latest' => $latest,
+        ]);
+    }
+
+    public function patientInfo($id)
+    {
+        $record = ClinicRecord::findOrFail($id);
+
+        return response()->json([
+            'id' => $record->id,
+            'first_name' => $record->first_name,
+            'middle_name' => $record->middle_name,
+            'last_name' => $record->last_name,
+            'birthday' => optional($record->birthday)->format('Y-m-d'),
+            'age' => $record->age ?: $this->formatAgeFromBirthday((string) $record->birthday),
+            'gender' => $record->gender,
+            'civil_status' => $record->civil_status,
+            'contact_number' => $record->contact_number,
+            'address_purok' => $record->address_purok,
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'last_name'         => 'required|string|max:255',
-            'first_name'        => 'required|string|max:255',
-            'middle_name'       => 'nullable|string|max:255',
-            'birthday'          => 'required|date',
+            'patient_record_id' => 'required|exists:clinic_records,id',
             'consultation_date' => 'required|date',
-            'gender'            => 'required|string',
-            'civil_status'      => 'required|string',
-            'contact_number'    => 'nullable|string|max:50',
-            'address_purok'     => 'required|string',
-            'diagnosis'         => 'required|string',
-            'subjective'        => 'nullable|string',
-            'objective'         => 'nullable|string',
-            'temp'              => 'nullable|string',
-            'bp'                => 'nullable|string',
-            'pr'                => 'nullable|string',
-            'rr'                => 'nullable|string',
-            'weight'            => 'nullable|numeric',
-            'height'            => 'nullable|numeric',
-            'bmi'               => 'nullable|string',
-            'age'               => 'nullable|string',
+
+            // Doctor fills these (not auto-filled)
+            'diagnosis' => 'required|string',
+
+            // Not auto-filled; doctor uploads/attaches as needed
             'laboratory_images'   => 'nullable|array|max:5',
             'laboratory_images.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
-        // Track who consulted the patient (BHW user).
-        if (Auth::check()) {
-            $user = Auth::user();
-            $validated['consulted_by'] = trim(implode(' ', array_filter([
-                $user->first_name ?? null,
-                $user->middle_name ?? null,
-                $user->last_name ?? null,
-            ])));
-        }
+        $patient = ClinicRecord::findOrFail($validated['patient_record_id']);
+        $latest = ClinicRecord::where('first_name', $patient->first_name)
+            ->where('last_name', $patient->last_name)
+            ->where('birthday', $patient->birthday)
+            ->orderBy('consultation_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
 
-        // Always keep a clean, consistent age format for both full form and quick add modal.
-        if (empty($validated['age'])) {
-            $validated['age'] = $this->formatAgeFromBirthday($validated['birthday']);
-        } elseif (is_numeric($validated['age'])) {
-            $validated['age'] = round($validated['age']) . ' yrs';
-        }
+        $payload = [
+            'first_name' => $patient->first_name,
+            'middle_name' => $patient->middle_name,
+            'last_name' => $patient->last_name,
+            'birthday' => $patient->birthday,
+            'age' => $patient->age ?: $this->formatAgeFromBirthday((string) $patient->birthday),
+            'gender' => $patient->gender,
+            'civil_status' => $patient->civil_status,
+            'contact_number' => $patient->contact_number,
+            'address_purok' => $patient->address_purok,
 
-        DB::transaction(function () use ($request, $validated) {
-            // Ensure vital signs are saved even if empty (preventing NULL issues)
-            $record = ClinicRecord::create($validated);
+            'consultation_date' => $validated['consultation_date'],
+            'diagnosis' => $validated['diagnosis'],
+            // Doctor reviews these values, but they come from the latest BHW consultation.
+            'subjective' => $latest?->subjective,
+            'objective' => $latest?->objective,
+            'temp' => $latest?->temp,
+            'bp' => $latest?->bp,
+            'pr' => $latest?->pr,
+            'rr' => $latest?->rr,
+            'weight' => $latest?->weight,
+            'height' => $latest?->height,
+            'bmi' => $latest?->bmi,
+            // Show/store the BHW who consulted the patient.
+            'consulted_by' => $latest?->consulted_by,
+        ];
+
+        DB::transaction(function () use ($request, $payload) {
+            $record = ClinicRecord::create($payload);
             $dispensedSummary = [];
 
             if ($request->hasFile('laboratory_images')) {
@@ -187,7 +242,6 @@ class ClinicRecordController extends Controller
                         continue;
                     }
 
-                    // FEFO: dispense from the soonest expiration date first, grouped by normalized name.
                     $lots = $allInStockLots
                         ->filter(fn ($lot) => $this->normalizeMedicineName((string) $lot->name) === $medicineKey)
                         ->sortBy([
@@ -230,7 +284,7 @@ class ClinicRecordController extends Controller
             }
         });
 
-        return redirect()->route('record.index')->with('success', 'Record saved!');
+        return redirect()->route('doctor.record.index')->with('success', 'Record saved!');
     }
 
     public function show($id)
@@ -244,75 +298,10 @@ class ClinicRecordController extends Controller
             ->orderBy('consultation_date', 'desc')
             ->get();
 
-        // Revised to use compact() for cleaner code
-        return view('record.show', [
-    'record' => $record,
-    'history' => $history
-]);
-    }
-
-    public function edit($id)
-    {
-        $record = ClinicRecord::with('medicines')->findOrFail($id);
-        $allMedicines = $this->getDispensableMedicinesForSelection();
-
-        return view('record.edit', [
+        return view('doctor.record.show', [
             'record' => $record,
-            'allMedicines' => $allMedicines,
+            'history' => $history,
         ]);
-    }
-
-    public function print($id)
-    {
-        $record = ClinicRecord::with('medicines')->findOrFail($id);
-
-        return view('record.print', [
-            'record' => $record,
-        ]);
-    }
-
-    public function update(Request $request, $id): RedirectResponse
-    {
-        $record = ClinicRecord::findOrFail($id);
-        
-        $validated = $request->validate([
-            'first_name'        => 'required|string|max:255',
-            'middle_name'       => 'nullable|string|max:255',
-            'last_name'         => 'required|string|max:255',
-            'birthday'          => 'required|date',
-            'consultation_date' => 'required|date',
-            'gender'            => 'required|string',
-            'civil_status'      => 'required|string',
-            'contact_number'    => 'nullable|string|max:50',
-            'address_purok'     => 'required|string',
-            'diagnosis'         => 'required|string',
-            'temp'              => 'nullable|string',
-            'bp'                => 'nullable|string',
-            'pr'                => 'nullable|string',
-            'rr'                => 'nullable|string',
-            'weight'            => 'nullable|numeric',
-            'height'            => 'nullable|numeric',
-            'bmi'               => 'nullable|string',
-            'subjective'        => 'nullable|string',
-            'objective'         => 'nullable|string',
-        ]);
-
-        DB::transaction(function () use ($request, $record, $validated) {
-            $validated['age'] = $this->formatAgeFromBirthday($validated['birthday']);
-
-            if ($request->has('medicines')) {
-                $syncData = [];
-                foreach ($request->medicines as $item) {
-                    if (!empty($item['id'])) {
-                        $syncData[$item['id']] = ['quantity' => $item['quantity'] ?? 1];
-                    }
-                }
-                $record->medicines()->sync($syncData);
-            }
-
-            $record->update($validated);
-        });
-
-        return redirect()->route('record.show', $id)->with('success', 'Record updated successfully!');
     }
 }
+

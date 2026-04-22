@@ -11,11 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
    ->withMiddleware(function (Middleware $middleware) {
-    $middleware->redirectTo(
-        guests: '/',
-        users: '/dashboard', // This MUST match the route name in web.php
-    );
-})
+        $middleware->alias([
+            'role' => \App\Http\Middleware\EnsureRole::class,
+        ]);
+
+        $middleware->redirectTo(
+            guests: '/',
+            users: '/dashboard',
+        );
+    })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/paginationjs@2.6.0/dist/pagination.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/paginationjs@2.6.0/dist/pagination.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <style>
         ::-webkit-scrollbar { width: 6px; }
@@ -32,51 +33,58 @@
                 <span class="text-blue-500">✚</span> CLINIC OS
             </div>
             
+            @php
+                $role = auth()->check() ? (auth()->user()->role ?? 'bhw') : 'guest';
+                $isDoctor = $role === 'doctor';
+            @endphp
+
             <nav class="mt-6 flex-1 px-4 space-y-1">
                 {{-- Dashboard --}}
-                <a href="{{ route('dashboard') }}" 
-                   class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <a href="{{ $isDoctor ? route('doctor.dashboard') : route('dashboard') }}" 
+                   class="block py-3 px-4 rounded-lg transition {{ $isDoctor ? (request()->routeIs('doctor.dashboard') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white') : (request()->routeIs('dashboard') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white') }}">
                     Dashboard
                 </a>
                 
                 {{-- Clinic Records (Using wildcard * to stay active when viewing specific records) --}}
-                <a href="{{ route('record.index') }}" 
-                   class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('record.*') && !request()->routeIs('record.create') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <a href="{{ $isDoctor ? route('doctor.record.index') : route('record.index') }}" 
+                   class="block py-3 px-4 rounded-lg transition {{ $isDoctor ? (request()->routeIs('doctor.record.*') && !request()->routeIs('doctor.record.create') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white') : (request()->routeIs('record.*') && !request()->routeIs('record.create') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white') }}">
                     Clinic Records
                 </a>
                 
-                {{-- Inventory Medicine --}}
-                <a href="{{ route('medicines.index') }}" 
-                   class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                    Inventory Medicine
-                </a>
+                @unless($isDoctor)
+                    {{-- Inventory Medicine --}}
+                    <a href="{{ route('medicines.index') }}" 
+                       class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        Inventory Medicine
+                    </a>
 
-                {{-- Reports Dropdown --}}
-                <div class="pt-1">
-                    <button type="button"
-                        onclick="toggleReportsMenu()"
-                        class="w-full flex justify-between items-center py-3 px-4 rounded-lg transition {{ request()->routeIs('reports.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                        <span>Reports</span>
-                        <svg id="reports-arrow" class="w-4 h-4 transition-transform {{ request()->routeIs('reports.*') ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    <div id="reports-menu" class="ml-4 mt-1 space-y-1 {{ request()->routeIs('reports.*') ? '' : 'hidden' }}">
-                        <a href="{{ route('reports.diagnosis') }}"
-                           class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.diagnosis') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                            Diagnosis
-                        </a>
-                        <a href="{{ route('reports.patients') }}"
-                           class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.patients') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                            Patient
-                        </a>
+                    {{-- Reports Dropdown --}}
+                    <div class="pt-1">
+                        <button type="button"
+                            onclick="toggleReportsMenu()"
+                            class="w-full flex justify-between items-center py-3 px-4 rounded-lg transition {{ request()->routeIs('reports.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                            <span>Reports</span>
+                            <svg id="reports-arrow" class="w-4 h-4 transition-transform {{ request()->routeIs('reports.*') ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div id="reports-menu" class="ml-4 mt-1 space-y-1 {{ request()->routeIs('reports.*') ? '' : 'hidden' }}">
+                            <a href="{{ route('reports.diagnosis') }}"
+                               class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.diagnosis') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                                Diagnosis
+                            </a>
+                            <a href="{{ route('reports.patients') }}"
+                               class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.patients') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                                Patient
+                            </a>
+                        </div>
                     </div>
-                </div>
+                @endunless
 
                 <div class="pt-4 mt-4 border-t border-slate-800">
                     {{-- Add New Consultation --}}
-                    <a href="{{ route('record.create') }}" 
-                       class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('record.create') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    <a href="{{ $isDoctor ? route('doctor.record.index') : route('record.create') }}" 
+                       class="block py-3 px-4 rounded-lg transition {{ $isDoctor ? (request()->routeIs('doctor.record.create') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white') : (request()->routeIs('record.create') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white') }}">
                         <span class="mr-2 text-blue-500 font-bold">+</span> Add New Consultation
                     </a>
                 </div>

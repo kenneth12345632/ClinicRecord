@@ -5,6 +5,7 @@ use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\DoctorClinicRecordController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ClinicRecord;
@@ -29,24 +30,25 @@ Route::middleware('guest')->group(function () {
 // 3. AUTH PROTECTED ROUTES
 Route::middleware('auth')->group(function () {
     
-    // --- DASHBOARD (Fixed with Name & Unique Count Logic) ---
+    // --- DASHBOARD ---
+    // Keep /dashboard as a single entry point and redirect based on role.
     Route::get('/dashboard', function () {
-        // Count unique patients by name and birthday to avoid double-counting
+        $role = Auth::user()->role ?? 'bhw';
+        if ($role === 'doctor') {
+            return redirect()->route('doctor.dashboard');
+        }
+
         $totalPatients = ClinicRecord::select('first_name', 'last_name', 'birthday')
             ->groupBy('first_name', 'last_name', 'birthday')
             ->get()
             ->count();
 
-        // Count every consultation entry created today
         $todayConsultations = ClinicRecord::whereDate('consultation_date', today())->count();
-
-        // Check for low stock items for the alert card
         $lowStockCount = Medicine::where('stock', '<', 10)->count();
 
-        // Fetch 5 most recent unique patient interactions
         $recentRecords = ClinicRecord::latest('consultation_date')
             ->get()
-            ->unique(fn($item) => $item->first_name . $item->last_name . $item->birthday)
+            ->unique(fn ($item) => $item->first_name . $item->last_name . $item->birthday)
             ->take(5);
 
         return view('dashboard', [
@@ -55,32 +57,49 @@ Route::middleware('auth')->group(function () {
             'lowStockCount'      => $lowStockCount,
             'recentRecords'      => $recentRecords,
         ]);
-    })->name('dashboard'); // This fixes your RouteNotFoundException
+    })->name('dashboard');
 
     // --- CLINIC RECORDS & APPOINTMENTS ---
-    Route::prefix('record')->name('record.')->group(function () {
+    Route::middleware('role:bhw')->group(function () {
+        Route::prefix('record')->name('record.')->group(function () {
         Route::get('/create', [ClinicRecordController::class, 'create'])->name('create');
         Route::post('/store', [ClinicRecordController::class, 'store'])->name('store');
         Route::post('/quick-add', [ClinicRecordController::class, 'quickStore'])->name('quickStore');
         Route::get('/{id}/edit', [ClinicRecordController::class, 'edit'])->name('edit');
+        });
+
+        // Resources
+        Route::resource('record', ClinicRecordController::class)->except(['create', 'store', 'edit']);
+        Route::resource('medicines', MedicineController::class);
+    
+        // Medicines - Custom Group Delete
+        Route::delete('/medicines-destroy-group', [MedicineController::class, 'destroyGroup'])->name('medicines.destroy_group');
+
+        // Reports
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/patients', [ReportController::class, 'patient'])->name('patients');
+            Route::get('/patients/export', [ReportController::class, 'exportPatientExcel'])->name('patients.export');
+            Route::get('/diagnosis', [ReportController::class, 'diagnosis'])->name('diagnosis');
+            Route::get('/diagnosis/export', [ReportController::class, 'exportDiagnosisExcel'])->name('diagnosis.export');
+        });
+
+        Route::get('/record/{id}/print', [ClinicRecordController::class, 'print'])->name('record.print');
     });
 
-    // Resources
-    Route::resource('record', ClinicRecordController::class)->except(['create', 'store', 'edit']);
-    Route::resource('medicines', MedicineController::class);
-    
-    // Medicines - Custom Group Delete
-    Route::delete('/medicines-destroy-group', [MedicineController::class, 'destroyGroup'])->name('medicines.destroy_group');
+    // --- DOCTOR AREA ---
+    Route::prefix('doctor')->name('doctor.')->middleware('role:doctor')->group(function () {
+        Route::get('/dashboard', [DoctorClinicRecordController::class, 'dashboard'])->name('dashboard');
 
-    // Reports
-    Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('/patients', [ReportController::class, 'patient'])->name('patients');
-        Route::get('/patients/export', [ReportController::class, 'exportPatientExcel'])->name('patients.export');
-        Route::get('/diagnosis', [ReportController::class, 'diagnosis'])->name('diagnosis');
-        Route::get('/diagnosis/export', [ReportController::class, 'exportDiagnosisExcel'])->name('diagnosis.export');
+        Route::get('/patient/{id}', [DoctorClinicRecordController::class, 'patientInfo'])->name('patient.info');
+
+        Route::prefix('record')->name('record.')->group(function () {
+            Route::get('/', [DoctorClinicRecordController::class, 'index'])->name('index');
+            Route::get('/create', [DoctorClinicRecordController::class, 'create'])->name('create');
+            Route::post('/store', [DoctorClinicRecordController::class, 'store'])->name('store');
+            Route::get('/{id}', [DoctorClinicRecordController::class, 'show'])->name('show');
+        });
     });
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/record/{id}/print', [ClinicRecordController::class, 'print'])->name('record.print');
 });

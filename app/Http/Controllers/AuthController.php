@@ -30,6 +30,7 @@ class AuthController extends Controller
         'last_name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
         'password' => 'required|string|min:8|confirmed',
+        'role' => 'nullable|in:bhw,doctor',
     ]);
 
     // 2. Create User
@@ -39,6 +40,7 @@ class AuthController extends Controller
         'last_name' => $request->last_name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
+        'role' => $request->input('role', 'bhw'),
     ]);
 
     // 3. Redirect to Login (Instead of auto-logging in)

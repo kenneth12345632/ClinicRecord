@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-{{-- 1. ADD SELECT2 DEPENDENCIES --}}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
@@ -17,12 +16,9 @@
     input[type=number]::-webkit-inner-spin-button { opacity: 1; }
 </style>
 
-{{-- Hidden data container --}}
 <div id="medicine-data" data-medicines="{{ json_encode($allMedicines ?? []) }}"></div>
 
 <div class="max-w-7xl mx-auto pb-20 px-4 sm:px-6 lg:px-8"> 
-
-    {{-- ERROR ALERT SECTION --}}
     @if ($errors->any())
         <div class="mt-8 bg-red-50 border-l-4 border-red-400 p-4 rounded-xl shadow-sm">
             <div class="flex">
@@ -43,7 +39,6 @@
         </div>
     @endif
 
-    {{-- Header Section --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 mt-8">
         <div>
             <h1 class="text-3xl font-bold text-gray-800">Clinic Records</h1>
@@ -68,7 +63,6 @@
         </div>
     </div>
 
-    {{-- Table Design --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <table class="min-w-full divide-y divide-gray-100">
             <thead class="bg-gray-50/50">
@@ -118,29 +112,19 @@
                     
                     <td class="px-6 py-4 text-right">
                         <div class="flex justify-end gap-3">
-                            <button type="button" 
-                                    data-record='{!! json_encode($record) !!}'
-                                    onclick="handleOpenModal(this)"
-                                    class="flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                            <a href="{{ route('doctor.record.create', ['patient_record_id' => $record->id]) }}"
+                                    class="flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                    title="Add new consultation for this patient">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                                 </svg>
-                            </button>
+                            </a>
 
-                            <a href="{{ route('record.show', $record->id) }}" 
+                            <a href="{{ route('doctor.record.show', $record->id) }}" 
                                class="flex items-center justify-center w-9 h-9 rounded-xl bg-gray-50 text-gray-400 hover:bg-gray-800 hover:text-white transition-all shadow-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                            </a>
-
-                            <a href="{{ route('record.edit', $record->id) }}"
-                               class="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
-                               title="Edit Entry">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M17.414 2.586a2 2 0 010 2.828l-8.5 8.5a1 1 0 01-.39.242l-3 1a1 1 0 01-1.265-1.265l1-3a1 1 0 01.242-.39l8.5-8.5a2 2 0 012.828 0z"/>
-                                    <path d="M5 16a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z"/>
                                 </svg>
                             </a>
                         </div>
@@ -155,30 +139,16 @@
     <div id="recordsPagination" class="mt-4"></div>
 </div>
 
-{{-- MODAL SECTION --}}
 <div id="quickAddModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
     <div class="flex items-center justify-center min-h-screen px-4">
         <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeQuickAdd()"></div>
         <div class="relative bg-white rounded-3xl shadow-2xl sm:max-w-xl w-full overflow-hidden border border-gray-100">
-            <form action="{{ route('record.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('doctor.record.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                {{-- Patient Identity Hidden Inputs --}}
-                <input type="hidden" name="first_name" id="modal_first_name">
-                <input type="hidden" name="middle_name" id="modal_middle_name">
-                <input type="hidden" name="last_name" id="modal_last_name">
-                <input type="hidden" name="birthday" id="modal_birthday">
-                <input type="hidden" name="gender" id="modal_gender">
-                <input type="hidden" name="civil_status" id="modal_civil_status">
-                <input type="hidden" name="address_purok" id="modal_address">
-                <input type="hidden" name="age" id="modal_age">
-                <input type="hidden" name="contact_number" id="modal_contact">
+                <input type="hidden" name="patient_record_id" id="modal_patient_record_id">
                 <input type="hidden" name="consultation_date" value="{{ now()->format('Y-m-d') }}">
 
-                {{-- Defaults for data not in "Quick Add" form --}}
-                <input type="hidden" name="subjective" value="Quick Consultation">
                 <input type="hidden" name="bmi" id="modal_bmi" value="N/A">
-                <input type="hidden" name="pr" value="N/A">
-                <input type="hidden" name="rr" value="N/A">
 
                 <div class="p-8">
                     <div class="flex justify-between items-center mb-6">
@@ -195,38 +165,31 @@
                     </div>
                     
                     <div class="space-y-6">
-                        {{-- VITALS GRID --}}
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3 ml-1">Vital Signs</label>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                <div>
-                                    <input type="text" name="temp" placeholder="Temp °C" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm">
-                                </div>
-                                <div>
-                                    <input type="text" name="bp" placeholder="BP (120/80)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm">
-                                </div>
-                                <div>
-                                    <input type="text" name="weight" id="quick_weight" placeholder="Weight (kg)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm">
-                                </div>
-                                <div>
-                                    <input type="text" name="height" id="quick_height" placeholder="Height (cm)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm">
-                                </div>
+                                <div><input type="text" name="temp" placeholder="Temp °C" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm"></div>
+                                <div><input type="text" name="bp" placeholder="BP (120/80)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm"></div>
+                                <div><input type="text" name="weight" id="quick_weight" placeholder="Weight (kg)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm"></div>
+                                <div><input type="text" name="height" id="quick_height" placeholder="Height (cm)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm"></div>
                             </div>
                         </div>
 
-                        {{-- PHYSICAL EXAM (OBJECTIVE) --}}
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 ml-1">Subjective</label>
+                            <textarea name="subjective" rows="2" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition text-sm" placeholder="Patient's complaints..."></textarea>
+                        </div>
+
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 ml-1">Physical Exam (Objective)</label>
                             <textarea name="objective" rows="2" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition text-sm" placeholder="Findings from physical examination..."></textarea>
                         </div>
 
-                        {{-- DIAGNOSIS --}}
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 ml-1">Diagnosis / Assessment</label>
                             <textarea name="diagnosis" rows="2" required class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition text-sm" placeholder="What is the diagnosis?"></textarea>
                         </div>
 
-                        {{-- LABORATORY UPLOAD (Optional) --}}
                         <div x-data="labUploader()" class="pt-1">
                             <div class="flex items-center justify-between">
                                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 ml-1">Laboratory Upload (Optional)</label>
@@ -237,24 +200,14 @@
                                 </button>
                             </div>
 
-                            <input
-                                x-ref="input"
-                                type="file"
-                                name="laboratory_images[]"
-                                multiple
-                                accept=".jpg,.jpeg,.png,.webp"
-                                class="hidden"
-                                @change="onPick($event)"
-                            >
+                            <input x-ref="input" type="file" name="laboratory_images[]" multiple accept=".jpg,.jpeg,.png,.webp" class="hidden" @change="onPick($event)">
 
-                            <div
-                                class="rounded-2xl border-2 border-dashed border-gray-200 bg-white p-5 text-center cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition"
+                            <div class="rounded-2xl border-2 border-dashed border-gray-200 bg-white p-5 text-center cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition"
                                 @click="$refs.input.click()"
                                 @dragover.prevent="isDragging = true"
                                 @dragleave.prevent="isDragging = false"
                                 @drop.prevent="onDrop($event)"
-                                :class="isDragging ? 'border-blue-400 bg-blue-50/40' : ''"
-                            >
+                                :class="isDragging ? 'border-blue-400 bg-blue-50/40' : ''">
                                 <div class="flex flex-col items-center gap-2">
                                     <div class="w-9 h-9 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,13 +216,8 @@
                                     </div>
                                     <p class="text-sm font-bold text-gray-600">Drag files to upload</p>
                                     <p class="text-[10px] text-gray-400 uppercase tracking-widest">or</p>
-                                    <button type="button"
-                                        class="px-4 py-2 rounded-xl bg-white border border-gray-200 text-blue-600 font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 transition">
-                                        Browse Files
-                                    </button>
-                                    <p class="text-[10px] text-gray-400 mt-1">
-                                        Max files: <span class="font-bold">5</span> • Max size: <span class="font-bold">5MB</span> each
-                                    </p>
+                                    <button type="button" class="px-4 py-2 rounded-xl bg-white border border-gray-200 text-blue-600 font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 transition">Browse Files</button>
+                                    <p class="text-[10px] text-gray-400 mt-1">Max files: <span class="font-bold">5</span> • Max size: <span class="font-bold">5MB</span> each</p>
                                     <p class="text-[9px] text-gray-300 uppercase tracking-widest">JPG, PNG, WEBP only</p>
                                 </div>
                             </div>
@@ -292,24 +240,19 @@
                                                 <p class="text-[10px] text-gray-400" x-text="formatBytes(f.size)"></p>
                                             </div>
                                             <button type="button" class="w-9 h-9 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 transition"
-                                                @click="removeAt(idx)" title="Remove">
-                                                ✕
-                                            </button>
+                                                @click="removeAt(idx)" title="Remove">✕</button>
                                         </div>
                                     </template>
                                 </div>
                             </template>
                         </div>
                         
-                        {{-- MEDICINES --}}
                         <div>
                             <div class="flex justify-between items-center mb-3">
                                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Medicines Given</label>
                                 <button type="button" onclick="createMedicineRow()" class="text-blue-600 text-[10px] font-bold hover:text-blue-800 transition uppercase tracking-widest">+ Add Item</button>
                             </div>
-                            <p class="mb-2 ml-1 text-[10px] text-amber-600 font-semibold uppercase tracking-wide">
-                                Dispensing uses earliest expiry first (FEFO).
-                            </p>
+                            <p class="mb-2 ml-1 text-[10px] text-amber-600 font-semibold uppercase tracking-wide">Dispensing uses earliest expiry first (FEFO).</p>
                             <div id="medicine-rows-container" class="space-y-3"></div>
                         </div>
                     </div>
@@ -327,7 +270,7 @@
 <script>
 function labUploader() {
     const MAX_FILES = 5;
-    const MAX_BYTES = 5 * 1024 * 1024; // 5MB
+    const MAX_BYTES = 5 * 1024 * 1024;
     const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
 
     function fileKey(file) {
@@ -352,12 +295,8 @@ function labUploader() {
         },
 
         validateFile(file) {
-            if (!ALLOWED.includes(file.type)) {
-                return 'Only JPG, PNG, or WEBP images are allowed.';
-            }
-            if (file.size > MAX_BYTES) {
-                return 'A file exceeds the 5MB limit.';
-            }
+            if (!ALLOWED.includes(file.type)) return 'Only JPG, PNG, or WEBP images are allowed.';
+            if (file.size > MAX_BYTES) return 'A file exceeds the 5MB limit.';
             return null;
         },
 
@@ -382,13 +321,7 @@ function labUploader() {
                 }
 
                 const preview = URL.createObjectURL(file);
-                this.files.push({
-                    key,
-                    file,
-                    name: file.name,
-                    size: file.size,
-                    preview,
-                });
+                this.files.push({ key, file, name: file.name, size: file.size, preview });
             }
 
             this.syncToInput();
@@ -400,21 +333,13 @@ function labUploader() {
             this.$refs.input.files = dt.files;
         },
 
-        onPick(e) {
-            this.addFiles(e.target.files);
-        },
-
-        onDrop(e) {
-            this.isDragging = false;
-            this.addFiles(e.dataTransfer.files);
-        },
-
+        onPick(e) { this.addFiles(e.target.files); },
+        onDrop(e) { this.isDragging = false; this.addFiles(e.dataTransfer.files); },
         removeAt(idx) {
             const removed = this.files.splice(idx, 1);
             if (removed?.[0]?.preview) URL.revokeObjectURL(removed[0].preview);
             this.syncToInput();
         },
-
         clearAll() {
             this.files.forEach(f => f.preview && URL.revokeObjectURL(f.preview));
             this.files = [];
@@ -453,7 +378,6 @@ function renderRecordPagination(filteredRows) {
     });
 }
 
-// Search & Filter Logic
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const filter = document.getElementById('ageFilter').value;
@@ -478,7 +402,6 @@ document.addEventListener('DOMContentLoaded', function () {
     renderRecordPagination(recordRows);
 });
 
-// Medicine Logic
 const medicineDataElement = document.getElementById('medicine-data');
 const allMedicines = medicineDataElement ? JSON.parse(medicineDataElement.dataset.medicines) : [];
 const container = document.getElementById('medicine-rows-container');
@@ -519,15 +442,7 @@ function createMedicineRow() {
 
 function handleOpenModal(button) {
     const record = JSON.parse(button.getAttribute('data-record'));
-    document.getElementById('modal_first_name').value = record.first_name;
-    document.getElementById('modal_middle_name').value = record.middle_name || '';
-    document.getElementById('modal_last_name').value = record.last_name;
-    document.getElementById('modal_birthday').value = record.birthday;
-    document.getElementById('modal_gender').value = record.gender;
-    document.getElementById('modal_civil_status').value = record.civil_status || 'Single';
-    document.getElementById('modal_address').value = record.address_purok;
-    document.getElementById('modal_age').value = record.age || '';
-    document.getElementById('modal_contact').value = record.contact_number || '';
+    document.getElementById('modal_patient_record_id').value = record.id;
     document.getElementById('display_name').innerText = `${record.first_name} ${record.last_name}`;
     
     const dob = new Date(record.birthday).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -545,7 +460,6 @@ function closeQuickAdd() {
     document.body.style.overflow = 'auto';
 }
 
-// BMI AUTO CALCULATION
 document.addEventListener('input', function (e) {
     if (e.target.id === 'quick_weight' || e.target.id === 'quick_height') {
         const weight = parseFloat(document.getElementById('quick_weight').value);
@@ -560,3 +474,4 @@ document.addEventListener('input', function (e) {
 });
 </script>
 @endsection
+

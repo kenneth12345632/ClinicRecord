@@ -26,6 +26,42 @@
                         class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-blue-500 outline-none transition">
                 </div>
 
+                {{-- Type --}}
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Type</label>
+                    <select name="type"
+                        class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-blue-500 outline-none transition bg-white">
+                        @php
+                            $types = [
+                                'Tablet', 'Capsule', 'Syrup', 'Suspension', 'Drops', 'Inhaler',
+                                'Cream', 'Ointment', 'Eye Drops', 'Nebule', 'Injection',
+                            ];
+                            $selectedType = old('type', $medicine->type);
+                        @endphp
+                        <option value="" {{ empty($selectedType) ? 'selected' : '' }}>—</option>
+                        @foreach($types as $type)
+                            <option value="{{ $type }}" {{ $selectedType === $type ? 'selected' : '' }}>{{ $type }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Dosage --}}
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Dosage</label>
+                    <div class="grid grid-cols-[1fr_110px] gap-3">
+                        <input type="number" name="dosage_value" value="{{ old('dosage_value', $medicine->dosage_value) }}"
+                            min="0.01" step="0.01"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-blue-500 outline-none transition">
+                        <select name="dosage_unit"
+                            class="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-blue-500 outline-none transition bg-white">
+                            @php $unit = old('dosage_unit', $medicine->dosage_unit); @endphp
+                            <option value="" {{ empty($unit) ? 'selected' : '' }}>—</option>
+                            <option value="mg" {{ $unit === 'mg' ? 'selected' : '' }}>mg</option>
+                            <option value="ml" {{ $unit === 'ml' ? 'selected' : '' }}>ml</option>
+                        </select>
+                    </div>
+                </div>
+
                 {{-- Stock Quantity --}}
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Stock Quantity</label>

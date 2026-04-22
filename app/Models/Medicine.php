@@ -9,6 +9,9 @@ class Medicine extends Model
     // Fillable allows these fields to be saved via the Controller
     protected $fillable = [
         'name', 
+        'type',
+        'dosage_value',
+        'dosage_unit',
         'batch_number', 
         'stock', 
         'expiration_date', 

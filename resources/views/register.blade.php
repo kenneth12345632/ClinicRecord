@@ -10,6 +10,16 @@
 
         <form action="{{ route('register') }}" method="POST" class="space-y-5">
             @csrf
+
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Account Type</label>
+                <select name="role"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 outline-none transition @error('role') border-red-500 @enderror">
+                    <option value="bhw" {{ old('role', 'bhw') === 'bhw' ? 'selected' : '' }}>BHW (Barangay Health Worker)</option>
+                    <option value="doctor" {{ old('role') === 'doctor' ? 'selected' : '' }}>Doctor</option>
+                </select>
+                @error('role') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
             
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2">First Name</label>

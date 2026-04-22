@@ -67,12 +67,39 @@
                         class="w-full px-5 py-3.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition">
                 </div>
 
-                {{-- Dosage Input --}}
+                {{-- Type --}}
                 <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Dosage (mg)</label>
-                    <input type="number" id="dosage_mg" placeholder="e.g. 500" min="1" step="1" required
-                        class="w-full px-5 py-3.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition">
-                    <p class="mt-2 text-[10px] text-gray-400 italic">Example output: Brand (Generic Name) 500mg</p>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Type</label>
+                    <select name="type" id="medicine_type" required
+                        class="w-full px-5 py-3.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-white">
+                        <option value="" disabled selected>Select type...</option>
+                        <option value="Tablet">Tablet</option>
+                        <option value="Capsule">Capsule</option>
+                        <option value="Syrup">Syrup</option>
+                        <option value="Suspension">Suspension</option>
+                        <option value="Drops">Drops</option>
+                        <option value="Inhaler">Inhaler</option>
+                        <option value="Cream">Cream</option>
+                        <option value="Ointment">Ointment</option>
+                        <option value="Eye Drops">Eye Drops</option>
+                        <option value="Nebule">Nebule</option>
+                        <option value="Injection">Injection</option>
+                    </select>
+                </div>
+
+                {{-- Dosage (Value + Unit) --}}
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Dosage</label>
+                    <div class="grid grid-cols-[1fr_120px] gap-3">
+                        <input type="number" name="dosage_value" id="dosage_value" placeholder="e.g. 500" min="0.01" step="0.01" required
+                            class="w-full px-5 py-3.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition">
+                        <select name="dosage_unit" id="dosage_unit" required
+                            class="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-white">
+                            <option value="mg" selected>mg</option>
+                            <option value="ml">ml</option>
+                        </select>
+                    </div>
+                    <p class="mt-2 text-[10px] text-gray-400 italic">Example output: Brand (Generic Name) 500mg Tablet / 60ml Syrup</p>
                 </div>
             </div>
 
@@ -129,10 +156,12 @@
     document.getElementById('medicineForm').addEventListener('submit', function(e) {
         const brand = document.getElementById('brand_name').value.trim();
         const generic = document.getElementById('generic_name').value.trim();
-        const dosage = document.getElementById('dosage_mg').value.trim();
+        const dosageValue = document.getElementById('dosage_value').value.trim();
+        const dosageUnit = document.getElementById('dosage_unit').value.trim();
+        const type = document.getElementById('medicine_type').value.trim();
         
-        // Combines them into "Brand (Generic) Dosagemg" format before sending to Controller
-        document.getElementById('combined_name').value = `${brand} (${generic}) ${dosage}mg`;
+        // Combines them into "Brand (Generic) 500mg Tablet" format before sending to Controller
+        document.getElementById('combined_name').value = `${brand} (${generic}) ${dosageValue}${dosageUnit} ${type}`.trim();
     });
 </script>
 @endsection
