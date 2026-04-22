@@ -40,15 +40,26 @@
             <tbody id="inventoryTableBody" class="divide-y divide-gray-100">
                 @forelse($medicines->groupBy('name') as $name => $lots)
                 @php 
-                    $totalStock = $lots->sum('stock');
-                    $latestWithStock = $lots->where('stock', '>', 0)
-                                            ->whereNotNull('arrival_date')
-                                            ->sortByDesc('arrival_date')
-                                            ->first(); 
-                    // Keep all lots in history (including out-of-stock) for full inventory traceability.
-                    $historyLots = $lots->sortBy('arrival_date');
-                    $activeLots = $lots->where('stock', '>', 0);
-                    $expiryLot = $activeLots->whereNotNull('expiration_date')->sortBy('expiration_date')->first();
+                    $today = \Illuminate\Support\Carbon::today();
+                    $availableLots = $lots->filter(function ($lot) use ($today) {
+                        return $lot->stock > 0 && (!$lot->expiration_date || $lot->expiration_date->gte($today));
+                    });
+                    $totalStock = $availableLots->sum('stock');
+                    $latestWithStock = $availableLots->whereNotNull('arrival_date')
+                                                    ->sortByDesc('arrival_date')
+                                                    ->first(); 
+                    // Keep all lots in history, but place expired/out-of-stock at the bottom.
+                    $historyLots = $lots
+                        ->sortBy(function ($lot) use ($today) {
+                            $isExpired = $lot->expiration_date && $lot->expiration_date->lt($today);
+                            $isHistoryOnly = $lot->stock <= 0 || $isExpired;
+                            $expiryRank = $lot->expiration_date ? $lot->expiration_date->timestamp : PHP_INT_MAX;
+                            $arrivalRank = $lot->arrival_date ? $lot->arrival_date->timestamp : PHP_INT_MAX;
+
+                            return sprintf('%d-%010d-%010d', $isHistoryOnly ? 1 : 0, $expiryRank, $arrivalRank);
+                        })
+                        ->values();
+                    $expiryLot = $availableLots->whereNotNull('expiration_date')->sortBy('expiration_date')->first();
                 @endphp
                 <tr class="hover:bg-gray-50 transition inventory-row">
                     {{-- whitespace-normal allows the long name to wrap --}}
@@ -103,12 +114,16 @@
                                     </div>
                                     <button @click="openDetails = null" class="text-gray-300 hover:text-gray-600 transition text-2xl font-bold">✕</button>
                                 </div>
-                                <div class="p-10 overflow-y-auto space-y-6 bg-gray-50/30 flex flex-col-reverse">
+                                <div class="p-10 overflow-y-auto space-y-6 bg-gray-50/30">
                                     @forelse($historyLots as $lotIndex => $lot)
-                                    <div class="bg-white border {{ $lot->stock <= 0 ? 'border-gray-50 bg-gray-50/50' : 'border-gray-100' }} rounded-[2rem] p-8 flex items-center gap-8 relative shadow-sm transition hover:shadow-md mb-6 last:mb-0">
+                                    @php
+                                        $isExpired = $lot->expiration_date && $lot->expiration_date->lt($today);
+                                        $isHistoryOnly = $lot->stock <= 0 || $isExpired;
+                                    @endphp
+                                    <div class="bg-white border {{ $isHistoryOnly ? 'border-gray-50 bg-gray-50/50' : 'border-gray-100' }} rounded-[2rem] p-8 flex items-center gap-8 relative shadow-sm transition hover:shadow-md mb-6 last:mb-0">
                                        
 
-                                        <div class="grow grid grid-cols-3 gap-8 {{ $lot->stock <= 0 ? 'opacity-60' : '' }}">
+                                        <div class="grow grid grid-cols-3 gap-8 {{ $isHistoryOnly ? 'opacity-60' : '' }}">
                                             <div class="text-left">
                                                 <h4 class="font-black text-gray-800 text-lg uppercase">{{ $lot->batch_number ?? 'LOT-'.$lot->id }}</h4>
                                                 <span class="text-[9px] text-gray-400 font-bold uppercase tracking-widest block mt-1">
@@ -116,6 +131,8 @@
                                                 </span>
                                                 @if($lot->stock <= 0)
                                                     <span class="text-[10px] text-red-400 font-black uppercase mt-1 block italic">Out of Stock</span>
+                                                @elseif($isExpired)
+                                                    <span class="text-[10px] text-amber-500 font-black uppercase mt-1 block italic">Expired</span>
                                                 @endif
                                             </div>
                                             <div class="text-left text-sm font-bold text-gray-600 flex flex-col justify-center">

@@ -20,7 +20,13 @@ class ClinicRecordController extends Controller
 
     private function getDispensableMedicinesForSelection()
     {
+        $today = Carbon::today();
+
         return Medicine::where('stock', '>', 0)
+            ->where(function ($query) use ($today) {
+                $query->whereNull('expiration_date')
+                    ->orWhereDate('expiration_date', '>=', $today);
+            })
             ->orderByRaw('CASE WHEN expiration_date IS NULL THEN 1 ELSE 0 END')
             ->orderBy('expiration_date')
             ->orderBy('arrival_date')
@@ -120,7 +126,12 @@ class ClinicRecordController extends Controller
                     ->values();
 
                 $selectedMedicines = Medicine::whereIn('id', $medicineIds)->get()->keyBy('id');
+                $today = Carbon::today();
                 $allInStockLots = Medicine::where('stock', '>', 0)
+                    ->where(function ($query) use ($today) {
+                        $query->whereNull('expiration_date')
+                            ->orWhereDate('expiration_date', '>=', $today);
+                    })
                     ->lockForUpdate()
                     ->get();
 
