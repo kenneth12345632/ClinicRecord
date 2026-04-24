@@ -72,7 +72,7 @@
                     <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Age / Gender</th>
                     <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Address</th>
                     <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Latest Vitals</th>
-                    <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Diagnosis</th>
                     <th class="px-6 py-4 text-right text-[10px] font-bold text-gray-400 uppercase tracking-widest">Actions</th>
                 </tr>
             </thead>
@@ -112,24 +112,12 @@
                     <td class="px-6 py-4 text-xs text-gray-600">
                         T: {{ $record->display_temp ?: '--' }} | BP: {{ $record->display_bp ?: '--' }} | WT: {{ $record->display_weight ?: '--' }}
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 italic">
-                        @if(in_array(trim((string) $record->diagnosis), ['For doctor assessment', 'waiting_for_doctor/nurse'], true))
-                            <span class="px-2 py-1 rounded-full bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wide">pending</span>
-                        @else
-                            <span class="px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wide">completed</span>
-                        @endif
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        {{ trim((string) $record->diagnosis) !== '' ? $record->diagnosis : '—' }}
                     </td>
                     
                     <td class="px-6 py-4 text-right">
                         <div class="flex justify-end gap-3">
-                            <a href="{{ route('doctor.record.create', ['patient_record_id' => $record->id]) }}"
-                                    class="flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
-                                    title="Add new consultation for this patient">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                                </svg>
-                            </a>
-
                             <a href="{{ route('doctor.record.show', $record->id) }}" 
                                class="flex items-center justify-center w-9 h-9 rounded-xl bg-gray-50 text-gray-400 hover:bg-gray-800 hover:text-white transition-all shadow-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

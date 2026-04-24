@@ -5,6 +5,7 @@
     $hasValue = fn ($value) => !is_null($value) && trim((string) $value) !== '' && strtoupper(trim((string) $value)) !== 'N/A';
     $conditionStatus = $record->condition_update ?: 'monitoring';
     $conditionLabel = match($conditionStatus) {
+        'initial_assessment' => 'Initial Assessment',
         'recovered' => 'Recovered',
         'improving' => 'Improving',
         'no_improvement' => 'No Improvement',
@@ -12,6 +13,7 @@
         default => 'Monitoring',
     };
     $conditionClass = match($conditionStatus) {
+        'initial_assessment' => 'bg-sky-100 text-sky-800',
         'recovered' => 'bg-emerald-100 text-emerald-700',
         'improving' => 'bg-yellow-100 text-yellow-700',
         'no_improvement' => 'bg-orange-100 text-orange-700',
@@ -134,6 +136,7 @@
                         @php
                             $status = $visit->condition_update ?: 'monitoring';
                             $statusText = match($status) {
+                                'initial_assessment' => 'Initial Assessment',
                                 'recovered' => 'Recovered',
                                 'improving' => 'Improving',
                                 'no_improvement' => 'No Improvement',
@@ -141,6 +144,7 @@
                                 default => 'Monitoring',
                             };
                             $statusClass = match($status) {
+                                'initial_assessment' => 'bg-sky-100 text-sky-800',
                                 'recovered' => 'bg-emerald-100 text-emerald-700',
                                 'improving' => 'bg-yellow-100 text-yellow-700',
                                 'no_improvement' => 'bg-orange-100 text-orange-700',

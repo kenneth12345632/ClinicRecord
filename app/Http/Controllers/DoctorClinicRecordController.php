@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class DoctorClinicRecordController extends Controller
@@ -93,6 +94,16 @@ class DoctorClinicRecordController extends Controller
         return !in_array($value, [self::DOCTOR_PLACEHOLDER_DIAGNOSIS, self::NURSE_PLACEHOLDER_DIAGNOSIS], true);
     }
 
+    private function isPendingDiagnosis(?string $diagnosis): bool
+    {
+        $value = trim((string) $diagnosis);
+        if ($value === '') {
+            return false;
+        }
+
+        return in_array($value, [self::DOCTOR_PLACEHOLDER_DIAGNOSIS, self::NURSE_PLACEHOLDER_DIAGNOSIS], true);
+    }
+
     private function normalizedIssueSignature(ClinicRecord $record): string
     {
         $diagnosis = mb_strtolower(trim((string) $record->diagnosis));
@@ -104,12 +115,23 @@ class DoctorClinicRecordController extends Controller
     private function recommendationForStatus(string $status): string
     {
         return match ($status) {
+            'initial_assessment' => 'First consultation baseline recorded; continue care plan and schedule follow-up as clinically indicated.',
             'recovered' => 'Continue home care and routine preventive follow-up.',
             'improving' => 'Continue current treatment and monitor progress on next visit.',
             'no_improvement' => 'Recommend further laboratory testing.',
             'worsened' => 'Patient may require specialist referral.',
             default => 'Schedule follow-up consultation and monitor symptoms closely.',
         };
+    }
+
+    private function allowedConditionUpdateValues(): array
+    {
+        $base = ['recovered', 'improving', 'no_improvement', 'worsened'];
+        if (in_array($this->currentRole(), ['doctor', 'nurse'], true)) {
+            return array_merge(['initial_assessment'], $base);
+        }
+
+        return $base;
     }
 
     private function buildRecoveryMonitoring(): array
@@ -279,6 +301,37 @@ class DoctorClinicRecordController extends Controller
         ]);
     }
 
+    public function pendingPatients(Request $request)
+    {
+        $search = $request->get('search');
+
+        $records = ClinicRecord::whereIn('id', function ($query) {
+            $query->select(DB::raw('MAX(id)'))
+                ->from('clinic_records')
+                ->groupBy('first_name', 'last_name', 'birthday');
+        })
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('middle_name', 'like', "%{$search}%");
+                });
+            })
+            ->get()
+            ->filter(fn (ClinicRecord $record) => $this->isPendingDiagnosis($record->diagnosis))
+            ->sortBy([
+                ['consultation_date', 'asc'],
+                ['id', 'asc'],
+            ])
+            ->values();
+
+        $records = $this->attachDisplayVitals($records);
+
+        return view('doctor.record.pending', [
+            'records' => $records,
+        ]);
+    }
+
     public function create(Request $request)
     {
         $allMedicines = $this->getDispensableMedicinesForSelection();
@@ -329,7 +382,7 @@ class DoctorClinicRecordController extends Controller
 
             // Doctor fills these (not auto-filled)
             'diagnosis' => 'required|string',
-            'condition_update' => 'required|in:recovered,improving,no_improvement,worsened',
+            'condition_update' => ['required', Rule::in($this->allowedConditionUpdateValues())],
 
             // Not auto-filled; doctor uploads/attaches as needed
             'laboratory_images'   => 'nullable|array|max:5',

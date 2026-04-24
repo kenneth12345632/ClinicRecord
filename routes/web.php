@@ -102,6 +102,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('doctor')->name('doctor.')->middleware('role:doctor,nurse')->group(function () {
         Route::get('/dashboard', [DoctorClinicRecordController::class, 'dashboard'])->name('dashboard');
         Route::post('/availability/toggle', [DoctorClinicRecordController::class, 'toggleAvailability'])->name('availability.toggle')->middleware('role:doctor');
+        Route::get('/pending-patients', [DoctorClinicRecordController::class, 'pendingPatients'])->name('pending.index');
 
         Route::get('/patient/{id}', [DoctorClinicRecordController::class, 'patientInfo'])->name('patient.info');
 

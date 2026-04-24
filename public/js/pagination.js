@@ -30,3 +30,18 @@ window.renderPaginationTable = function ({
         }
     });
 };
+
+(function () {
+    if (typeof window.jQuery === 'undefined' || !window.jQuery.fn.pagination || !window.jQuery.fn.pagination.defaults) {
+        return;
+    }
+    window.jQuery.extend(true, window.jQuery.fn.pagination.defaults, {
+        showNavigator: true,
+        formatNavigator: 'Showing <%= rangeStart %> to <%= rangeEnd %> of <%= totalNumber %> results',
+        className: 'clinic-os-pagination',
+        prevText: '&lt;',
+        nextText: '&gt;',
+        hideOnlyOnePage: false,
+        showSizeChanger: false
+    });
+})();

@@ -23,6 +23,114 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in-down { animation: fadeInDown 0.3s ease-out; }
+
+        /* Unified PaginationJS (Clinic OS): summary left, dark segmented controls right */
+        .clinic-os-pagination {
+            display: flex !important;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem 1rem;
+            width: 100%;
+            padding: 0.5rem 0;
+        }
+        .clinic-os-pagination::after { display: none !important; content: none !important; }
+        .clinic-os-pagination .paginationjs-nav {
+            float: none !important;
+            margin: 0 !important;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .clinic-os-pagination .paginationjs-pages {
+            float: none !important;
+            margin-left: 0 !important;
+        }
+        .clinic-os-pagination .paginationjs-pages ul {
+            float: none !important;
+            display: flex;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        }
+        .clinic-os-pagination .paginationjs-pages li {
+            float: none !important;
+            display: flex;
+            margin: 0;
+            border: none !important;
+            border-right: 1px solid #334155 !important;
+        }
+        .clinic-os-pagination .paginationjs-pages li:last-child {
+            border-right: none !important;
+        }
+        /* Base cell: dark bar (all segments same family as reference image) */
+        .clinic-os-pagination .paginationjs-pages li > a {
+            min-width: 2.5rem;
+            min-height: 2.5rem;
+            line-height: 2.5rem;
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background: #1e293b !important;
+            color: #f1f5f9 !important;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none !important;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        /* Page numbers: bright text */
+        .clinic-os-pagination .paginationjs-pages li.J-paginationjs-page > a {
+            color: #f1f5f9 !important;
+        }
+        /* Prev / Next: muted chevrons (not pure white) */
+        .clinic-os-pagination .paginationjs-pages li.paginationjs-prev > a,
+        .clinic-os-pagination .paginationjs-pages li.paginationjs-next > a {
+            color: #94a3b8 !important;
+            font-weight: 600;
+        }
+        .clinic-os-pagination .paginationjs-pages li.paginationjs-prev > a:hover,
+        .clinic-os-pagination .paginationjs-pages li.paginationjs-next > a:hover {
+            color: #cbd5e1 !important;
+            background: #334155 !important;
+        }
+        .clinic-os-pagination .paginationjs-pages li > a:hover {
+            background: #334155 !important;
+        }
+        /* Active page: slightly darker segment only; label stays light */
+        .clinic-os-pagination .paginationjs-pages li.active > a,
+        .clinic-os-pagination .paginationjs-pages li.active > a:hover {
+            background: #0f172a !important;
+            color: #f8fafc !important;
+            cursor: default;
+        }
+        .clinic-os-pagination .paginationjs-pages li.disabled > a,
+        .clinic-os-pagination .paginationjs-pages li.disabled > a:hover {
+            background: #1e293b !important;
+            color: #64748b !important;
+            cursor: not-allowed;
+        }
+        .clinic-os-pagination .paginationjs-pages li.disabled.paginationjs-prev > a,
+        .clinic-os-pagination .paginationjs-pages li.disabled.paginationjs-next > a,
+        .clinic-os-pagination .paginationjs-pages li.disabled.paginationjs-prev > a:hover,
+        .clinic-os-pagination .paginationjs-pages li.disabled.paginationjs-next > a:hover {
+            color: #64748b !important;
+        }
+        .clinic-os-pagination .paginationjs-pages li.paginationjs-ellipsis {
+            border-right: 1px solid #334155 !important;
+        }
+        .clinic-os-pagination .paginationjs-pages li.paginationjs-ellipsis a {
+            background: #1e293b !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+        @media (max-width: 640px) {
+            .clinic-os-pagination { flex-direction: column; align-items: stretch !important; }
+            .clinic-os-pagination .paginationjs-pages { align-self: center; }
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
@@ -30,7 +138,7 @@
         
         <aside class="w-64 bg-slate-900 text-white flex flex-col shadow-xl z-10">
             <div class="p-6 text-xl font-bold border-b border-slate-800 flex items-center gap-2">
-                <span class="text-blue-500">✚</span> CLINIC OS
+                <span class="text-blue-500">✚</span> Brgy. Banilad Health Center
             </div>
             
             @php
@@ -52,33 +160,49 @@
             <nav class="mt-6 flex-1 px-4 space-y-1">
                 <a href="{{ $isAdmin ? route('admin.dashboard') : ($isDoctor ? route('doctor.dashboard') : route('dashboard')) }}"
                    class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('dashboard') || request()->routeIs('doctor.dashboard') || request()->routeIs('admin.dashboard') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                    <span class="mr-2">🏠</span> Dashboard
+                    <span class="mr-2 inline-flex align-middle">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10.5L12 3l9 7.5M5.25 9.75V20a1 1 0 001 1h4.5v-5.25a1 1 0 011-1h.5a1 1 0 011 1V21h4.5a1 1 0 001-1V9.75"/>
+                        </svg>
+                    </span> Dashboard
                 </a>
                 
                 {{-- Clinic Records (Using wildcard * to stay active when viewing specific records) --}}
                 <a href="{{ $isDoctor ? route('doctor.record.index') : route('record.index') }}" 
                    class="block py-3 px-4 rounded-lg transition {{ $isDoctor ? (request()->routeIs('doctor.record.*') && !request()->routeIs('doctor.record.create') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white') : (request()->routeIs('record.*') && !request()->routeIs('record.create') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white') }}">
-                    <span class="mr-2">🧾</span> Patients
+                    <span class="mr-2 inline-flex align-middle">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </span> Patients
                 </a>
-
-                @unless($isDoctor || $isBhw)
-                    <a href="{{ route('record.index') }}"
-                       class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('record.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                        <span class="mr-2">🩺</span> Consultations
-                    </a>
-                @endunless
 
                 <a href="{{ route('medicines.index') }}"
                    class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                    <span class="mr-2">💊</span> Inventory
+                    <span class="mr-2 inline-flex align-middle">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 8.5l7 7m-9.5 1a3.5 3.5 0 010-5l5.5-5.5a3.5 3.5 0 115 5L11 16.5a3.5 3.5 0 01-5 0z"/>
+                        </svg>
+                    </span> Inventory
                 </a>
 
+                @if($isDoctor)
+                    <a href="{{ route('doctor.pending.index') }}"
+                       class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('doctor.pending.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        <span class="mr-2 inline-flex align-middle">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6m-6 14h6M9 5a1 1 0 000 2h.5a1 1 0 011 1v1.5a3.5 3.5 0 01-1.025 2.475L8.8 13.15a2 2 0 000 2.828l1.175 1.175A3.5 3.5 0 0111 19.628V20a1 1 0 01-1 1H9m6-16a1 1 0 010 2h-.5a1 1 0 00-1 1v1.5a3.5 3.5 0 001.025 2.475L15.2 13.15a2 2 0 010 2.828l-1.175 1.175A3.5 3.5 0 0013 19.628V20a1 1 0 001 1h1"/>
+                            </svg>
+                        </span> Pending Patients
+                    </a>
+                @endif
+
                 @if($isAdmin)
-                    <a href="{{ route('admin.users.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.users.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2">👥</span> User Management</a>
-                    <a href="{{ route('admin.reports.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.reports.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2">📊</span> Reports</a>
-                    <a href="{{ route('admin.activity-logs.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.activity-logs.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2">🕒</span> Activity Logs</a>
-                    <a href="{{ route('admin.settings.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.settings.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2">⚙️</span> Settings</a>
-                    <a href="{{ route('admin.inventory.ledger') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.inventory.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2">📦</span> Inventory Ledger</a>
+                    <a href="{{ route('admin.users.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.users.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2a3 3 0 00-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span> User Management</a>
+                    <a href="{{ route('admin.reports.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.reports.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-3M5 20h14a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg></span> Reports</a>
+                    <a href="{{ route('admin.activity-logs.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.activity-logs.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span> Activity Logs</a>
+                    <a href="{{ route('admin.settings.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.settings.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.983 5.25c.472-1.52 2.562-1.52 3.034 0a1.75 1.75 0 002.624 1.016c1.34-.85 2.817.627 1.967 1.967a1.75 1.75 0 001.016 2.624c1.52.472 1.52 2.562 0 3.034a1.75 1.75 0 00-1.016 2.624c.85 1.34-.627 2.817-1.967 1.967a1.75 1.75 0 00-2.624 1.016c-.472 1.52-2.562 1.52-3.034 0a1.75 1.75 0 00-2.624-1.016c-1.34.85-2.817-.627-1.967-1.967a1.75 1.75 0 00-1.016-2.624c-1.52-.472-1.52-2.562 0-3.034a1.75 1.75 0 001.016-2.624c-.85-1.34.627-2.817 1.967-1.967a1.75 1.75 0 002.624-1.016z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span> Settings</a>
+                    <a href="{{ route('admin.inventory.ledger') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.inventory.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m-8-4v10l8 4m-8-14l8 4m0 0v10"/></svg></span> Inventory Ledger</a>
                 @endif
 
                 @unless($isDoctor || $isAdmin)
@@ -96,11 +220,11 @@
                         <div id="reports-menu" class="ml-4 mt-1 space-y-1 {{ request()->routeIs('reports.*') ? '' : 'hidden' }}">
                             <a href="{{ route('reports.diagnosis') }}"
                                class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.diagnosis') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                                📊 Diagnosis
+                                <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-3M5 20h14a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg></span>Diagnosis
                             </a>
                             <a href="{{ route('reports.patients') }}"
                                class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.patients') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                                🧾 Patient
+                                <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>Patient
                             </a>
                         </div>
                     </div>
@@ -110,9 +234,17 @@
                         <a href="{{ $isNurse ? route('record.index') : route('record.create') }}" 
                            class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('record.create') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                             @if($isNurse)
-                                <span class="mr-2 text-blue-500 font-bold">+</span> Nurse Vitals / Triage
+                                <span class="mr-2 inline-flex align-middle text-blue-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                </span> Nurse Vitals / Triage
                             @else
-                                <span class="mr-2 text-blue-500 font-bold">+</span> Add New Consultation
+                                <span class="mr-2 inline-flex align-middle text-blue-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                </span> Add New Consultation
                             @endif
                         </a>
                     </div>
