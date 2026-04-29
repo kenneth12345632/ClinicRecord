@@ -59,7 +59,12 @@ class UserManagementController extends Controller
         }
 
         $user = User::create([
-            ...$validated,
+            'first_name' => $validated['first_name'],
+            'middle_name' => $validated['middle_name'] ?? null,
+            'last_name' => $validated['last_name'],
+            'suffix' => $validated['suffix'] ?? null,
+            'email' => $validated['email'],
+            'role' => $validated['role'],
             'password' => Hash::make($validated['password']),
             'is_active' => $request->boolean('is_active', true),
             'profile_photo_path' => $profilePhotoPath,
@@ -106,7 +111,7 @@ class UserManagementController extends Controller
             $validated['profile_photo_path'] = $request->file('profile_photo')->store('profile-photos', 'public');
         }
 
-        unset($validated['remove_profile_photo']);
+        unset($validated['profile_photo'], $validated['remove_profile_photo']);
         $validated['is_active'] = $request->boolean('is_active', true);
         $user->update($validated);
         ActivityLogger::log('user_updated', "Updated user {$user->email}", $user, $request);

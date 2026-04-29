@@ -6,8 +6,60 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
-            @page { margin: 0; }
-            body { margin: 1.6cm; background: white; }
+            @page {
+                size: auto;
+                margin: 4mm;
+            }
+
+            html, body {
+                background: white !important;
+            }
+
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Fit original UI into one page for Letter and Legal. */
+            .max-w-4xl {
+                max-width: none !important;
+                width: 108% !important;
+                transform: scale(0.93);
+                transform-origin: top left;
+                border: none !important;
+                border-radius: 0 !important;
+            }
+
+            .p-8 { padding: 0.7rem !important; }
+            .p-5 { padding: 0.45rem 0.55rem !important; }
+            .p-4 { padding: 0.4rem 0.5rem !important; }
+            .p-3 { padding: 0.3rem 0.4rem !important; }
+
+            .space-y-8 > :not([hidden]) ~ :not([hidden]) {
+                margin-top: 0.45rem !important;
+            }
+
+            .gap-8 { gap: 0.45rem !important; }
+            .mb-3 { margin-bottom: 0.2rem !important; }
+            .mt-10 { margin-top: 0.25rem !important; }
+
+            h2.text-3xl {
+                font-size: 1.2rem !important;
+                line-height: 1.15 !important;
+            }
+
+            .text-lg { font-size: 0.8rem !important; }
+            .text-sm { font-size: 0.62rem !important; }
+            .text-xs { font-size: 0.52rem !important; }
+
+            .leading-relaxed { line-height: 1.2 !important; }
+            .rounded-xl, .rounded-lg { border-radius: 0.3rem !important; }
+
+            /* Keep footer but make it tiny so it stays on page 1. */
+            .border-t.border-gray-100.text-center {
+                padding-top: 0.15rem !important;
+                padding-bottom: 0 !important;
+            }
         }
         /* Ensure background colors show in PDF */
         .print-bg { 
@@ -177,14 +229,10 @@
                         <p class="text-gray-400 italic">No medications prescribed.</p>
                     @endif
                 </div>
+                <p class="mt-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center">
+                    GENERATED VIA CLINIC OS - {{ now()->format('Y-m-d H:i') }}
+                </p>
             </section>
-        </div>
-
-        {{-- Footer --}}
-        <div class="p-8 mt-10 border-t border-gray-100 text-center">
-            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">
-                Generated via CLINIC OS - {{ now()->format('Y-m-d H:i') }}
-            </p>
         </div>
     </div>
 </body>

@@ -5,6 +5,8 @@
     $roleNormalized = strtolower(trim((string) (auth()->user()->role ?? '')));
     $isNurse = $roleNormalized === 'nurse';
     $routePrefix = $isNurse ? 'nurse' : 'doctor';
+    $latestObjective = (string) ($latest?->objective ?? '');
+    $latestObjectiveSansQueue = preg_replace('/^\s*Queue\s*No:\s*\d+\s*\r?\n?/i', '', $latestObjective) ?? $latestObjective;
 @endphp
 <div id="medicine-data" data-list='@json($allMedicines ?? [])' style="display: none;"></div>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -159,20 +161,6 @@
                     <div class="lg:col-span-7 space-y-6 border-l border-gray-100 lg:pl-10">
                         <div>
                             <div class="flex items-center gap-2 mb-2">
-                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">S</span>
-                                <label class="text-xs font-bold text-gray-700 uppercase">Subjective Findings</label>
-                            </div>
-                            <textarea
-                                name="{{ $isNurse ? 'subjective' : '' }}"
-                                rows="2"
-                                {{ $isNurse ? '' : 'readonly' }}
-                                class="w-full px-4 py-3 rounded-xl {{ $isNurse ? 'bg-white border border-gray-200' : 'bg-gray-50 border border-gray-100 text-gray-600 cursor-default' }} text-sm outline-none"
-                                placeholder="{{ $isNurse ? 'Enter subjective findings...' : '' }}"
-                            >{{ old('subjective', $latest?->subjective) }}</textarea>
-                        </div>
-
-                        <div>
-                            <div class="flex items-center gap-2 mb-2">
                                 <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">V</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Vitals</label>
                             </div>
@@ -192,6 +180,20 @@
 
                         <div>
                             <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">S</span>
+                                <label class="text-xs font-bold text-gray-700 uppercase">Subjective Findings</label>
+                            </div>
+                            <textarea
+                                name="{{ $isNurse ? 'subjective' : '' }}"
+                                rows="2"
+                                {{ $isNurse ? '' : 'readonly' }}
+                                class="w-full px-4 py-3 rounded-xl {{ $isNurse ? 'bg-white border border-gray-200' : 'bg-gray-50 border border-gray-100 text-gray-600 cursor-default' }} text-sm outline-none"
+                                placeholder="{{ $isNurse ? 'Enter subjective findings...' : '' }}"
+                            >{{ old('subjective', $latest?->subjective) }}</textarea>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
                                 <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">O</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Objective Findings</label>
                             </div>
@@ -201,7 +203,7 @@
                                 {{ $isNurse ? '' : 'readonly' }}
                                 placeholder="{{ $isNurse ? 'Enter objective findings...' : 'Physical Examination details...' }}"
                                 class="w-full px-4 py-3 rounded-xl {{ $isNurse ? 'bg-white border border-gray-200' : 'bg-gray-50 border border-gray-100 text-gray-600 cursor-default' }} text-sm outline-none"
-                            >{{ old('objective', $latest?->objective) }}</textarea>
+                            >{{ old('objective', $latestObjectiveSansQueue) }}</textarea>
                         </div>
 
                         <div>

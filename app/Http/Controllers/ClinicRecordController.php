@@ -23,18 +23,6 @@ class ClinicRecordController extends Controller
         return (string) (Auth::user()->role ?? 'bhw');
     }
 
-    private function buildQueueLabel(?string $existingObjective = null): string
-    {
-        $todayCount = ClinicRecord::whereDate('consultation_date', Carbon::today())->count() + 1;
-        $queueLine = 'Queue No: ' . $todayCount;
-
-        if (!$existingObjective) {
-            return $queueLine;
-        }
-
-        return trim($existingObjective . PHP_EOL . $queueLine);
-    }
-
     private function normalizeMedicineName(string $name): string
     {
         $name = preg_replace('/\s+/', ' ', trim($name));
@@ -260,14 +248,14 @@ class ClinicRecordController extends Controller
             $validated['age'] = round($validated['age']) . ' yrs';
         }
 
-        // BHW can only create patient + symptoms + queue; diagnosis/medications/lab are doctor-only.
+        // BHW can only create patient + symptoms; diagnosis/medications/lab are doctor-only.
         // Keep captured vitals so they remain visible in all history views.
         $validated['diagnosis'] = self::DOCTOR_PLACEHOLDER_DIAGNOSIS;
         if ($role === 'bhw') {
             $validated['subjective'] = null;
-            $validated['objective'] = $this->buildQueueLabel();
+            $validated['objective'] = null;
         } else {
-            $validated['objective'] = $this->buildQueueLabel($validated['objective'] ?? null);
+            $validated['objective'] = $validated['objective'] ?? null;
         }
 
         DB::transaction(function () use ($request, $validated) {

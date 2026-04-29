@@ -190,21 +190,6 @@
                     {{-- RIGHT COLUMN: S.O.A.P. --}}
                     <div class="lg:col-span-7 space-y-6 border-l border-gray-100 lg:pl-10">
                         
-                        {{-- S - Subjective --}}
-                        <div>
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">S</span>
-                                <label class="text-xs font-bold text-gray-700 uppercase">Subjective Findings</label>
-                            </div>
-                            <textarea
-                                name="subjective"
-                                rows="2"
-                                placeholder="{{ $canEncodeFindings ? "Patient's complaints..." : 'Only nurse can fill this out.' }}"
-                                {{ $canEncodeFindings ? '' : 'readonly onclick=showNurseOnlyNotice(\'Subjective Findings\')' }}
-                                class="w-full px-4 py-3 rounded-xl border text-sm outline-none {{ $canEncodeFindings ? 'border-gray-200 focus:ring-2 focus:ring-blue-100' : 'border-gray-100 bg-gray-50 text-gray-500 cursor-not-allowed' }}"
-                            >{{ old('subjective') }}</textarea>
-                        </div>
-
                         {{-- V - Vital Signs --}}
                         <div>
                             <div class="flex items-center gap-2 mb-2">
@@ -223,6 +208,21 @@
                                     <input type="text" id="bmi_result" name="bmi" value="{{ old('bmi') }}" readonly placeholder="Auto" class="w-full pl-10 pr-2 py-2 border border-blue-100 bg-blue-50/50 rounded-lg text-xs font-bold text-blue-700">
                                 </div>
                             </div>
+                        </div>
+
+                        {{-- S - Subjective --}}
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">S</span>
+                                <label class="text-xs font-bold text-gray-700 uppercase">Subjective Findings</label>
+                            </div>
+                            <textarea
+                                name="subjective"
+                                rows="2"
+                                placeholder="{{ $canEncodeFindings ? "Patient's complaints..." : 'Only nurse can fill this out.' }}"
+                                {{ $canEncodeFindings ? '' : 'readonly onclick=showNurseOnlyNotice(\'Subjective Findings\')' }}
+                                class="w-full px-4 py-3 rounded-xl border text-sm outline-none {{ $canEncodeFindings ? 'border-gray-200 focus:ring-2 focus:ring-blue-100' : 'border-gray-100 bg-gray-50 text-gray-500 cursor-not-allowed' }}"
+                            >{{ old('subjective') }}</textarea>
                         </div>
 
                         {{-- O - Objective Findings --}}
