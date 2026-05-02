@@ -6,6 +6,7 @@
     $isNurse = $role === 'nurse';
     $isDoctorRole = $role === 'doctor';
     $isBhwRole = $role === 'bhw';
+    $isAdminRole = $role === 'admin';
     $canEncodeFindings = $isNurse;
 @endphp
 {{-- 1. ADD SELECT2 DEPENDENCIES --}}
@@ -28,6 +29,17 @@
 <div id="medicine-data" data-medicines="{{ json_encode($allMedicines ?? []) }}"></div>
 
 <div class="max-w-7xl mx-auto pb-20 px-4 sm:px-6 lg:px-8"> 
+
+    @if (session('success'))
+        <div class="mt-8 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800 shadow-sm">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('info'))
+        <div class="mt-8 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-800 shadow-sm">
+            {{ session('info') }}
+        </div>
+    @endif
 
     {{-- ERROR ALERT SECTION --}}
     @if ($errors->any())
@@ -55,6 +67,9 @@
         <div>
             <h1 class="text-3xl font-bold text-gray-800">Clinic Records</h1>
             <p class="text-gray-500 text-sm mt-1">Showing unique patient history</p>
+            @if($isBhwRole || $isAdminRole)
+                <p class="text-amber-800/90 text-xs mt-2 max-w-xl leading-relaxed">New doctor/nurse visits stay in <span class="font-semibold">Medicine queue</span> until BHW confirms. This list shows the <span class="font-semibold">last released visit</span> per patient (or the previous one while a newer visit is still pending).</p>
+            @endif
         </div>
 
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">

@@ -238,12 +238,11 @@
                             <div class="flex items-center justify-between mb-2">
                                 <div class="flex items-center gap-2">
                                     <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">M</span>
-                                    <label class="text-xs font-bold text-gray-700 uppercase">Medicines</label>
+                                    <label class="text-xs font-bold text-gray-700 uppercase">Medicines (prescription)</label>
                                 </div>
-                                @unless($isNurse)
-                                    <button type="button" id="add-medicine-btn" class="text-blue-600 hover:text-blue-800 text-[10px] font-bold tracking-widest">+ ADD ITEM</button>
-                                @endunless
+                                <button type="button" id="add-medicine-btn" class="text-blue-600 hover:text-blue-800 text-[10px] font-bold tracking-widest">+ ADD ITEM</button>
                             </div>
+                            <p class="text-[11px] text-slate-500 mb-2 leading-relaxed">Inventory is <span class="font-semibold text-slate-700">not</span> reduced here. After you save, BHW uses <span class="font-semibold text-slate-700">Medicine queue</span> (bell in sidebar) to release stock when the patient actually receives the medicine.</p>
                             <div id="medicine-rows-container" class="space-y-3"></div>
                             <div class="mt-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Previous Consultation Encoder</p>

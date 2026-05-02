@@ -11,6 +11,9 @@
 @endphp
 
 <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
+    @php
+        $adminDashboardMedicineQueueCount = \App\Models\ClinicRecord::awaitingMedicineDispensing()->count();
+    @endphp
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="space-y-2">
             <div class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
@@ -22,9 +25,27 @@
                 <p class="text-sm text-slate-500">{{ $clinicAddress }}</p>
             </div>
         </div>
-        <div class="text-right">
-            <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Today</p>
-            <p class="text-2xl font-black text-slate-700">{{ now()->format('F d, Y') }}</p>
+        <div class="flex flex-wrap items-end justify-end gap-3">
+            <a href="{{ route('admin.dispensing.index') }}"
+               class="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm hover:border-blue-300 hover:bg-blue-50 transition"
+               title="Medicine queue">
+                <span class="relative inline-flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white shadow-inner">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    @if($adminDashboardMedicineQueueCount > 0)
+                        <span class="absolute -top-1 -right-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white leading-none">{{ $adminDashboardMedicineQueueCount > 99 ? '99+' : $adminDashboardMedicineQueueCount }}</span>
+                    @endif
+                </span>
+                <div class="text-left">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Notifications</p>
+                    <p class="text-sm font-black text-slate-800">Medicine queue</p>
+                </div>
+            </a>
+            <div class="text-right">
+                <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Today</p>
+                <p class="text-2xl font-black text-slate-700">{{ now()->format('F d, Y') }}</p>
+            </div>
         </div>
     </div>
 
@@ -46,6 +67,17 @@
                     </svg>
                 </span>
                 <span class="mt-1.5 block text-[11px] font-bold leading-tight">Patients</span>
+            </a>
+            <a href="{{ route('admin.dispensing.index') }}" class="group relative rounded-xl border border-white/15 bg-white/95 px-2 py-2 text-center text-slate-700 hover:bg-blue-50 transition">
+                @if($adminDashboardMedicineQueueCount > 0)
+                    <span class="absolute right-1 top-1 z-10 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-rose-500 px-0.5 text-[8px] font-black text-white">{{ $adminDashboardMedicineQueueCount > 99 ? '99+' : $adminDashboardMedicineQueueCount }}</span>
+                @endif
+                <span class="mx-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#123785] text-white group-hover:bg-[#0f2c77]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                </span>
+                <span class="mt-1.5 block text-[11px] font-bold leading-tight">Medicine queue</span>
             </a>
             <a href="{{ route('medicines.index') }}" class="group rounded-xl border border-white/15 bg-white/95 px-2 py-2 text-center text-slate-700 hover:bg-blue-50 transition">
                 <span class="mx-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#123785] text-white group-hover:bg-[#0f2c77]">

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\ClinicRecord;
 use App\Models\ClinicRecordFile;
-use App\Models\InventoryLog;
 use App\Models\Medicine;
 use App\Services\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
@@ -325,11 +324,8 @@ class DoctorClinicRecordController extends Controller
         $search = $request->get('search');
         $allMedicines = $this->getDispensableMedicinesForSelection();
 
-        $records = ClinicRecord::whereIn('id', function ($query) {
-            $query->select(DB::raw('MAX(id)'))
-                ->from('clinic_records')
-                ->groupBy('first_name', 'last_name', 'birthday');
-        })
+        $records = ClinicRecord::query()
+            ->latestPerPatientRegistryVisible()
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('first_name', 'like', "%{$search}%")
@@ -481,6 +477,8 @@ class DoctorClinicRecordController extends Controller
             'bmi' => $latest?->bmi,
             // Keep original encoder for continuity unless current user is nurse.
             'consulted_by' => $latest?->consulted_by,
+            // BHW publishes to patient list after medicine queue (see MedicineDispensingController).
+            'published_to_registry_at' => null,
         ];
 
         if (Auth::check()) {
@@ -517,7 +515,9 @@ class DoctorClinicRecordController extends Controller
                 }
             }
 
-            if (!$isNurse && $request->has('medicines')) {
+            // Prescribe only: allocate planned lots on the pivot without stock movement.
+            // BHW confirms dispensing later (see Bhw\MedicineDispensingController).
+            if ($request->has('medicines')) {
                 $requestedByMedicineKey = [];
                 $requestedLabelByMedicineKey = [];
                 $medicineIds = collect($request->medicines)
@@ -582,29 +582,19 @@ class DoctorClinicRecordController extends Controller
                             continue;
                         }
 
-                        $record->medicines()->attach($lot->id, ['quantity' => $take]);
-                        $dispensedSummary[] = "{$lot->name} (x{$take})";
-                        $lot->decrement('stock', $take);
-                        $lot->refresh();
-                        InventoryLog::create([
-                            'medicine_id' => $lot->id,
-                            'transaction_type' => 'stock_out',
-                            'quantity' => -$take,
-                            'balance_after' => (int) $lot->stock,
-                            'reference' => "Dispensed for consultation #{$record->id}",
-                            'created_by' => auth()->id(),
+                        $record->medicines()->attach($lot->id, [
+                            'quantity' => $take,
+                            'dispensed_at' => null,
                         ]);
+                        $dispensedSummary[] = "{$lot->name} (x{$take})";
                         $remaining -= $take;
                     }
                 }
             }
 
             if (!empty($dispensedSummary)) {
-                $dispensedBy = $this->currentRole() === 'nurse'
-                    ? ($payload['consulted_by'] ?? 'Nurse')
-                    : ($payload['doctor_consulted_by'] ?? 'Doctor');
                 $record->update([
-                    'medicines_given' => implode(', ', $dispensedSummary) . ' | Dispensed by: ' . $dispensedBy,
+                    'medicines_given' => 'Awaiting BHW dispensing: ' . implode(', ', $dispensedSummary),
                 ]);
             }
 

@@ -190,6 +190,27 @@
                     </span> Patients
                 </a>
 
+                @if($isBhw || $isAdmin)
+                    @php
+                        $medicineQueueCount = \App\Models\ClinicRecord::awaitingMedicineDispensing()->count();
+                        $medicineQueueRoutePrefix = $isAdmin ? 'admin' : 'bhw';
+                    @endphp
+                    <a href="{{ route($medicineQueueRoutePrefix . '.dispensing.index') }}"
+                       class="flex items-center justify-between gap-2 py-3 px-4 rounded-lg transition {{ request()->routeIs('bhw.dispensing.*', 'admin.dispensing.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        <span class="flex items-center min-w-0">
+                            <span class="mr-2 inline-flex align-middle shrink-0 relative">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                </svg>
+                                @if($medicineQueueCount > 0)
+                                    <span class="absolute -top-1.5 -right-2 min-w-[1rem] h-4 px-0.5 rounded-full bg-rose-500 text-white text-[9px] font-black leading-4 text-center">{{ $medicineQueueCount > 99 ? '99+' : $medicineQueueCount }}</span>
+                                @endif
+                            </span>
+                            <span class="truncate">Medicine queue</span>
+                        </span>
+                    </a>
+                @endif
+
                 <a href="{{ $isBhw ? route('bhw.medicines.index') : route('medicines.index') }}"
                    class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('medicines.*') || request()->routeIs('bhw.medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                     <span class="mr-2 inline-flex align-middle">

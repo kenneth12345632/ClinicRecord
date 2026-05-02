@@ -157,11 +157,8 @@ class ClinicRecordController extends Controller
         $search = $request->get('search');
         $allMedicines = $this->getDispensableMedicinesForSelection();
 
-        $records = ClinicRecord::whereIn('id', function ($query) {
-            $query->select(DB::raw('MAX(id)'))
-                ->from('clinic_records')
-                ->groupBy('first_name', 'last_name', 'birthday');
-        })
+        $records = ClinicRecord::query()
+            ->latestPerPatientRegistryVisible()
         ->when($search, function($query) use ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
@@ -258,7 +255,10 @@ class ClinicRecordController extends Controller
             $validated['objective'] = $validated['objective'] ?? null;
         }
 
-        DB::transaction(function () use ($request, $validated) {
+        DB::transaction(function () use ($request, $validated, $role) {
+            // Clinic Records list only shows visits after BHW clears the medicine queue (see MedicineDispensingController).
+            // BHW intake stays off the registry until a doctor/nurse visit is published there.
+            $validated['published_to_registry_at'] = null;
             $record = ClinicRecord::create($validated);
             $record->medicines()->detach();
 

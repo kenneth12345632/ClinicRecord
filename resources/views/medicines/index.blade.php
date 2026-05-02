@@ -8,12 +8,12 @@
 {{-- Load Alpine.js for floating overlays --}}
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-<div class="max-w-7xl mx-auto px-4 py-6" x-data="{ openDetails: null, openAddLot: null }">
+<div class="max-w-7xl mx-auto px-4 py-6" x-data="{ openDetails: null, openAddLot: null, openStacks: null }">
     {{-- Header Section --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
             <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Inventory Medicine</h1>
-            <p class="text-gray-500 text-sm mt-1">Full inventory history. Newest arrivals shown in table.</p>
+            <p class="text-gray-500 text-sm mt-1"><span class="text-slate-600 font-medium">Date Received</span> and <span class="text-slate-600 font-medium">Quantity</span> refer to the latest delivery (same calendar date batches are combined). Expand the medicine name to see every batch.</p>
         </div>
         @unless($isDoctorRole)
             <a href="{{ route('medicines.create') }}" class="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-lg shadow-sm hover:bg-blue-700 transition">
@@ -64,23 +64,35 @@
                 <tr>
                     {{-- Set a fixed width for the name to force wrapping --}}
                     <th class="w-1/3 px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Medicine Name</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Date Received</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Total Stock</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Expiry Date</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider" title="Most recent delivery date (among active batches).">Date Received</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider" title="Units on hand for that latest delivery (same-day batches summed).">Quantity</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider" title="Expiration for the batch(es) tied to the latest delivery date.">Expiry Date</th>
                     <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
-            <tbody id="inventoryTableBody" class="divide-y divide-gray-100">
-                @forelse($medicines->groupBy('name') as $name => $lots)
+            @forelse($medicines->groupBy('name') as $name => $lots)
+            <tbody class="inventory-tbody-group divide-y divide-gray-100 border-b border-gray-100 last:border-0">
                 @php 
                     $today = \Illuminate\Support\Carbon::today();
                     $availableLots = $lots->filter(function ($lot) use ($today) {
                         return $lot->stock > 0 && (!$lot->expiration_date || $lot->expiration_date->gte($today));
                     });
                     $totalStock = $availableLots->sum('stock');
-                    $latestWithStock = $availableLots->whereNotNull('arrival_date')
-                                                    ->sortByDesc('arrival_date')
-                                                    ->first(); 
+                    $arrivals = $availableLots->filter(fn ($lot) => $lot->arrival_date !== null);
+                    if ($arrivals->isEmpty()) {
+                        $latestReceiptLot = null;
+                        $lotsOnLatestReceiptDate = collect();
+                        $quantityLatestReceipt = (int) $totalStock;
+                    } else {
+                        $maxArrivalDayTs = $arrivals->max(fn ($lot) => $lot->arrival_date->copy()->startOfDay()->timestamp);
+                        $lotsOnLatestReceiptDate = $arrivals->filter(fn ($lot) => $lot->arrival_date->copy()->startOfDay()->timestamp === $maxArrivalDayTs);
+                        $quantityLatestReceipt = (int) $lotsOnLatestReceiptDate->sum('stock');
+                        $latestReceiptLot = $lotsOnLatestReceiptDate->sortByDesc('id')->first();
+                    }
+                    $expiryForLatestReceiptRow = $lotsOnLatestReceiptDate
+                        ->filter(fn ($lot) => $lot->expiration_date)
+                        ->sortBy(fn ($lot) => $lot->expiration_date->timestamp)
+                        ->first();
                     // Keep all lots in history, but place expired/out-of-stock at the bottom.
                     $historyLots = $lots
                         ->sortBy(function ($lot) use ($today) {
@@ -93,24 +105,46 @@
                         })
                         ->values();
                     $expiryLot = $availableLots->whereNotNull('expiration_date')->sortBy('expiration_date')->first();
+                    // Batches available to dispense (stock on hand, not expired) — FEFO order for display
+                    $releaseStacks = $availableLots
+                        ->sortBy(function ($lot) {
+                            $exp = $lot->expiration_date ? $lot->expiration_date->timestamp : PHP_INT_MAX;
+                            $arr = $lot->arrival_date ? $lot->arrival_date->timestamp : PHP_INT_MAX;
+
+                            return sprintf('%010d-%010d', $exp, $arr);
+                        })
+                        ->values();
+                    $stackKey = 'inv-stack-' . $loop->index;
                 @endphp
                 <tr class="hover:bg-gray-50 transition inventory-row">
                     {{-- whitespace-normal allows the long name to wrap --}}
                     <td class="px-6 py-4 whitespace-normal">
-                        <div class="text-sm font-bold text-slate-800 medicine-name break-words">{{ $name }}</div>
+                        <button type="button"
+                            @click="openStacks = openStacks === '{{ $stackKey }}' ? null : '{{ $stackKey }}'"
+                            class="group w-full text-left flex items-start gap-3 rounded-xl border-2 border-transparent px-3 py-2 -mx-1 -my-1 transition hover:border-blue-200 hover:bg-blue-50/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                            :class="openStacks === '{{ $stackKey }}' ? 'border-blue-500 bg-white shadow-sm' : ''"
+                            :aria-expanded="openStacks === '{{ $stackKey }}'">
+                            <span class="mt-0.5 shrink-0 text-blue-600 transition-transform duration-200"
+                                :class="openStacks === '{{ $stackKey }}' ? 'rotate-180' : ''">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </span>
+                            <span class="text-sm font-bold text-slate-800 medicine-name break-words group-hover:text-blue-900">{{ $name }}</span>
+                        </button>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                        @if($latestWithStock && $latestWithStock->arrival_date)
-                            {{ $latestWithStock->arrival_date->format('M d, Y') }}
+                    <td class="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
+                        @if($latestReceiptLot && $latestReceiptLot->arrival_date)
+                            {{ $latestReceiptLot->arrival_date->format('M d, Y') }}
                         @else
                             N/A
                         @endif
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold {{ $totalStock <= 0 ? 'text-red-500' : 'text-slate-700' }}">
-                        {{ $totalStock }}
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold {{ $quantityLatestReceipt <= 0 ? 'text-red-500' : 'text-slate-700' }}">
+                        {{ $quantityLatestReceipt }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                        @if($expiryLot && $expiryLot->expiration_date)
+                        @if($expiryForLatestReceiptRow && $expiryForLatestReceiptRow->expiration_date)
+                            {{ $expiryForLatestReceiptRow->expiration_date->format('M d, Y') }}
+                        @elseif($expiryLot && $expiryLot->expiration_date)
                             {{ $expiryLot->expiration_date->format('M d, Y') }}
                         @else
                             N/A
@@ -120,9 +154,8 @@
                     {{-- w-px and whitespace-nowrap prevents the buttons from disappearing or stacking --}}
                     <td class="px-6 py-4 whitespace-nowrap text-center w-px">
                         <div class="flex justify-center items-center gap-2">
-                            <button @click="openDetails = '{{ $loop->index }}'" class="flex items-center gap-2 px-4 py-2 bg-[#E9F3F1] text-[#2D8A80] rounded-xl hover:opacity-80 transition shadow-sm font-bold text-xs shrink-0">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                View Details
+                            <button type="button" @click="openDetails = '{{ $loop->index }}'" title="View details" aria-label="View details" class="inline-flex items-center justify-center p-2.5 bg-[#E9F3F1] text-[#2D8A80] rounded-xl hover:opacity-80 transition shadow-sm shrink-0">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </button>
 
                             @unless($isDoctorRole)
@@ -221,9 +254,69 @@
                         </div>
                     </td>
                 </tr>
-                @empty
-                @endforelse
+                <tr x-show="openStacks === '{{ $stackKey }}'" class="inventory-expand-row bg-slate-50/80" style="display: none;">
+                    <td colspan="5" class="px-6 py-5 align-top">
+                        <div class="rounded-xl border-2 border-blue-500 bg-white shadow-lg shadow-blue-500/10 overflow-hidden max-w-full">
+                            <div class="px-5 py-3.5 border-b-2 border-blue-500 bg-blue-50/90 flex items-center justify-between gap-3">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wider text-blue-700">Current stacks (releasable)</p>
+                                    <p class="text-sm font-bold text-slate-900 mt-0.5 break-words">{{ $name }}</p>
+                                    <p class="text-[11px] text-slate-500 mt-1">Active stock only — soonest expiry first.</p>
+                                </div>
+                                <span class="text-xs font-semibold text-blue-600 whitespace-nowrap shrink-0">{{ $releaseStacks->count() }} batch(es)</span>
+                            </div>
+                            <div class="divide-y divide-blue-100">
+                                @forelse($releaseStacks as $stackIndex => $lot)
+                                @php
+                                    $label = $lot->batch_number ? 'Batch ' . $lot->batch_number : 'Stack ' . ($stackIndex + 1);
+                                @endphp
+                                <a href="{{ route('medicines.edit', $lot) }}"
+                                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-5 py-4 text-left transition hover:bg-blue-50 focus:outline-none focus-visible:bg-blue-50 group">
+                                    <div class="min-w-0">
+                                        <p class="text-sm font-bold text-slate-900 group-hover:text-blue-700">{{ $label }}</p>
+                                        <p class="text-xs text-slate-500 mt-1">
+                                            Received
+                                            @if($lot->arrival_date)
+                                                <span class="font-semibold text-slate-700">{{ $lot->arrival_date->format('M d, Y') }}</span>
+                                            @else
+                                                <span class="font-semibold text-slate-400">N/A</span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-4 sm:gap-8 shrink-0 text-sm">
+                                        <div>
+                                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Quantity</span>
+                                            <span class="font-bold text-slate-800">{{ $lot->stock }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Expiry</span>
+                                            <span class="font-semibold text-slate-700">
+                                                @if($lot->expiration_date){{ $lot->expiration_date->format('M d, Y') }}@else N/A @endif
+                                            </span>
+                                        </div>
+                                        <span class="inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-50 p-2.5 text-blue-600 ring-1 ring-inset ring-blue-100 group-hover:bg-blue-100" title="View">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                            <span class="sr-only">View batch</span>
+                                        </span>
+                                    </div>
+                                </a>
+                                @empty
+                                <div class="px-5 py-8 text-center text-sm text-slate-500">
+                                    No releasable batches — add stock or check expired / depleted lots in <span class="font-semibold text-slate-700">View Details</span>.
+                                </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
+            @empty
+            <tbody>
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-400 font-medium">No medicine records yet.</td>
+                </tr>
+            </tbody>
+            @endforelse
         </table>
     </div>
     <div id="inventoryPagination" class="mt-4"></div>
@@ -231,9 +324,9 @@
 </div>
 
 <script>
-    const inventoryRows = Array.from(document.querySelectorAll("#inventoryTableBody .inventory-row")).map((row) => {
-        const name = row.querySelector(".medicine-name")?.textContent.toUpperCase() ?? "";
-        return { element: row, name };
+    const inventoryRows = Array.from(document.querySelectorAll("#inventoryTable tbody.inventory-tbody-group")).map((tbody) => {
+        const name = tbody.querySelector(".medicine-name")?.textContent.toUpperCase() ?? "";
+        return { element: tbody, name };
     });
 
     function renderInventoryPagination(filteredRows) {

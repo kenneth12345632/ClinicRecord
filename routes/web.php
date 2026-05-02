@@ -9,6 +9,7 @@ use App\Http\Controllers\DoctorClinicRecordController;
 use App\Http\Controllers\Doctor\DashboardController as DoctorDashboardController;
 use App\Http\Controllers\Nurse\DashboardController as NurseDashboardController;
 use App\Http\Controllers\Bhw\DashboardController as BhwDashboardController;
+use App\Http\Controllers\Bhw\MedicineDispensingController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -103,6 +104,10 @@ Route::middleware('auth')->group(function () {
 
     // --- BHW AREA ---
     Route::prefix('bhw')->name('bhw.')->middleware('role:bhw')->group(function () {
+        Route::get('/dispensing', [MedicineDispensingController::class, 'index'])->name('dispensing.index');
+        Route::get('/dispensing/{record}', [MedicineDispensingController::class, 'show'])->name('dispensing.show');
+        Route::post('/dispensing/{record}', [MedicineDispensingController::class, 'dispense'])->name('dispensing.dispense');
+
         Route::prefix('record')->name('record.')->group(function () {
             Route::get('/create', [ClinicRecordController::class, 'create'])->name('create');
             Route::post('/store', [ClinicRecordController::class, 'store'])->name('store');
@@ -225,6 +230,10 @@ Route::middleware('auth')->group(function () {
     // --- ADMIN CONTROL CENTER ---
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/dispensing', [MedicineDispensingController::class, 'index'])->name('dispensing.index');
+        Route::get('/dispensing/{record}', [MedicineDispensingController::class, 'show'])->name('dispensing.show');
+        Route::post('/dispensing/{record}', [MedicineDispensingController::class, 'dispense'])->name('dispensing.dispense');
 
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
         Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
