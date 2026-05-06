@@ -9,7 +9,7 @@
         overflow: hidden;
         border: none;
         box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
-        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        font-family: "Times New Roman", Times, serif;
         min-width: 300px;
     }
 

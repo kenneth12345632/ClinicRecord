@@ -212,7 +212,7 @@
                                 </div>
                             @endif
                             <div class="min-w-0">
-                                <p class="text-base font-black text-slate-800 truncate">{{ $displayName }} - {{ $log->action }}</p>
+                                <p class="text-base font-normal text-slate-800 truncate">{{ $displayName }} - {{ $log->action }}</p>
                                 <p class="text-sm text-slate-500">{{ $log->description }}</p>
                             </div>
                         </div>

@@ -64,6 +64,16 @@ class MedicineController extends Controller
     {
         $this->ensureDoctorCannotMutateInventory();
 
+        $catalog = $this->medicineCatalogSuggestionCollections();
+
+        return view('medicines.create', $catalog);
+    }
+
+    /**
+     * @return array{dbGenericOptions: \Illuminate\Support\Collection, dbBrandOptions: \Illuminate\Support\Collection, dbTypeOptions: \Illuminate\Support\Collection}
+     */
+    private function medicineCatalogSuggestionCollections(): array
+    {
         $rows = Medicine::query()
             ->select(['name', 'type'])
             ->get();
@@ -93,11 +103,55 @@ class MedicineController extends Controller
             }
         }
 
-        return view('medicines.create', [
+        return [
             'dbGenericOptions' => collect($dbGenericOptions)->filter()->unique()->values(),
             'dbBrandOptions' => collect($dbBrandOptions)->filter()->unique()->values(),
             'dbTypeOptions' => collect($dbTypeOptions)->filter()->unique()->values(),
-        ]);
+        ];
+    }
+
+    /**
+     * Display names from Add Medicine: "Brand (Generic) 500mg Tablet".
+     *
+     * @return array{brand: string, generic: string, dosage_value: string, dosage_unit: string, type: string, parsed: bool}
+     */
+    private function parseMedicineDisplayName(Medicine $medicine): array
+    {
+        $name = trim((string) $medicine->name);
+        $pattern = '/^(?<brand>.+?)\s*\((?<generic>.+)\)\s*(?<dosage>[\d.]+)\s*(?<unit>mcg|mg|g|ml)\s+(?<type>.+)$/u';
+
+        $fallbackUnit = $medicine->dosage_unit && in_array($medicine->dosage_unit, ['mcg', 'mg', 'g', 'ml'], true)
+            ? $medicine->dosage_unit
+            : 'mg';
+
+        $out = [
+            'brand' => '',
+            'generic' => '',
+            'dosage_value' => $medicine->dosage_value !== null ? (string) $medicine->dosage_value : '',
+            'dosage_unit' => $fallbackUnit,
+            'type' => $medicine->type ? trim((string) $medicine->type) : '',
+            'parsed' => false,
+        ];
+
+        if ($name !== '' && preg_match($pattern, $name, $m)) {
+            $out['brand'] = trim($m['brand']);
+            $out['generic'] = trim($m['generic']);
+            $out['dosage_value'] = $m['dosage'];
+            $out['dosage_unit'] = $m['unit'];
+            $out['type'] = trim($m['type']);
+            $out['parsed'] = true;
+
+            return $out;
+        }
+
+        if ($name !== '' && preg_match('/^(?<brand>.+?)\s*\((?<generic>.+)\)/u', $name, $m)) {
+            $out['brand'] = trim($m['brand']);
+            $out['generic'] = trim($m['generic']);
+        } elseif ($name !== '') {
+            $out['brand'] = $name;
+        }
+
+        return $out;
     }
 
     /**
@@ -143,10 +197,13 @@ class MedicineController extends Controller
 
     public function edit(Medicine $medicine)
     {
+        $this->ensureDoctorCannotMutateInventory();
+
+        $catalog = $this->medicineCatalogSuggestionCollections();
+        $parsed = $this->parseMedicineDisplayName($medicine);
+
         $inventoryLogs = InventoryLog::with(['medicine', 'user'])
-            ->whereHas('medicine', function ($query) use ($medicine) {
-                $query->where('name', $medicine->name);
-            })
+            ->where('medicine_id', $medicine->id)
             ->latest()
             ->get();
 
@@ -174,9 +231,10 @@ class MedicineController extends Controller
 
         return view('medicines.edit', [
             'medicine' => $medicine,
+            'parsedMedicineName' => $parsed,
             'inventoryLogs' => $inventoryLogs,
             'consultationNames' => $consultationNames,
-        ]);
+        ] + $catalog);
     }
 
     /**

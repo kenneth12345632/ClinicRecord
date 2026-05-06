@@ -2,238 +2,247 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Print Record - {{ $record->last_name }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Individual Treatment Record</title>
     <style>
-        @media print {
-            @page {
-                size: auto;
-                margin: 4mm;
-            }
-
-            html, body {
-                background: white !important;
-            }
-
-            body {
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            /* Fit original UI into one page for Letter and Legal. */
-            .max-w-4xl {
-                max-width: none !important;
-                width: 108% !important;
-                transform: scale(0.93);
-                transform-origin: top left;
-                border: none !important;
-                border-radius: 0 !important;
-            }
-
-            .p-8 { padding: 0.7rem !important; }
-            .p-5 { padding: 0.45rem 0.55rem !important; }
-            .p-4 { padding: 0.4rem 0.5rem !important; }
-            .p-3 { padding: 0.3rem 0.4rem !important; }
-
-            .space-y-8 > :not([hidden]) ~ :not([hidden]) {
-                margin-top: 0.45rem !important;
-            }
-
-            .gap-8 { gap: 0.45rem !important; }
-            .mb-3 { margin-bottom: 0.2rem !important; }
-            .mt-10 { margin-top: 0.25rem !important; }
-
-            h2.text-3xl {
-                font-size: 1.2rem !important;
-                line-height: 1.15 !important;
-            }
-
-            .text-lg { font-size: 0.8rem !important; }
-            .text-sm { font-size: 0.62rem !important; }
-            .text-xs { font-size: 0.52rem !important; }
-
-            .leading-relaxed { line-height: 1.2 !important; }
-            .rounded-xl, .rounded-lg { border-radius: 0.3rem !important; }
-
-            /* Keep footer but make it tiny so it stays on page 1. */
-            .border-t.border-gray-100.text-center {
-                padding-top: 0.15rem !important;
-                padding-bottom: 0 !important;
-            }
+        :root {
+            --line: #9aa4b2;
+            --text: #0f172a;
+            --muted: #475569;
         }
-        /* Ensure background colors show in PDF */
-        .print-bg { 
-            background-color: #f8fafc !important; 
-            -webkit-print-color-adjust: exact; 
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Times New Roman", Times, serif;
+            color: var(--text);
+            background: #e5e7eb;
+        }
+        .paper {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 12mm 12mm 10mm;
+            background: #fff;
+            border: 1px solid #cbd5e1;
+        }
+        .top-header {
+            display: grid;
+            grid-template-columns: 92px 1fr;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .logo-wrap {
+            width: 92px;
+            height: 92px;
+            border: 1px solid var(--line);
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+        }
+        .logo-wrap img {
+            width: 96%;
+            height: 96%;
+            object-fit: contain;
+        }
+        .heading {
+            text-align: center;
+            line-height: 1.15;
+        }
+        .heading .small { font-size: 13px; color: #334155; font-weight: 400; }
+        .heading .mid { font-size: 21px; font-weight: 400; letter-spacing: .15px; }
+        .heading .title { font-size: 44px; font-weight: 400; letter-spacing: .15px; margin-top: 4px; }
+        .patient-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            padding: 8px 0 6px;
+            margin-top: 6px;
+        }
+        .patient-name { font-size: 24px; font-weight: 400; text-transform: uppercase; }
+        .patient-file { font-size: 13px; color: #1d4ed8; font-weight: 400; margin-top: 2px; }
+        .consult-date-label { font-size: 10px; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+        .consult-date { font-size: 18px; font-weight: 400; color: #1e40af; margin-top: 2px; text-align: right; }
+        .grid-info {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            column-gap: 12px;
+            row-gap: 6px;
+            padding: 8px 0 8px;
+            border-bottom: 1px solid var(--line);
+        }
+        .label { font-size: 9px; font-weight: 400; text-transform: uppercase; color: #64748b; }
+        .value { font-size: 16px; font-weight: 400; margin-top: 2px; text-transform: uppercase; }
+        .section {
+            margin-top: 8px;
+        }
+        .section-title {
+            font-size: 9px;
+            font-weight: 400;
+            text-transform: uppercase;
+            color: #334155;
+            margin-bottom: 2px;
+        }
+        .box {
+            border: 1px solid var(--line);
+            min-height: 28px;
+            border-radius: 3px;
+            padding: 6px 8px;
+            font-size: 15px;
+            line-height: 1.35;
+            white-space: pre-wrap;
+        }
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 6px;
+        }
+        .vital {
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            min-height: 44px;
+            padding: 5px 5px 6px;
+            text-align: center;
+        }
+        .vital .k {
+            font-size: 9px;
+            font-weight: 400;
+            color: #64748b;
+            text-transform: uppercase;
+            line-height: 1.05;
+        }
+        .vital .v {
+            font-size: 15px;
+            font-weight: 400;
+            margin-top: 3px;
+            line-height: 1.1;
+        }
+        .med-list {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 15px;
+        }
+        .foot {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 400;
+            color: #475569;
+            letter-spacing: .35px;
+        }
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body { background: #fff !important; }
+            .paper {
+                border: none;
+                margin: 0;
+                width: auto;
+                min-height: auto;
+                padding: 2mm 0 0;
+                max-width: 100%;
+            }
         }
     </style>
 </head>
-<body class="bg-white font-sans antialiased" onload="window.print()">
-    @php
-        $hasValue = fn ($value) => !is_null($value) && trim((string) $value) !== '' && strtoupper(trim((string) $value)) !== 'N/A';
-    @endphp
-    <div class="max-w-4xl mx-auto border border-gray-300 rounded-xl overflow-hidden">
-        
-        {{-- Header --}}
-        <div class="p-8 border-b border-gray-200 flex justify-between items-start">
-            <div>
-                <h2 class="text-3xl font-extrabold text-slate-800 uppercase tracking-tight">
-                    {{ $record->first_name }} {{ $record->middle_name }} {{ $record->last_name }}
-                </h2>
-                <p class="text-blue-600 font-bold mt-1">Patient Clinical File</p>
-            </div>
-            <div class="text-right">
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Date of Consultation</span>
-                <p class="text-lg font-semibold text-slate-700">
-                    {{ \Carbon\Carbon::parse($record->consultation_date)->format('M d, Y') }}
-                </p>
-            </div>
+<body onload="window.print()">
+@php
+    $hasValue = fn ($value) => !is_null($value) && trim((string) $value) !== '' && strtoupper(trim((string) $value)) !== 'N/A';
+    $clinicLogoPath = \App\Models\Setting::getValue('clinic_logo');
+    $clinicLogoUrl = $clinicLogoPath ? asset('storage/' . ltrim($clinicLogoPath, '/')) : null;
+@endphp
+<div class="paper">
+    <div class="top-header">
+        <div class="logo-wrap">
+            @if($clinicLogoUrl)
+                <img src="{{ $clinicLogoUrl }}" alt="Clinic logo">
+            @else
+                <span style="font-size:11px;font-weight:400;color:#64748b;">LOGO</span>
+            @endif
         </div>
-
-        {{-- Demographics Grid --}}
-        <div class="grid grid-cols-3 gap-8 p-8 print-bg border-b border-gray-200">
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase">Gender</label>
-                <p class="text-slate-800 font-medium">{{ $record->gender }}</p>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase">Age</label>
-                <p class="text-slate-800 font-medium">
-                    {{ $record->age ?: (\Carbon\Carbon::parse($record->birthday)->age . ' yrs') }}
-                </p>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase">Birthday</label>
-                <p class="text-slate-800 font-medium">
-                    {{ \Carbon\Carbon::parse($record->birthday)->format('F d, Y') }}
-                </p>
-            </div>
-        </div>
-
-        {{-- Contact Information --}}
-        <div class="grid grid-cols-3 gap-8 p-8 print-bg">
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase">Civil Status</label>
-                <p class="text-slate-800 font-medium">{{ $record->civil_status ?? 'Married' }}</p>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase">Contact Number</label>
-                <p class="text-slate-800 font-medium">{{ $record->contact_number ?? 'N/A' }}</p>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase">Purok / Address</label>
-                <p class="text-slate-800 font-medium">{{ $record->address_purok ?? 'N/A' }}</p>
-            </div>
-        </div>
-
-        {{-- Clinical Data --}}
-        <div class="p-8 space-y-8">
-            <section>
-                <h3 class="flex items-center gap-2 text-sm font-black text-slate-800 uppercase mb-3">
-                    <span class="w-2 h-2 bg-yellow-500 rounded-full"></span> Subjective Findings
-                </h3>
-                <div class="p-5 bg-white border border-gray-200 rounded-xl text-slate-700 leading-relaxed whitespace-pre-line">
-                    {{ $record->subjective ?: 'No complaints recorded.' }}
-                </div>
-            </section>
-
-            <section>
-                <h3 class="flex items-center gap-2 text-sm font-black text-slate-800 uppercase mb-3">
-                    <span class="w-2 h-2 bg-blue-500 rounded-full"></span> Vitals
-                </h3>
-                <div class="grid grid-cols-4 gap-3 mb-3">
-                    <div class="p-3 border rounded-lg text-center">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Temp</p>
-                        <p class="font-bold text-slate-800">
-                            {{ $hasValue($record->temp) ? $record->temp . ' °C' : '--' }}
-                        </p>
-                    </div>
-                    <div class="p-3 border rounded-lg text-center">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">BP</p>
-                        <p class="font-bold text-slate-800">{{ $hasValue($record->bp) ? $record->bp : '--' }}</p>
-                    </div>
-                    <div class="p-3 border rounded-lg text-center">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Pulse</p>
-                        <p class="font-bold text-slate-800">
-                            {{ $hasValue($record->pr) ? $record->pr . ' bpm' : '--' }}
-                        </p>
-                    </div>
-                    <div class="p-3 border rounded-lg text-center">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Resp</p>
-                        <p class="font-bold text-slate-800">
-                            {{ $hasValue($record->rr) ? $record->rr . ' cpm' : '--' }}
-                        </p>
-                    </div>
-                    <div class="p-3 border rounded-lg text-center">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Weight</p>
-                        <p class="font-bold text-slate-800">
-                            {{ $hasValue($record->weight) ? $record->weight . ' kg' : '--' }}
-                        </p>
-                    </div>
-                    <div class="p-3 border rounded-lg text-center">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Height</p>
-                        <p class="font-bold text-slate-800">
-                            {{ $hasValue($record->height) ? $record->height . ' cm' : '--' }}
-                        </p>
-                    </div>
-                    <div class="p-3 border rounded-lg text-center">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">BMI</p>
-                        <p class="font-bold text-slate-800">
-                            {{ $hasValue($record->bmi) ? $record->bmi : '--' }}
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <section>
-                <h3 class="flex items-center gap-2 text-sm font-black text-slate-800 uppercase mb-3">
-                    <span class="w-2 h-2 bg-cyan-500 rounded-full"></span> Objective Findings
-                </h3>
-                <div class="p-4 bg-white border border-dashed border-gray-200 rounded-xl text-slate-700 italic whitespace-pre-line">
-                    {{ $record->objective ?: 'No specific objective findings provided.' }}
-                </div>
-            </section>
-
-            <section>
-                <h3 class="flex items-center gap-2 text-sm font-black text-slate-800 uppercase mb-3">
-                    <span class="w-2 h-2 bg-red-500 rounded-full"></span> Current Diagnosis
-                </h3>
-                <div class="p-5 bg-white border border-gray-200 rounded-xl text-slate-700 italic leading-relaxed">
-                    {{ $record->diagnosis }}
-                </div>
-            </section>
-
-            <section>
-                <h3 class="flex items-center gap-2 text-sm font-black text-slate-800 uppercase mb-3">
-                    <span class="w-2 h-2 bg-violet-500 rounded-full"></span> Treatment Plan
-                </h3>
-                <div class="p-5 bg-white border border-gray-200 rounded-xl text-slate-700 leading-relaxed whitespace-pre-line">
-                    {{ $record->follow_up_recommendation ?: 'No treatment plan provided.' }}
-                </div>
-            </section>
-
-            <section>
-                <h3 class="flex items-center gap-2 text-sm font-black text-slate-800 uppercase mb-3">
-                    <span class="w-2 h-2 bg-green-500 rounded-full"></span> Medicines
-                </h3>
-                <div class="p-5 bg-white border border-gray-200 rounded-xl text-slate-700">
-                    @if($record->medicines && $record->medicines->count() > 0)
-                        <ul class="list-disc list-inside space-y-2">
-                            @foreach($record->medicines as $medicine)
-                                <li>{{ $medicine->name }} (x{{ $medicine->pivot->quantity }})</li>
-                            @endforeach
-                        </ul>
-                    @elseif($hasValue($record->medicines_given))
-                        <p>{{ $record->medicines_given }}</p>
-                    @else
-                        <p class="text-gray-400 italic">No medications prescribed.</p>
-                    @endif
-                </div>
-                <p class="mt-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center">
-                    GENERATED VIA CLINIC OS - {{ now()->format('Y-m-d H:i') }}
-                </p>
-            </section>
+        <div class="heading">
+            <div class="small">Republic of the Philippines</div>
+            <div class="mid">OFFICE OF THE CITY HEALTH</div>
+            <div class="small">Dumalinao City</div>
+            <div class="title">INDIVIDUAL TREATMENT RECORD</div>
         </div>
     </div>
+
+    <div class="patient-head">
+        <div>
+            <div class="patient-name">{{ $record->first_name }} {{ $record->middle_name }} {{ $record->last_name }}</div>
+            <div class="patient-file">Patient Clinical File</div>
+        </div>
+        <div>
+            <div class="consult-date-label">Date of Consultation</div>
+            <div class="consult-date">{{ \Carbon\Carbon::parse($record->consultation_date)->format('M d, Y') }}</div>
+        </div>
+    </div>
+
+    <div class="grid-info">
+        <div><div class="label">Sex</div><div class="value">{{ $record->gender ?: '--' }}</div></div>
+        <div><div class="label">Age</div><div class="value">{{ $record->age ?: (\Carbon\Carbon::parse($record->birthday)->age . ' yrs') }}</div></div>
+        <div><div class="label">Birthday</div><div class="value">{{ \Carbon\Carbon::parse($record->birthday)->format('M d, Y') }}</div></div>
+        <div><div class="label">Civil Status</div><div class="value">{{ $record->civil_status ?: '--' }}</div></div>
+        <div><div class="label">Contact Number</div><div class="value">{{ $record->contact_number ?: '--' }}</div></div>
+        <div><div class="label">Purok / Address</div><div class="value">{{ $record->address_purok ?: '--' }}</div></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Subjective Findings</div>
+        <div class="box">{{ $record->subjective ?: 'N/A' }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Vitals</div>
+        <div class="vitals-grid">
+            <div class="vital"><div class="k">Temp</div><div class="v">{{ $hasValue($record->temp) ? $record->temp . ' °C' : '--' }}</div></div>
+            <div class="vital"><div class="k">BP</div><div class="v">{{ $hasValue($record->bp) ? $record->bp : '--' }}</div></div>
+            <div class="vital"><div class="k">Pulse</div><div class="v">{{ $hasValue($record->pr) ? $record->pr . ' bpm' : '--' }}</div></div>
+            <div class="vital"><div class="k">Resp</div><div class="v">{{ $hasValue($record->rr) ? $record->rr . ' cpm' : '--' }}</div></div>
+            <div class="vital"><div class="k">Weight</div><div class="v">{{ $hasValue($record->weight) ? $record->weight . ' kg' : '--' }}</div></div>
+            <div class="vital"><div class="k">Height</div><div class="v">{{ $hasValue($record->height) ? $record->height . ' cm' : '--' }}</div></div>
+            <div class="vital"><div class="k">BMI</div><div class="v">{{ $hasValue($record->bmi) ? $record->bmi : '--' }}</div></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Objective Findings</div>
+        <div class="box">{{ $record->objective ?: 'N/A' }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Current Diagnosis</div>
+        <div class="box">{{ $record->diagnosis ?: 'N/A' }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Treatment Plan</div>
+        <div class="box">{{ $record->follow_up_recommendation ?: 'N/A' }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Medicine</div>
+        <div class="box">
+            @if($record->medicines && $record->medicines->count() > 0)
+                <ul class="med-list">
+                    @foreach($record->medicines as $medicine)
+                        <li>{{ $medicine->name }} (x{{ $medicine->pivot->quantity }})</li>
+                    @endforeach
+                </ul>
+            @elseif($hasValue($record->medicines_given))
+                {{ $record->medicines_given }}
+            @else
+                N/A
+            @endif
+        </div>
+    </div>
+
+    <div class="foot">GENERATED VIA CLINIC OS - {{ now()->format('Y-m-d H:i') }}</div>
+</div>
 </body>
 </html>

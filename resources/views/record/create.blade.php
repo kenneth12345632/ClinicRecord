@@ -8,11 +8,31 @@
     $birthdayOld = old('birthday');
 @endphp
 @include('partials.birthday-material-picker-assets')
+<style>
+    .itr-form .itr-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background: #fff;
+    }
+    .itr-form .itr-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+    .itr-form .itr-input,
+    .itr-form textarea,
+    .itr-form select {
+        min-height: 2.9rem;
+        font-size: .92rem;
+    }
+</style>
 {{-- Hidden data provider for JavaScript --}}
 <div id="medicine-data" data-list='@json($allMedicines ?? [])' style="display: none;"></div>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-<div class="max-w-6xl mx-auto py-8 px-4">
+<div class="max-w-[1400px] mx-auto py-6 px-4 lg:px-6">
     {{-- Error Alerts --}}
     @if ($errors->any())
         <div class="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-xl shadow-sm">
@@ -29,31 +49,42 @@
         </div>
     @endif
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <form action="{{ route('record.store') }}" method="POST" enctype="multipart/form-data">
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        <form class="itr-form" action="{{ route('record.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             {{-- Header Section --}}
-            <div class="p-8 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800 uppercase">Individual Treatment Record</h2>
-                    <p class="text-sm text-gray-500 uppercase tracking-widest mt-1">Add New Consultation</p>
+            <div class="px-6 py-5 lg:px-8 border-b border-slate-200 bg-slate-50/70 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-slate-800 uppercase leading-tight">Individual Treatment Record</h2>
+                        <p class="text-sm text-slate-500 mt-1">Add New Consultation</p>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <label class="block text-xs font-bold text-gray-400 uppercase">Consultation Date</label>
-                    <input type="text" name="consultation_date" id="consultation_date" autocomplete="off" placeholder="dd/mm/yyyy"
-                        data-material-calendar
-                        data-default="{{ old('consultation_date', \Carbon\Carbon::now()->format('Y-m-d')) }}"
-                        data-alt-class="border-none bg-transparent font-bold text-gray-700 text-lg p-0 focus:ring-0 text-right outline-none min-w-[8.75rem]"
-                        class="border-none bg-transparent font-bold text-gray-700 text-lg p-0 focus:ring-0 text-right outline-none min-w-[8.75rem] cursor-pointer">
+                <div class="flex items-center gap-3 lg:gap-4 lg:ms-auto">
+                    <div class="text-right">
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Consultation Date</label>
+                        <input type="text" name="consultation_date" id="consultation_date" required autocomplete="off" placeholder="dd/mm/yyyy"
+                            data-material-calendar
+                            data-default="{{ old('consultation_date', \Carbon\Carbon::now()->format('Y-m-d')) }}"
+                            data-alt-class="border-none bg-transparent font-bold text-blue-700 text-xl p-0 focus:ring-0 text-right outline-none min-w-[9.5rem]"
+                            class="border-none bg-transparent font-bold text-blue-700 text-xl p-0 focus:ring-0 text-right outline-none min-w-[9.5rem] cursor-pointer">
+                    </div>
+                    <a href="{{ route('record.index') }}" class="px-5 py-3 bg-white border border-slate-300 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition">Cancel</a>
+                    <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 shadow-sm transition">Save Patient Record</button>
                 </div>
             </div>
 
-            <div class="p-8">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="p-6 lg:p-8 bg-slate-50/40">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-7">
                     
                     {{-- LEFT COLUMN: PATIENT DATA --}}
-                    <div class="lg:col-span-5 space-y-6">
+                    <div class="lg:col-span-5 space-y-6 itr-card p-5 lg:p-6">
                         <h3 class="font-bold text-blue-600 border-b pb-2 text-sm uppercase tracking-wider">Patient Information</h3>
                         
                         <div class="grid grid-cols-2 gap-4">
@@ -92,14 +123,16 @@
 
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 mb-1">Gender</label>
-                                <select name="gender" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none">
+                                <select name="gender" required class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none">
+                                    <option value="" disabled {{ old('gender') ? '' : 'selected' }}>Select gender</option>
                                     <option value="Male" {{ old('gender') == 'Male' ? 'selected' : '' }}>Male</option>
                                     <option value="Female" {{ old('gender') == 'Female' ? 'selected' : '' }}>Female</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 mb-1">Civil Status</label>
-                                <select name="civil_status" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none">
+                                <select name="civil_status" required class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none">
+                                    <option value="" disabled {{ old('civil_status') ? '' : 'selected' }}>Select civil status</option>
                                     <option value="Single" {{ old('civil_status') == 'Single' ? 'selected' : '' }}>Single</option>
                                     <option value="Married" {{ old('civil_status') == 'Married' ? 'selected' : '' }}>Married</option>
                                     <option value="Widowed" {{ old('civil_status') == 'Widowed' ? 'selected' : '' }}>Widowed</option>
@@ -202,10 +235,10 @@
                     </div>
 
                     {{-- RIGHT COLUMN: S.O.A.P. --}}
-                    <div class="lg:col-span-7 space-y-6 border-l border-gray-100 lg:pl-10">
+                    <div class="lg:col-span-7 space-y-5">
                         
                         {{-- V - Vital Signs --}}
-                        <div>
+                        <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">V</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Vitals</label>
@@ -225,37 +258,38 @@
                         </div>
 
                         {{-- S - Subjective --}}
-                        <div>
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">S</span>
-                                <label class="text-xs font-bold text-gray-700 uppercase">Subjective Findings</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="itr-card p-4 lg:p-5">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">S</span>
+                                    <label class="text-xs font-bold text-gray-700 uppercase">Subjective Findings</label>
+                                </div>
+                                <textarea
+                                    name="subjective"
+                                    rows="4"
+                                    placeholder="{{ $canEncodeFindings ? "Patient's complaints..." : 'Only nurse can fill this out.' }}"
+                                    {{ $canEncodeFindings ? '' : 'readonly onclick=showNurseOnlyNotice(\'Subjective Findings\')' }}
+                                    class="w-full px-4 py-3 rounded-xl border text-sm outline-none {{ $canEncodeFindings ? 'border-gray-200 focus:ring-2 focus:ring-blue-100' : 'border-gray-100 bg-gray-50 text-gray-500 cursor-not-allowed' }}"
+                                >{{ old('subjective') }}</textarea>
                             </div>
-                            <textarea
-                                name="subjective"
-                                rows="2"
-                                placeholder="{{ $canEncodeFindings ? "Patient's complaints..." : 'Only nurse can fill this out.' }}"
-                                {{ $canEncodeFindings ? '' : 'readonly onclick=showNurseOnlyNotice(\'Subjective Findings\')' }}
-                                class="w-full px-4 py-3 rounded-xl border text-sm outline-none {{ $canEncodeFindings ? 'border-gray-200 focus:ring-2 focus:ring-blue-100' : 'border-gray-100 bg-gray-50 text-gray-500 cursor-not-allowed' }}"
-                            >{{ old('subjective') }}</textarea>
-                        </div>
 
-                        {{-- O - Objective Findings --}}
-                        <div>
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">O</span>
-                                <label class="text-xs font-bold text-gray-700 uppercase">Objective Findings</label>
+                            <div class="itr-card p-4 lg:p-5">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">O</span>
+                                    <label class="text-xs font-bold text-gray-700 uppercase">Objective Findings</label>
+                                </div>
+                                <textarea
+                                    name="objective"
+                                    rows="4"
+                                    placeholder="{{ $canEncodeFindings ? 'Physical examination details...' : 'Only nurse can fill this out.' }}"
+                                    {{ $canEncodeFindings ? '' : 'readonly onclick=showNurseOnlyNotice(\'Objective Findings\')' }}
+                                    class="w-full px-4 py-3 rounded-xl border text-sm outline-none {{ $canEncodeFindings ? 'border-gray-200 focus:ring-2 focus:ring-blue-100' : 'border-gray-100 bg-gray-50 text-gray-500 cursor-not-allowed' }}"
+                                >{{ old('objective') }}</textarea>
                             </div>
-                            <textarea
-                                name="objective"
-                                rows="2"
-                                placeholder="{{ $canEncodeFindings ? 'Physical examination details...' : 'Only nurse can fill this out.' }}"
-                                {{ $canEncodeFindings ? '' : 'readonly onclick=showNurseOnlyNotice(\'Objective Findings\')' }}
-                                class="w-full px-4 py-3 rounded-xl border text-sm outline-none {{ $canEncodeFindings ? 'border-gray-200 focus:ring-2 focus:ring-blue-100' : 'border-gray-100 bg-gray-50 text-gray-500 cursor-not-allowed' }}"
-                            >{{ old('objective') }}</textarea>
                         </div>
 
                         {{-- A - Assessment --}}
-                        <div>
+                        <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">A</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Assessment / Diagnosis</label>
@@ -265,7 +299,7 @@
                         </div>
 
                         {{-- P - Plan / Medicines --}}
-                        <div>
+                        <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center justify-between mb-2">
                                 <div class="flex items-center gap-2">
                                     <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">P</span>
@@ -281,10 +315,6 @@
                             </div>
                         </div>
 
-                        <div class="pt-6 flex gap-4">
-                            <button type="submit" class="flex-grow bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 shadow-lg transition active:scale-[0.98]">Save Patient Record</button>
-                            <a href="{{ route('record.index') }}" class="px-8 py-4 bg-gray-100 text-gray-500 rounded-xl font-bold hover:bg-gray-200 transition">Cancel</a>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -464,7 +494,36 @@
         }, 2200);
     }
 
+    function setupNativeRequiredValidation(form) {
+        const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+        requiredFields.forEach((field) => {
+            field.addEventListener('invalid', () => {
+                if (field.validity.valueMissing) {
+                    const label = field.closest('div')?.querySelector('label')?.textContent?.trim() || 'this field';
+                    field.setCustomValidity(`Please fill out ${label}.`);
+                } else {
+                    field.setCustomValidity('');
+                }
+            });
+            field.addEventListener('input', () => field.setCustomValidity(''));
+            field.addEventListener('change', () => field.setCustomValidity(''));
+        });
+
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                form.reportValidity();
+                form.querySelector(':invalid')?.focus();
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form.itr-form');
+        if (form) {
+            setupNativeRequiredValidation(form);
+        }
+
         // Trigger initial calculations if values exist (e.g., after validation error)
         if(document.getElementById('birthday').value) calculateAge();
         if(document.getElementById('weight').value && document.getElementById('height').value) calculateBMI();

@@ -29,6 +29,14 @@ class MedicineDispensingController extends Controller
         return $this->routePrefix() . '.dispensing.index';
     }
 
+    /** Same grouping key as DoctorClinicRecordController when reserving lots. */
+    private function normalizeMedicineName(string $name): string
+    {
+        $name = preg_replace('/\s+/', ' ', trim($name));
+
+        return mb_strtolower($name);
+    }
+
     /** Where to land after medicines are released so the visit shows on Clinic Records. */
     private function patientRecordsIndexRoute(): string
     {
@@ -112,16 +120,10 @@ class MedicineDispensingController extends Controller
             $today = Carbon::today();
 
             foreach ($rows as $row) {
-                $lot = Medicine::query()->whereKey($row->medicine_id)->lockForUpdate()->first();
-                if (!$lot) {
+                $plannedLot = Medicine::query()->whereKey($row->medicine_id)->lockForUpdate()->first();
+                if (!$plannedLot) {
                     throw ValidationException::withMessages([
                         'dispense' => 'Medicine lot no longer exists. Contact an administrator.',
-                    ]);
-                }
-
-                if ($lot->expiration_date && $lot->expiration_date->lt($today)) {
-                    throw ValidationException::withMessages([
-                        'dispense' => "Lot {$lot->name} is expired and cannot be released.",
                     ]);
                 }
 
@@ -130,29 +132,97 @@ class MedicineDispensingController extends Controller
                     continue;
                 }
 
-                if ($lot->stock < $qty) {
+                // Prescription rows point at a batch from when the doctor saved. Stock may later move to
+                // newer batches — take from all non-expired batches of the same medicine (FEFO), like consult save.
+                $medicineKey = $this->normalizeMedicineName((string) $plannedLot->name);
+
+                $familyLots = Medicine::query()
+                    ->where(function ($query) use ($today) {
+                        $query->whereNull('expiration_date')
+                            ->orWhereDate('expiration_date', '>=', $today);
+                    })
+                    ->orderBy('id')
+                    ->lockForUpdate()
+                    ->get()
+                    ->filter(fn (Medicine $m) => $this->normalizeMedicineName((string) $m->name) === $medicineKey)
+                    ->sortBy(function (Medicine $m) {
+                        return sprintf(
+                            '%s-%s-%020d',
+                            $m->expiration_date?->format('Y-m-d') ?? '9999-99-99',
+                            $m->arrival_date?->format('Y-m-d') ?? '0000-00-00',
+                            $m->id
+                        );
+                    })
+                    ->values();
+
+                if ($familyLots->isEmpty()) {
                     throw ValidationException::withMessages([
-                        'dispense' => "Insufficient stock for {$lot->name}. Need {$qty}, have {$lot->stock}.",
+                        'dispense' => "Cannot release {$plannedLot->name}: no non-expired batches found.",
                     ]);
                 }
 
-                $lot->decrement('stock', $qty);
-                $lot->refresh();
+                $availableStock = $familyLots->sum(fn (Medicine $m) => (int) $m->stock);
+                if ($availableStock < $qty) {
+                    throw ValidationException::withMessages([
+                        'dispense' => "Insufficient stock for {$plannedLot->name}. Need {$qty}, have {$availableStock} (non-expired batches only).",
+                    ]);
+                }
 
-                InventoryLog::create([
-                    'medicine_id' => $lot->id,
-                    'transaction_type' => 'stock_out',
-                    'quantity' => -$qty,
-                    'balance_after' => (int) $lot->stock,
-                    'reference' => "Dispensed for consultation #{$record->id}",
-                    'created_by' => Auth::id(),
-                ]);
+                $remaining = $qty;
+                $takes = [];
 
-                DB::table('clinic_record_medicine')
-                    ->where('id', $row->id)
-                    ->update(['dispensed_at' => now()]);
+                foreach ($familyLots as $candidate) {
+                    if ($remaining <= 0) {
+                        break;
+                    }
 
-                $summary[] = "{$lot->name} (x{$qty})";
+                    $canTake = min($remaining, (int) $candidate->stock);
+                    if ($canTake <= 0) {
+                        continue;
+                    }
+
+                    $candidate->decrement('stock', $canTake);
+                    $candidate->refresh();
+
+                    InventoryLog::create([
+                        'medicine_id' => $candidate->id,
+                        'transaction_type' => 'stock_out',
+                        'quantity' => -$canTake,
+                        'balance_after' => (int) $candidate->stock,
+                        'reference' => "Dispensed for consultation #{$record->id}",
+                        'created_by' => Auth::id(),
+                    ]);
+
+                    $takes[] = [
+                        'medicine_id' => $candidate->id,
+                        'quantity' => $canTake,
+                        'label' => $candidate->name,
+                    ];
+
+                    $remaining -= $canTake;
+                }
+
+                if ($remaining > 0) {
+                    throw ValidationException::withMessages([
+                        'dispense' => "Could not reserve stock for {$plannedLot->name}. Please retry.",
+                    ]);
+                }
+
+                $now = now();
+                DB::table('clinic_record_medicine')->where('id', $row->id)->delete();
+
+                foreach ($takes as $take) {
+                    DB::table('clinic_record_medicine')->insert([
+                        'clinic_record_id' => $record->id,
+                        'medicine_id' => $take['medicine_id'],
+                        'quantity' => $take['quantity'],
+                        'dispensed_at' => $now,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ]);
+
+                    $summary[] = "{$take['label']} (x{$take['quantity']})";
+                }
             }
 
             if ($summary !== []) {
@@ -171,8 +241,8 @@ class MedicineDispensingController extends Controller
             ActivityLogger::log(
                 $summary !== [] ? 'medicine_dispensed' : 'consultation_published_to_registry',
                 $summary !== []
-                    ? "BHW released medicines for {$record->first_name} {$record->last_name} (record #{$record->id})"
-                    : "BHW published visit to registry for {$record->first_name} {$record->last_name} (record #{$record->id})",
+                    ? "BHW released medicines for {$record->first_name} {$record->last_name}"
+                    : "BHW published visit to registry for {$record->first_name} {$record->last_name}",
                 $record,
                 $request
             );

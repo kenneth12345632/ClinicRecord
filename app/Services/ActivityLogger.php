@@ -13,7 +13,7 @@ class ActivityLogger
         ActivityLog::create([
             'user_id' => auth()->id(),
             'action' => $action,
-            'description' => $description,
+            'description' => ActivityLog::sanitizeDescriptionForDisplay($description),
             'subject_type' => $subject ? $subject::class : null,
             'subject_id' => $subject?->getKey(),
             'ip_address' => $request?->ip(),

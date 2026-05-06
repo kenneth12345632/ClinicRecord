@@ -279,19 +279,25 @@
             if (el._flatpickr) {
                 return;
             }
+            var editDates = el.getAttribute('data-inventory-edit-dates') === 'true';
             var def = el.getAttribute('data-default');
-            if (def) {
-                var parsed = new Date(def + 'T12:00:00');
-                if (parsed < min) {
+            if (editDates) {
+                if (!def || String(def).trim() === '') {
                     def = null;
                 }
             } else {
-                def = null;
+                if (def) {
+                    var parsedEarly = new Date(def + 'T12:00:00');
+                    if (parsedEarly < min) {
+                        def = null;
+                    }
+                } else {
+                    def = null;
+                }
             }
             var altClass = el.getAttribute('data-alt-class')
                 || 'w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 outline-none text-sm font-semibold text-gray-900 transition';
             var o = {
-                minDate: min,
                 dateFormat: 'Y-m-d',
                 altInput: true,
                 altFormat: 'd/m/Y',
@@ -301,7 +307,10 @@
                 allowInput: false,
                 closeOnSelect: true
             };
-            attachMaterialHooks(o, { medicineInventoryPicker: true });
+            if (!editDates) {
+                o.minDate = min;
+            }
+            attachMaterialHooks(o, editDates ? null : { medicineInventoryPicker: true });
             flatpickr(el, o);
         });
     }

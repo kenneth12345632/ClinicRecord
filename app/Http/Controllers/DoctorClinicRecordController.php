@@ -431,11 +431,11 @@ class DoctorClinicRecordController extends Controller
         ];
 
         if ($isNurse) {
-            $rules['subjective'] = 'nullable|string';
-            $rules['objective'] = 'nullable|string';
+            $rules['subjective'] = 'required|string';
+            $rules['objective'] = 'required|string';
         } else {
             $rules['diagnosis'] = 'required|string';
-            $rules['follow_up_recommendation'] = 'nullable|string';
+            $rules['follow_up_recommendation'] = 'required|string';
         }
 
         $validated = $request->validate($rules);

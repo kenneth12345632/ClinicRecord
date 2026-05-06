@@ -11,8 +11,28 @@
 <div id="medicine-data" data-list='@json($allMedicines ?? [])' style="display: none;"></div>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @include('partials.material-calendar-flatpickr-assets')
+<style>
+    .itr-form .itr-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background: #fff;
+    }
+    .itr-form .itr-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+    .itr-form .itr-input,
+    .itr-form textarea,
+    .itr-form select {
+        min-height: 2.9rem;
+        font-size: .92rem;
+    }
+</style>
 
-<div class="max-w-6xl mx-auto py-8 px-4">
+<div class="max-w-[1400px] mx-auto py-6 px-4 lg:px-6">
     @if ($errors->any())
         <div class="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-xl shadow-sm">
             <div class="flex">
@@ -28,30 +48,41 @@
         </div>
     @endif
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <form action="{{ route($routePrefix . '.record.store') }}" method="POST" enctype="multipart/form-data">
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        <form class="itr-form" action="{{ route($routePrefix . '.record.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <input type="hidden" name="patient_record_id" value="{{ $patient->id }}">
 
-            <div class="p-8 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800 uppercase">Individual Treatment Record</h2>
-                    <p class="text-sm text-gray-500 uppercase tracking-widest mt-1">{{ $isNurse ? 'Nurse Consultation' : 'Doctor Consultation' }}</p>
+            <div class="px-6 py-5 lg:px-8 border-b border-slate-200 bg-slate-50/70 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-slate-800 uppercase leading-tight">Individual Treatment Record</h2>
+                        <p class="text-sm text-slate-500 mt-1">{{ $isNurse ? 'Nurse Consultation' : 'Doctor Consultation' }}</p>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <label class="block text-xs font-bold text-gray-400 uppercase">Consultation Date</label>
-                    <input type="text" name="consultation_date" id="consultation_date" autocomplete="off" placeholder="dd/mm/yyyy"
-                        data-material-calendar
-                        data-default="{{ old('consultation_date', \Carbon\Carbon::now()->format('Y-m-d')) }}"
-                        data-alt-class="border-none bg-transparent font-bold text-gray-700 text-lg p-0 focus:ring-0 text-right outline-none min-w-[8.75rem]"
-                        class="border-none bg-transparent font-bold text-gray-700 text-lg p-0 focus:ring-0 text-right outline-none min-w-[8.75rem] cursor-pointer">
+                <div class="flex items-center gap-3 lg:gap-4 lg:ms-auto">
+                    <div class="text-right">
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Consultation Date</label>
+                        <input type="text" name="consultation_date" id="consultation_date" required autocomplete="off" placeholder="dd/mm/yyyy"
+                            data-material-calendar
+                            data-default="{{ old('consultation_date', \Carbon\Carbon::now()->format('Y-m-d')) }}"
+                            data-alt-class="border-none bg-transparent font-bold text-blue-700 text-xl p-0 focus:ring-0 text-right outline-none min-w-[9.5rem]"
+                            class="border-none bg-transparent font-bold text-blue-700 text-xl p-0 focus:ring-0 text-right outline-none min-w-[9.5rem] cursor-pointer">
+                    </div>
+                    <a href="{{ route($routePrefix . '.record.index') }}" class="px-5 py-3 bg-white border border-slate-300 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition">Cancel</a>
+                    <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 shadow-sm transition">Save Patient Record</button>
                 </div>
             </div>
 
-            <div class="p-8">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                    <div class="lg:col-span-5 space-y-6">
+            <div class="p-6 lg:p-8 bg-slate-50/40">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-7">
+                    <div class="lg:col-span-5 space-y-6 itr-card p-5 lg:p-6">
                         <h3 class="font-bold text-blue-600 border-b pb-2 text-sm uppercase tracking-wider">Patient Information</h3>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -162,8 +193,8 @@
                         </div>
                     </div>
 
-                    <div class="lg:col-span-7 space-y-6 border-l border-gray-100 lg:pl-10">
-                        <div>
+                    <div class="lg:col-span-7 space-y-5">
+                        <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">V</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Vitals</label>
@@ -182,7 +213,7 @@
                             </div>
                         </div>
 
-                        <div>
+                        <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">S</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Subjective Findings</label>
@@ -190,13 +221,13 @@
                             <textarea
                                 name="{{ $isNurse ? 'subjective' : '' }}"
                                 rows="2"
-                                {{ $isNurse ? '' : 'readonly' }}
+                                {{ $isNurse ? 'required' : 'readonly' }}
                                 class="w-full px-4 py-3 rounded-xl {{ $isNurse ? 'bg-white border border-gray-200' : 'bg-gray-50 border border-gray-100 text-gray-600 cursor-default' }} text-sm outline-none"
                                 placeholder="{{ $isNurse ? 'Enter subjective findings...' : '' }}"
                             >{{ old('subjective', $latest?->subjective) }}</textarea>
                         </div>
 
-                        <div>
+                        <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">O</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Objective Findings</label>
@@ -204,13 +235,13 @@
                             <textarea
                                 name="{{ $isNurse ? 'objective' : '' }}"
                                 rows="2"
-                                {{ $isNurse ? '' : 'readonly' }}
+                                {{ $isNurse ? 'required' : 'readonly' }}
                                 placeholder="{{ $isNurse ? 'Enter objective findings...' : 'Physical Examination details...' }}"
                                 class="w-full px-4 py-3 rounded-xl {{ $isNurse ? 'bg-white border border-gray-200' : 'bg-gray-50 border border-gray-100 text-gray-600 cursor-default' }} text-sm outline-none"
                             >{{ old('objective', $latestObjectiveSansQueue) }}</textarea>
                         </div>
 
-                        <div>
+                        <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">A</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Assessment / Diagnosis</label>
@@ -224,7 +255,7 @@
                             >{{ old('diagnosis', $isNurse ? 'For doctor assessment' : '') }}</textarea>
                         </div>
 
-                        <div>
+                        <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">P</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Treatment Plan</label>
@@ -232,13 +263,13 @@
                             <textarea
                                 name="{{ $isNurse ? '' : 'follow_up_recommendation' }}"
                                 rows="2"
-                                {{ $isNurse ? 'readonly' : '' }}
+                                {{ $isNurse ? 'readonly' : 'required' }}
                                 placeholder="{{ $isNurse ? 'Only doctor can fill this out.' : 'Enter treatment plan...' }}"
                                 class="w-full px-4 py-3 rounded-xl border text-sm outline-none {{ $isNurse ? 'border-gray-100 bg-gray-50 text-gray-500 cursor-not-allowed' : 'border-gray-200 focus:ring-2 focus:ring-blue-100' }}"
                             >{{ old('follow_up_recommendation') }}</textarea>
                         </div>
 
-                        <div>
+                        <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center justify-between mb-2">
                                 <div class="flex items-center gap-2">
                                     <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">M</span>
@@ -283,10 +314,6 @@
                             @endif
                         </div>
 
-                        <div class="pt-6 flex gap-4">
-                            <button type="submit" class="flex-grow bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 shadow-lg transition active:scale-[0.98]">Save Consultation</button>
-                            <a href="{{ route($routePrefix . '.record.index') }}" class="px-8 py-4 bg-gray-100 text-gray-500 rounded-xl font-bold hover:bg-gray-200 transition">Cancel</a>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -378,7 +405,36 @@
         };
     }
 
+    function setupNativeRequiredValidation(form) {
+        const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+        requiredFields.forEach((field) => {
+            field.addEventListener('invalid', () => {
+                if (field.validity.valueMissing) {
+                    const label = field.closest('div')?.querySelector('label')?.textContent?.trim() || 'this field';
+                    field.setCustomValidity(`Please fill out ${label}.`);
+                } else {
+                    field.setCustomValidity('');
+                }
+            });
+            field.addEventListener('input', () => field.setCustomValidity(''));
+            field.addEventListener('change', () => field.setCustomValidity(''));
+        });
+
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                form.reportValidity();
+                form.querySelector(':invalid')?.focus();
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form.itr-form');
+        if (form) {
+            setupNativeRequiredValidation(form);
+        }
+
         const canAddPrescriptionMedicines = @json(!$isNurse);
         const container = document.getElementById('medicine-rows-container');
         const addBtn = document.getElementById('add-medicine-btn');

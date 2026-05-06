@@ -13,7 +13,7 @@
             <h1 class="text-xl font-black text-slate-800">
                 {{ \Illuminate\Support\Str::title(trim($record->first_name . ' ' . ($record->middle_name ? $record->middle_name . ' ' : '') . $record->last_name)) }}
             </h1>
-            <p class="text-xs text-slate-500 mt-1">Consultation {{ optional($record->consultation_date)->format('M d, Y') ?? '—' }} · Record #{{ $record->id }}</p>
+            <p class="text-xs text-slate-500 mt-1">Consultation {{ optional($record->consultation_date)->format('M d, Y') ?? '—' }}</p>
         </div>
         <div class="px-6 py-4 space-y-2 text-sm text-slate-700">
             <p><span class="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Assessment / Diagnosis</span><br>{{ $record->diagnosis ?: '—' }}</p>
