@@ -517,7 +517,8 @@ class DoctorClinicRecordController extends Controller
 
             // Prescribe only: allocate planned lots on the pivot without stock movement.
             // BHW confirms dispensing later (see Bhw\MedicineDispensingController).
-            if ($request->has('medicines')) {
+            // Nurses may not prescribe; ignore any posted medicines for that role.
+            if (!$isNurse && $request->has('medicines')) {
                 $requestedByMedicineKey = [];
                 $requestedLabelByMedicineKey = [];
                 $medicineIds = collect($request->medicines)

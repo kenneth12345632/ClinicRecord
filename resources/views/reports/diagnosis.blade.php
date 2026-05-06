@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+@include('partials.material-calendar-flatpickr-assets')
 <div class="max-w-7xl mx-auto pb-20 px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 mt-8">
         <div>
@@ -21,13 +22,17 @@
                     class="w-full md:w-80 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">From</label>
-                    <input type="date" name="from_date" value="{{ $fromDate ?? '' }}"
-                        class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" name="from_date" autocomplete="off" placeholder="dd/mm/yyyy"
+                        data-material-calendar data-default="{{ $fromDate ?? '' }}"
+                        data-alt-class="w-[11rem] px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                        class="w-[11rem] px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">To</label>
-                    <input type="date" name="to_date" value="{{ $toDate ?? '' }}"
-                        class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" name="to_date" autocomplete="off" placeholder="dd/mm/yyyy"
+                        data-material-calendar data-default="{{ $toDate ?? '' }}"
+                        data-alt-class="w-[11rem] px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                        class="w-[11rem] px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Month</label>
@@ -91,6 +96,7 @@
 @endsection
 
 @push('scripts')
+@include('partials.material-calendar-flatpickr-scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const rows = Array.from(document.querySelectorAll('#diagnosisReportTableBody .diagnosis-report-row')).map(row => row.outerHTML);

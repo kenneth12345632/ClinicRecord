@@ -5,7 +5,11 @@
     $role = auth()->user()->role ?? 'bhw';
     $isNurse = $role === 'nurse';
     $isBhw = $role === 'bhw';
+    $birthdayOld = old('birthday', $record->birthday->format('Y-m-d'));
 @endphp
+@if(!$isNurse)
+    @include('partials.birthday-material-picker-assets')
+@endif
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <div class="max-w-4xl mx-auto py-8">
@@ -40,13 +44,42 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Date of Consultation</label>
-                    <input type="date" name="consultation_date" value="{{ old('consultation_date', $record->consultation_date->format('Y-m-d')) }}" required {{ $isNurse ? 'readonly' : '' }}
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition">
+                    @if($isNurse)
+                        <input type="date" name="consultation_date" value="{{ old('consultation_date', $record->consultation_date->format('Y-m-d')) }}" required readonly
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-gray-50">
+                    @else
+                        <div class="relative w-full">
+                            <input type="text" name="consultation_date" id="consultation_date" autocomplete="off" placeholder="dd/mm/yyyy" required
+                                data-material-calendar
+                                data-default="{{ old('consultation_date', $record->consultation_date->format('Y-m-d')) }}"
+                                data-alt-class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition font-semibold text-gray-900 bg-white"
+                                class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition font-semibold text-gray-900 bg-white cursor-pointer">
+                            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </span>
+                        </div>
+                    @endif
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Birthday</label>
-                    <input type="date" name="birthday" id="birthday" value="{{ old('birthday', $record->birthday->format('Y-m-d')) }}" onchange="calculateAge()" required {{ $isNurse ? 'readonly' : '' }}
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-gray-50">
+                    @if(!$isNurse)
+                        <div class="relative w-full">
+                            <input type="text" name="birthday" id="birthday" autocomplete="off" required placeholder="dd/mm/yyyy"
+                                data-default="{{ $birthdayOld }}"
+                                data-alt-class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition font-semibold text-gray-900 bg-white"
+                                class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition font-semibold text-gray-900 bg-white">
+                            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </span>
+                        </div>
+                    @else
+                        <input type="date" name="birthday" id="birthday" value="{{ $birthdayOld }}" onchange="calculateAge()" readonly
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none transition bg-gray-50 cursor-not-allowed">
+                    @endif
                 </div>
             </div>
 
@@ -212,6 +245,8 @@
         display.value = (years === 0) ? `${months} Mon` : `${years} yrs`;
     }
 
+    window.calculateAge = calculateAge;
+
     document.addEventListener('DOMContentLoaded', function () {
         const dataProvider = document.getElementById('medicine-data');
         const allMedicines = JSON.parse(dataProvider.dataset.allMeds);
@@ -276,3 +311,9 @@
     .select2-container--default .select2-selection--single .select2-selection__arrow { height: 46px !important; }
 </style>
 @endsection
+
+@if(!$isNurse)
+    @push('scripts')
+        @include('partials.birthday-material-picker-scripts')
+    @endpush
+@endif

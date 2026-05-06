@@ -37,7 +37,7 @@ class MedicineController extends Controller
                 $nearestLot = $lots->sortBy('expiration_date')->first();
 
                 return [
-                    'name' => $name,
+                    'name' => $name, 
                     'expiration_date' => $nearestLot->expiration_date,
                     'days_left' => $today->diffInDays($nearestLot->expiration_date),
                     'total_stock' => $lots->sum('stock'),
@@ -114,9 +114,9 @@ class MedicineController extends Controller
             'dosage_unit' => 'nullable|in:mcg,mg,g,ml',
             'batch_number' => 'nullable|string|max:100',
             'stock' => 'required|integer|min:0',
-            'expiration_date' => 'required|date',
+            'expiration_date' => 'required|date|after_or_equal:today',
             // Changed from created_at to arrival_date
-            'arrival_date' => 'required|date', 
+            'arrival_date' => 'required|date|after_or_equal:today',
         ]);
 
         $hasPreviousStockInForSameName = InventoryLog::query()

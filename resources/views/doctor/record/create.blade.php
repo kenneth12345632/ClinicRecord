@@ -10,6 +10,7 @@
 @endphp
 <div id="medicine-data" data-list='@json($allMedicines ?? [])' style="display: none;"></div>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+@include('partials.material-calendar-flatpickr-assets')
 
 <div class="max-w-6xl mx-auto py-8 px-4">
     @if ($errors->any())
@@ -40,8 +41,11 @@
                 </div>
                 <div class="text-right">
                     <label class="block text-xs font-bold text-gray-400 uppercase">Consultation Date</label>
-                    <input type="date" name="consultation_date" value="{{ old('consultation_date', \Carbon\Carbon::now()->format('Y-m-d')) }}" 
-                        class="border-none bg-transparent font-bold text-gray-700 text-lg p-0 focus:ring-0 text-right outline-none">
+                    <input type="text" name="consultation_date" id="consultation_date" autocomplete="off" placeholder="dd/mm/yyyy"
+                        data-material-calendar
+                        data-default="{{ old('consultation_date', \Carbon\Carbon::now()->format('Y-m-d')) }}"
+                        data-alt-class="border-none bg-transparent font-bold text-gray-700 text-lg p-0 focus:ring-0 text-right outline-none min-w-[8.75rem]"
+                        class="border-none bg-transparent font-bold text-gray-700 text-lg p-0 focus:ring-0 text-right outline-none min-w-[8.75rem] cursor-pointer">
                 </div>
             </div>
 
@@ -240,9 +244,20 @@
                                     <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">M</span>
                                     <label class="text-xs font-bold text-gray-700 uppercase">Medicines (prescription)</label>
                                 </div>
-                                <button type="button" id="add-medicine-btn" class="text-blue-600 hover:text-blue-800 text-[10px] font-bold tracking-widest">+ ADD ITEM</button>
+                                @if($isNurse)
+                                    <button type="button" disabled
+                                        title="Only doctors can add prescription medicines"
+                                        class="text-gray-400 text-[10px] font-bold tracking-widest cursor-not-allowed">+ ADD ITEM</button>
+                                @else
+                                    <button type="button" id="add-medicine-btn" class="text-blue-600 hover:text-blue-800 text-[10px] font-bold tracking-widest">+ ADD ITEM</button>
+                                @endif
                             </div>
                             <p class="text-[11px] text-slate-500 mb-2 leading-relaxed">Inventory is <span class="font-semibold text-slate-700">not</span> reduced here. After you save, BHW uses <span class="font-semibold text-slate-700">Medicine queue</span> (bell in sidebar) to release stock when the patient actually receives the medicine.</p>
+                            @if($isNurse)
+                                <div class="mb-2 p-3 rounded-xl border border-dashed border-gray-200 bg-gray-50 text-xs font-semibold text-gray-500">
+                                    Only doctors can add prescription medicines.
+                                </div>
+                            @endif
                             <div id="medicine-rows-container" class="space-y-3"></div>
                             <div class="mt-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Previous Consultation Encoder</p>
@@ -364,6 +379,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        const canAddPrescriptionMedicines = @json(!$isNurse);
         const container = document.getElementById('medicine-rows-container');
         const addBtn = document.getElementById('add-medicine-btn');
         let rowIndex = 0;
@@ -400,7 +416,7 @@
             $(this).closest('.medicine-row').remove();
         });
 
-        if (addBtn) {
+        if (canAddPrescriptionMedicines && addBtn) {
             addBtn.addEventListener('click', createMedicineRow);
             createMedicineRow();
         }
@@ -408,3 +424,6 @@
 </script>
 @endsection
 
+@push('scripts')
+    @include('partials.material-calendar-flatpickr-scripts')
+@endpush

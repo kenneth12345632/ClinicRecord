@@ -1,6 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
+@include('partials.medicine-expiry-picker-assets')
+@php
+    $expirationOld = old('expiration_date');
+    if ($expirationOld && \Illuminate\Support\Carbon::parse($expirationOld)->startOfDay()->lt(now()->startOfDay())) {
+        $expirationOld = '';
+    }
+    $arrivalOld = old('arrival_date');
+    if (!$arrivalOld || \Illuminate\Support\Carbon::parse($arrivalOld)->startOfDay()->lt(now()->startOfDay())) {
+        $arrivalOld = now()->format('Y-m-d');
+    }
+@endphp
 <div class="max-w-2xl mx-auto py-6 px-4">
     <div class="mb-6">
         <a href="{{ route('medicines.index') }}" class="text-blue-600 hover:text-blue-800 flex items-center gap-2 mb-3 text-sm font-medium transition">
@@ -96,13 +107,37 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Date Received</label>
-                        <input type="date" name="arrival_date" value="{{ old('arrival_date', now()->format('Y-m-d')) }}" required
-                            class="w-full px-5 py-3.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition">
+                        <div class="relative w-full">
+                            <input type="text" name="arrival_date" id="arrival_date" required autocomplete="off"
+                                data-medicine-arrival
+                                data-default="{{ $arrivalOld }}"
+                                data-alt-class="w-full px-5 py-3.5 pr-12 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-semibold text-gray-900 transition"
+                                placeholder="dd/mm/yyyy"
+                                class="w-full px-5 py-3.5 pr-12 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-semibold text-gray-900 transition">
+                            <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </span>
+                        </div>
+                        <p class="mt-1.5 text-[10px] text-gray-400">Only today and future dates can be selected.</p>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Expiration Date</label>
-                        <input type="date" name="expiration_date" value="{{ old('expiration_date') }}" required
-                            class="w-full px-5 py-3.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition">
+                        <div class="relative w-full">
+                            <input type="text" name="expiration_date" id="expiration_date" required autocomplete="off"
+                                data-medicine-expiry
+                                data-default="{{ $expirationOld }}"
+                                data-alt-class="w-full px-5 py-3.5 pr-12 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-semibold text-gray-900 transition"
+                                placeholder="dd/mm/yyyy"
+                                class="w-full px-5 py-3.5 pr-12 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-semibold text-gray-900 transition">
+                            <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </span>
+                        </div>
+                        <p class="mt-1.5 text-[10px] text-gray-400">Only today and future dates can be selected.</p>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Quantity</label>
@@ -429,3 +464,7 @@
     });
 </script>
 @endsection
+
+@push('scripts')
+    @include('partials.medicine-expiry-picker-scripts')
+@endpush

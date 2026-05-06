@@ -5,7 +5,9 @@
     $role = auth()->user()->role ?? 'bhw';
     $isNurse = $role === 'nurse';
     $canEncodeFindings = $isNurse;
+    $birthdayOld = old('birthday');
 @endphp
+@include('partials.birthday-material-picker-assets')
 {{-- Hidden data provider for JavaScript --}}
 <div id="medicine-data" data-list='@json($allMedicines ?? [])' style="display: none;"></div>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -39,8 +41,11 @@
                 </div>
                 <div class="text-right">
                     <label class="block text-xs font-bold text-gray-400 uppercase">Consultation Date</label>
-                    <input type="date" name="consultation_date" value="{{ old('consultation_date', \Carbon\Carbon::now()->format('Y-m-d')) }}" 
-                        class="border-none bg-transparent font-bold text-gray-700 text-lg p-0 focus:ring-0 text-right outline-none">
+                    <input type="text" name="consultation_date" id="consultation_date" autocomplete="off" placeholder="dd/mm/yyyy"
+                        data-material-calendar
+                        data-default="{{ old('consultation_date', \Carbon\Carbon::now()->format('Y-m-d')) }}"
+                        data-alt-class="border-none bg-transparent font-bold text-gray-700 text-lg p-0 focus:ring-0 text-right outline-none min-w-[8.75rem]"
+                        class="border-none bg-transparent font-bold text-gray-700 text-lg p-0 focus:ring-0 text-right outline-none min-w-[8.75rem] cursor-pointer">
                 </div>
             </div>
 
@@ -66,8 +71,17 @@
 
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 mb-1">Birthday</label>
-                                <input type="date" name="birthday" id="birthday" value="{{ old('birthday') }}" onchange="calculateAge()" required 
-                                    class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-blue-400 outline-none">
+                                <div class="relative w-full">
+                                    <input type="text" name="birthday" id="birthday" autocomplete="off" required placeholder="dd/mm/yyyy"
+                                        data-default="{{ $birthdayOld }}"
+                                        data-alt-class="w-full px-3 py-2 pr-10 rounded-lg border border-gray-200 text-sm focus:border-blue-400 outline-none font-semibold text-gray-900"
+                                        class="w-full px-3 py-2 pr-10 rounded-lg border border-gray-200 text-sm focus:border-blue-400 outline-none font-semibold text-gray-900">
+                                    <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </span>
+                                </div>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 mb-1">Age</label>
@@ -401,6 +415,8 @@
         hidden.value = ageString;
     }
 
+    window.calculateAge = calculateAge;
+
     function calculateBMI() {
         const w = parseFloat(document.getElementById('weight').value);
         const h = parseFloat(document.getElementById('height').value);
@@ -502,3 +518,7 @@
     });
 </script>
 @endsection
+
+@push('scripts')
+    @include('partials.birthday-material-picker-scripts')
+@endpush
