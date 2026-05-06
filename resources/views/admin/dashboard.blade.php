@@ -2,10 +2,6 @@
 
 @section('content')
 @php
-    $doctorAvailable = \App\Models\User::query()
-        ->where('role', 'doctor')
-        ->get()
-        ->contains(fn ($user) => $user->is_doctor_available);
     $clinicName = \App\Models\Setting::getValue('clinic_name', 'Barangay Banilad Health Care Center') ?: 'Barangay Banilad Health Care Center';
     $clinicAddress = \App\Models\Setting::getValue('clinic_address', 'Centralized operations and system insights.') ?: 'Centralized operations and system insights.';
 @endphp
@@ -16,10 +12,6 @@
     @endphp
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="space-y-2">
-            <div class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
-                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                Doctor Available
-            </div>
             <div>
                 <h1 class="text-5xl font-black text-slate-800 tracking-tight">{{ $clinicName }}</h1>
                 <p class="text-sm text-slate-500">{{ $clinicAddress }}</p>
@@ -226,23 +218,6 @@
         </div>
 
         <div class="space-y-4">
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-xl font-black text-slate-800 mb-3 flex items-center gap-2">
-                    <span class="text-blue-500">📋</span> Patient Insights
-                </h3>
-                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 flex items-center justify-between gap-3">
-                    <div>
-                        <p class="text-sm font-bold text-slate-700">Doctor Availability</p>
-                        <p class="text-sm mt-1 {{ $doctorAvailable ? 'text-emerald-600' : 'text-amber-600' }}">
-                            {{ $doctorAvailable ? 'Doctor is currently available.' : 'Doctor is currently not available.' }}
-                        </p>
-                    </div>
-                    <span class="w-10 h-10 rounded-full {{ $doctorAvailable ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600' }} text-xl flex items-center justify-center">
-                        {{ $doctorAvailable ? '✓' : '!' }}
-                    </span>
-                </div>
-            </div>
-
             <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h3 class="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
                     <span class="text-blue-500">📈</span> Weekly Patients Trend

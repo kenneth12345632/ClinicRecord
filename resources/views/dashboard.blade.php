@@ -1,20 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-@php
-    $doctorAvailable = \App\Models\User::query()
-        ->where('role', 'doctor')
-        ->get()
-        ->contains(fn ($user) => $user->is_doctor_available);
-@endphp
 
 <div class="max-w-7xl mx-auto">
     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 md:p-8 shadow-sm space-y-6">
-        <div class="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            {{ $doctorAvailable ? 'Doctor Available' : 'Doctor Not Available' }}
-        </div>
-
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
                 <h1 class="text-4xl font-black text-slate-800">Barangay Banilad Health Care Center</h1>

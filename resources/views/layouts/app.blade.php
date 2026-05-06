@@ -179,10 +179,6 @@
                 $profilePhotoUrl = (!empty($authUser?->profile_photo_path))
                     ? asset('storage/'.$authUser->profile_photo_path)
                     : null;
-                $doctorAvailable = \App\Models\User::query()
-                    ->where('role', 'doctor')
-                    ->get()
-                    ->contains(fn($u) => $u->is_doctor_available);
             @endphp
 
             <nav class="mt-6 flex-1 px-4 space-y-1">
