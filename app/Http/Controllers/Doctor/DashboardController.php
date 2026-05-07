@@ -31,12 +31,21 @@ class DashboardController extends Controller
             ->unique(fn ($item) => $item->first_name . $item->last_name . $item->birthday)
             ->take(5);
 
+        $weeklyPatients = ClinicRecord::query()
+            ->whereDate('consultation_date', '>=', now()->subDays(6))
+            ->selectRaw('DATE(consultation_date) as day, COUNT(*) as total')
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get();
+
         return view('doctor.dashboard.index', [
             'totalPatients' => $totalPatients,
             'todayConsultations' => $todayConsultations,
             'lowStockCount' => $lowStockCount,
             'recentRecords' => $recentRecords,
+            'weeklyPatients' => $weeklyPatients,
             'isDoctorAvailable' => (bool) (Auth::user()?->is_doctor_available),
         ]);
     }
 }
+

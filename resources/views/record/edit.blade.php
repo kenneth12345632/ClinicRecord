@@ -5,6 +5,7 @@
     $role = auth()->user()->role ?? 'bhw';
     $isNurse = $role === 'nurse';
     $isBhw = $role === 'bhw';
+    $isAdmin = $role === 'admin';
     $birthdayOld = old('birthday', $record->birthday->format('Y-m-d'));
 @endphp
 @if(!$isNurse)
@@ -193,19 +194,21 @@
                     class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition">{{ old('diagnosis', $record->diagnosis) }}</textarea>
             </div>
 
-            {{-- Medicines Given Section --}}
-            <div class="border border-slate-100 rounded-2xl p-6 mt-8 bg-white">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-sm font-bold text-slate-500 uppercase">Medicines Given</h3>
-                    <button type="button" id="add-medicine-btn" class="flex items-center gap-2 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition shadow-md">
-                        + ADD MEDICINE
-                    </button>
-                </div>
+            @unless($isAdmin)
+                {{-- Medicines Given Section --}}
+                <div class="border border-slate-100 rounded-2xl p-6 mt-8 bg-white">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-sm font-bold text-slate-500 uppercase">Medicines Given</h3>
+                        <button type="button" id="add-medicine-btn" class="flex items-center gap-2 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition shadow-md">
+                            + ADD MEDICINE
+                        </button>
+                    </div>
 
-                <div id="medicine-rows-container" class="space-y-4">
-                    {{-- Row injection --}}
+                    <div id="medicine-rows-container" class="space-y-4">
+                        {{-- Row injection --}}
+                    </div>
                 </div>
-            </div>
+            @endunless
             @endif
 
             <div class="pt-6 flex gap-4">
@@ -249,11 +252,15 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         const dataProvider = document.getElementById('medicine-data');
-        const allMedicines = JSON.parse(dataProvider.dataset.allMeds);
-        const existingMeds = JSON.parse(dataProvider.dataset.existingMeds);
-
         const container = document.getElementById('medicine-rows-container');
         const addBtn = document.getElementById('add-medicine-btn');
+        if (!dataProvider || !container || !addBtn) {
+            calculateAge();
+            return;
+        }
+
+        const allMedicines = JSON.parse(dataProvider.dataset.allMeds);
+        const existingMeds = JSON.parse(dataProvider.dataset.existingMeds);
         let rowIndex = 0;
 
         function createMedicineRow(selectedId = null, quantity = 1) {

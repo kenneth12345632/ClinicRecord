@@ -65,8 +65,8 @@
             </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div class="lg:col-span-2 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
                     <div class="p-5 border-b border-slate-100 flex justify-between items-center">
                         <h3 class="font-bold text-slate-800">Recent Activity</h3>
                         <a href="{{ $recordIndexRoute }}" class="text-sm text-blue-600 font-bold hover:underline">View History</a>
@@ -93,21 +93,81 @@
                     </div>
                 </div>
 
-                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm h-fit">
-                    <h3 class="font-bold text-slate-800 mb-4">Quick Navigation</h3>
-                    <div class="grid grid-cols-1 gap-3">
-                        <a href="{{ $recordIndexRoute }}" class="flex items-center gap-3 p-3 rounded-xl border border-blue-200 bg-blue-50/40 hover:bg-blue-50 transition">
-                            <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">📄</div>
-                            <span class="text-sm font-bold text-slate-700">Patient Records</span>
-                        </a>
-                        <a href="{{ $recordIndexRoute }}" class="flex items-center gap-3 p-3 rounded-xl border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 transition">
-                            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">🧪</div>
-                            <span class="text-sm font-bold text-slate-700">Medicine Inventory</span>
-                        </a>
-                    </div>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <h3 class="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="text-blue-500">📈</span> Weekly Patients Trend
+                    </h3>
+                    @if(($weeklyPatients ?? collect())->count() > 0)
+                        <div class="relative h-64 rounded-xl border border-slate-100 bg-white p-3">
+                            <canvas id="weeklyPatientsTrendChart"></canvas>
+                        </div>
+                    @else
+                        <div class="rounded-xl border border-dashed border-slate-200 p-8 text-center text-sm text-slate-500">
+                            No recent patient trend data.
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const canvas = document.getElementById('weeklyPatientsTrendChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        const rawRows = @json(($weeklyPatients ?? collect())->values()->map(function ($row) {
+            return [
+                'label' => \Carbon\Carbon::parse($row->day)->format('D M d'),
+                'value' => (int) $row->total,
+            ];
+        }));
+
+        if (!Array.isArray(rawRows) || rawRows.length === 0) return;
+
+        const labels = rawRows.map(row => row.label);
+        const values = rawRows.map(row => row.value);
+        const ctx = canvas.getContext('2d');
+        const gradientA = ctx.createLinearGradient(0, 0, 0, 260);
+        gradientA.addColorStop(0, 'rgba(16, 185, 129, 0.45)');
+        gradientA.addColorStop(1, 'rgba(16, 185, 129, 0.02)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    data: values,
+                    borderColor: '#059669',
+                    backgroundColor: gradientA,
+                    fill: true,
+                    tension: 0.2,
+                    pointRadius: 4,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#16a34a',
+                    pointBorderColor: '#16a34a',
+                    pointBorderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: '#f1f5f9' }, border: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0, stepSize: 2 },
+                        grid: { color: '#e2e8f0', lineWidth: 1 },
+                        border: { display: false }
+                    }
+                },
+                elements: { line: { borderWidth: 3 } }
+            }
+        });
+    });
+</script>
 @endsection
+

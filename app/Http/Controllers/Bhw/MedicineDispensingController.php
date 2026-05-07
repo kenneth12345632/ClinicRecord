@@ -65,7 +65,9 @@ class MedicineDispensingController extends Controller
     public function show(ClinicRecord $record)
     {
         if (!$this->recordHasPendingDispensing($record)) {
-            abort(404);
+            return redirect()
+                ->route($this->dispensingIndexRoute())
+                ->with('info', 'This visit is no longer in the medicine queue.');
         }
 
         $record->load([
@@ -93,9 +95,20 @@ class MedicineDispensingController extends Controller
                 ->with('info', 'This visit is no longer in the medicine queue.');
         }
 
-        $summary = [];
+        $validated = $request->validate([
+            'dispense_quantities' => ['nullable', 'array'],
+            'dispense_quantities.*' => ['nullable', 'integer', 'min:0'],
+            'release_note' => ['nullable', 'string', 'max:1000'],
+        ]);
+        $requestedQuantities = collect($validated['dispense_quantities'] ?? [])
+            ->mapWithKeys(fn ($qty, $rowId) => [(int) $rowId => (int) $qty]);
+        $manualReleaseNote = trim((string) ($validated['release_note'] ?? ''));
 
-        DB::transaction(function () use ($record, &$summary) {
+        $summary = [];
+        $partialSummary = [];
+        $hasAnyReleased = false;
+
+        DB::transaction(function () use ($record, $requestedQuantities, $manualReleaseNote, &$summary, &$partialSummary, &$hasAnyReleased) {
             $rows = DB::table('clinic_record_medicine')
                 ->where('clinic_record_id', $record->id)
                 ->whereNull('dispensed_at')
@@ -127,8 +140,19 @@ class MedicineDispensingController extends Controller
                     ]);
                 }
 
-                $qty = (int) $row->quantity;
-                if ($qty <= 0) {
+                $plannedQty = (int) $row->quantity;
+                $qty = $requestedQuantities->has((int) $row->id)
+                    ? (int) $requestedQuantities->get((int) $row->id)
+                    : $plannedQty;
+
+                if ($qty < 0 || $qty > $plannedQty) {
+                    throw ValidationException::withMessages([
+                        'dispense' => "Invalid quantity for {$plannedLot->name}. Enter 0 to {$plannedQty} only.",
+                    ]);
+                }
+                if ($qty === 0) {
+                    DB::table('clinic_record_medicine')->where('id', $row->id)->delete();
+                    $partialSummary[] = "Only 0 of {$plannedLot->name} released (prescribed {$plannedQty}).";
                     continue;
                 }
 
@@ -209,7 +233,13 @@ class MedicineDispensingController extends Controller
                 }
 
                 $now = now();
-                DB::table('clinic_record_medicine')->where('id', $row->id)->delete();
+                $remainingPlan = $plannedQty - $qty;
+                if ($remainingPlan > 0) {
+                    DB::table('clinic_record_medicine')->where('id', $row->id)->delete();
+                    $partialSummary[] = "Only {$qty} of {$plannedLot->name} released (prescribed {$plannedQty}).";
+                } else {
+                    DB::table('clinic_record_medicine')->where('id', $row->id)->delete();
+                }
 
                 foreach ($takes as $take) {
                     DB::table('clinic_record_medicine')->insert([
@@ -223,21 +253,34 @@ class MedicineDispensingController extends Controller
 
                     $summary[] = "{$take['label']} (x{$take['quantity']})";
                 }
+                $hasAnyReleased = true;
             }
 
             if ($summary !== []) {
                 $bhwName = $this->bhwDisplayName();
                 $record->refresh();
+                $releaseNoteText = $manualReleaseNote !== '' ? (' | BHW note: ' . $manualReleaseNote) : '';
                 $record->update([
-                    'medicines_given' => 'Given: ' . implode(', ', $summary) . ' | Released by BHW: ' . $bhwName . ' on ' . now()->format('M d, Y g:i A'),
+                    'medicines_given' => 'Given: ' . implode(', ', $summary) . ' | Released by BHW: ' . $bhwName . ' on ' . now()->format('M d, Y g:i A') . $releaseNoteText,
                     'published_to_registry_at' => now(),
                 ]);
             }
         });
 
         $record->refresh();
+        $remainingPendingRows = DB::table('clinic_record_medicine')
+            ->where('clinic_record_id', $record->id)
+            ->whereNull('dispensed_at')
+            ->count();
 
-        if ($record->published_to_registry_at) {
+        if ($remainingPendingRows === 0 && $record->published_to_registry_at === null) {
+            $record->update([
+                'published_to_registry_at' => now(),
+            ]);
+            $record->refresh();
+        }
+
+        if ($record->published_to_registry_at && $remainingPendingRows === 0) {
             ActivityLogger::log(
                 $summary !== [] ? 'medicine_dispensed' : 'consultation_published_to_registry',
                 $summary !== []
@@ -251,9 +294,25 @@ class MedicineDispensingController extends Controller
             $msg = $summary !== []
                 ? "Medicines confirmed. {$patientLabel} now appears on Clinic Records for this visit."
                 : "{$patientLabel} is now visible on Clinic Records.";
+            if ($partialSummary !== []) {
+                $msg .= ' ' . implode(' ', $partialSummary);
+            }
 
             return redirect()
                 ->route($this->patientRecordsIndexRoute())
+                ->with('success', $msg)
+                ->with('show_patients', true);
+        }
+
+        if ($hasAnyReleased) {
+            $msg = 'Release saved.';
+            if ($partialSummary !== []) {
+                $msg .= ' ' . implode(' ', $partialSummary);
+            }
+            $msg .= ' Remaining medicines stay in queue.';
+
+            return redirect()
+                ->route($this->routePrefix() . '.dispensing.show', $record)
                 ->with('success', $msg);
         }
 

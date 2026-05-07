@@ -4,7 +4,10 @@
 @section('content')
 @include('partials.medicine-expiry-picker-assets')
 @php
-    $isDoctorRole = (auth()->user()->role ?? null) === 'doctor';
+    $currentRole = auth()->user()->role ?? null;
+    $isDoctorRole = $currentRole === 'doctor';
+    $isNurseRole = $currentRole === 'nurse';
+    $isReadOnlyInventoryRole = $isDoctorRole || $isNurseRole;
 @endphp
 {{-- Load Alpine.js for floating overlays --}}
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -16,7 +19,7 @@
             <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Inventory Medicine</h1>
             <p class="text-gray-500 text-sm mt-1">One row per medicine; the <span class="text-slate-600 font-medium">chevron</span> lists every releasable batch (qty &amp; expiry, soonest first). Open <span class="text-slate-600 font-medium">View</span> for full history.</p>
         </div>
-        @unless($isDoctorRole)
+        @unless($isReadOnlyInventoryRole)
             <a href="{{ route('medicines.create') }}"
                 class="inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-blue-700 transition self-start md:self-auto">
                 <span class="text-base leading-none font-bold" aria-hidden="true">+</span>
@@ -178,13 +181,13 @@
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </button>
 
-                            @unless($isDoctorRole)
+                            @unless($isReadOnlyInventoryRole)
                                 <button type="button" @click="openAddLot = '{{ $grpKey }}'" title="Add stock" aria-label="Add stock" class="p-2 bg-[#ECFDF5] text-[#10B981] rounded-xl hover:opacity-80 transition shadow-sm shrink-0">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                                 </button>
                             @endunless
 
-                            @unless($isDoctorRole)
+                            @unless($isReadOnlyInventoryRole)
                                 @if($editTargetLot)
                                     <a href="{{ route('medicines.edit', $editTargetLot) }}" title="Edit batch (soonest releasable, or first listed)" aria-label="Edit medicine batch" class="inline-flex items-center justify-center p-2.5 bg-[#EFF6FF] text-[#2563EB] rounded-xl hover:opacity-80 transition shadow-sm shrink-0">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -234,7 +237,7 @@
                                         </div>
 
                                         <div class="flex flex-col gap-2 pl-6 border-l border-gray-50">
-                                            <a href="{{ route('medicines.edit', $hist) }}" class="px-5 py-2 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase text-center hover:bg-blue-100 transition">View</a>
+                                            <a href="{{ route('medicines.show', $hist) }}" class="px-5 py-2 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase text-center hover:bg-blue-100 transition">View</a>
                                         </div>
                                     </div>
                                     @empty
@@ -317,7 +320,7 @@
                                     @php
                                         $stackLabel = $stackLot->batch_number ? 'Batch ' . $stackLot->batch_number : 'Lot #' . $stackLot->id;
                                     @endphp
-                                    <a href="{{ route('medicines.edit', $stackLot) }}"
+                                    <a href="{{ route('medicines.show', $stackLot) }}"
                                         class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-5 py-4 text-left transition hover:bg-blue-50 focus:outline-none focus-visible:bg-blue-50 group">
                                         <div class="min-w-0">
                                             <p class="text-sm font-bold text-slate-900 group-hover:text-blue-700">{{ $stackLabel }}</p>
@@ -413,13 +416,30 @@
     }
 
     function runFilters() {
-        const input = document.getElementById("inventorySearch").value.toUpperCase();
+        const inputEl = document.getElementById("inventorySearch");
+        const input = inputEl.value.trim().toUpperCase();
+        const pager = $('#inventoryPagination');
+        const emptyMessage = document.getElementById("inventoryEmptyMessage");
+
+        if (input === '') {
+            if (pager.data('pagination')) {
+                pager.pagination('destroy');
+            }
+            inventoryRows.forEach(item => {
+                item.element.style.display = 'none';
+            });
+            emptyMessage.textContent = 'Type a medicine name to search.';
+            emptyMessage.classList.remove('hidden');
+            return;
+        }
+
+        emptyMessage.textContent = 'No medicine records found.';
         const filtered = inventoryRows.filter(row => row.name.includes(input));
         renderInventoryPagination(filtered);
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        renderInventoryPagination(inventoryRows);
+        runFilters();
     });
 </script>
 @endsection

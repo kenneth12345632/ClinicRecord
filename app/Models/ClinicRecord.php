@@ -70,11 +70,13 @@ protected $fillable = [
             ->where('diagnosis', '!=', self::DOCTOR_PLACEHOLDER_DIAGNOSIS)
             ->whereNotNull('doctor_consulted_by')
             ->whereRaw('LOWER(TRIM(doctor_consulted_by)) LIKE ?', ['dr.%'])
-            ->whereNull('published_to_registry_at')
             ->where(function ($outer) {
                 $outer->whereHas('medicines', function ($q) {
                     $q->whereNull('clinic_record_medicine.dispensed_at');
-                })->orWhereDoesntHave('medicines');
+                })->orWhere(function ($q) {
+                    $q->whereDoesntHave('medicines')
+                        ->whereNull('published_to_registry_at');
+                });
             });
     }
 
@@ -102,9 +104,7 @@ protected $fillable = [
     }
 
     /**
-     * Latest visit per patient that is already published and has no undispensed medicine lines.
-     * Newer doctor/nurse rows stay off the registry until BHW publishes them; the list then shows
-     * the previous published visit for that patient instead of hiding the patient entirely.
+     * Latest visit per patient that is already published to the registry.
      *
      * BHW intake rows (placeholder diagnosis, no doctor/nurse signer) never appear here. A row must
      * have doctor_consulted_by set so only EMR consultations released by BHW count as registry entries.
@@ -117,12 +117,6 @@ protected $fillable = [
                 ->whereNotNull('cr.published_to_registry_at')
                 ->whereNotNull('cr.doctor_consulted_by')
                 ->where('cr.diagnosis', '!=', self::DOCTOR_PLACEHOLDER_DIAGNOSIS)
-                ->whereNotExists(function ($q) {
-                    $q->select(DB::raw(1))
-                        ->from('clinic_record_medicine as crm')
-                        ->whereColumn('crm.clinic_record_id', 'cr.id')
-                        ->whereNull('crm.dispensed_at');
-                })
                 ->groupBy('cr.first_name', 'cr.last_name', 'cr.birthday');
         });
     }

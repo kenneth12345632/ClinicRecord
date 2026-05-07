@@ -70,6 +70,55 @@ class MedicineController extends Controller
     }
 
     /**
+     * @return array{inventoryLogs: \Illuminate\Support\Collection, consultationNames: \Illuminate\Support\Collection<int, string>}
+     */
+    private function batchActivityContext(Medicine $medicine): array
+    {
+        $inventoryLogs = InventoryLog::with(['medicine', 'user'])
+            ->where('medicine_id', $medicine->id)
+            ->latest()
+            ->get();
+
+        $consultationIds = $inventoryLogs
+            ->pluck('reference')
+            ->filter()
+            ->map(function (string $reference) {
+                if (preg_match('/Dispensed for consultation #(\d+)/i', $reference, $matches)) {
+                    return (int) $matches[1];
+                }
+
+                return null;
+            })
+            ->filter()
+            ->unique()
+            ->values();
+
+        $consultationNames = \App\Models\ClinicRecord::query()
+            ->whereIn('id', $consultationIds)
+            ->get()
+            ->mapWithKeys(function (\App\Models\ClinicRecord $record) {
+                $fullName = trim($record->first_name . ' ' . ($record->middle_name ? $record->middle_name . ' ' : '') . $record->last_name);
+
+                return [$record->id => $fullName];
+            });
+
+        return [
+            'inventoryLogs' => $inventoryLogs,
+            'consultationNames' => $consultationNames,
+        ];
+    }
+
+    /**
+     * Read-only batch activity (from View on inventory — no edit form).
+     */
+    public function show(Medicine $medicine)
+    {
+        return view('medicines.show', [
+            'medicine' => $medicine,
+        ] + $this->batchActivityContext($medicine));
+    }
+
+    /**
      * @return array{dbGenericOptions: \Illuminate\Support\Collection, dbBrandOptions: \Illuminate\Support\Collection, dbTypeOptions: \Illuminate\Support\Collection}
      */
     private function medicineCatalogSuggestionCollections(): array
@@ -202,38 +251,9 @@ class MedicineController extends Controller
         $catalog = $this->medicineCatalogSuggestionCollections();
         $parsed = $this->parseMedicineDisplayName($medicine);
 
-        $inventoryLogs = InventoryLog::with(['medicine', 'user'])
-            ->where('medicine_id', $medicine->id)
-            ->latest()
-            ->get();
-
-        $consultationIds = $inventoryLogs
-            ->pluck('reference')
-            ->filter()
-            ->map(function (string $reference) {
-                if (preg_match('/Dispensed for consultation #(\d+)/i', $reference, $matches)) {
-                    return (int) $matches[1];
-                }
-
-                return null;
-            })
-            ->filter()
-            ->unique()
-            ->values();
-
-        $consultationNames = \App\Models\ClinicRecord::query()
-            ->whereIn('id', $consultationIds)
-            ->get()
-            ->mapWithKeys(function (\App\Models\ClinicRecord $record) {
-                $fullName = trim($record->first_name . ' ' . ($record->middle_name ? $record->middle_name . ' ' : '') . $record->last_name);
-                return [$record->id => $fullName];
-            });
-
         return view('medicines.edit', [
             'medicine' => $medicine,
             'parsedMedicineName' => $parsed,
-            'inventoryLogs' => $inventoryLogs,
-            'consultationNames' => $consultationNames,
         ] + $catalog);
     }
 

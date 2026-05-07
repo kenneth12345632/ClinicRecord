@@ -26,10 +26,14 @@
         }
         .top-header {
             display: grid;
-            grid-template-columns: 92px 1fr;
+            grid-template-columns: minmax(92px, 92px) 1fr minmax(92px, 92px);
             gap: 14px;
             align-items: center;
             margin-bottom: 8px;
+        }
+        .top-header-spacer {
+            width: 92px;
+            height: 1px;
         }
         .logo-wrap {
             width: 92px;
@@ -52,7 +56,7 @@
             line-height: 1.15;
         }
         .heading .small { font-size: 13px; color: #334155; font-weight: 400; }
-        .heading .mid { font-size: 21px; font-weight: 400; letter-spacing: .15px; }
+        .heading .mid { font-size: 18px; font-weight: 400; letter-spacing: .15px; line-height: 1.25; }
         .heading .title { font-size: 44px; font-weight: 400; letter-spacing: .15px; margin-top: 4px; }
         .patient-head {
             display: flex;
@@ -166,10 +170,11 @@
         </div>
         <div class="heading">
             <div class="small">Republic of the Philippines</div>
-            <div class="mid">OFFICE OF THE CITY HEALTH</div>
-            <div class="small">Dumalinao City</div>
+            <div class="mid">BARANGAY BANILAD HEALTH CENTER</div>
+            <div class="small">Dumaguete City</div>
             <div class="title">INDIVIDUAL TREATMENT RECORD</div>
         </div>
+        <div class="top-header-spacer" aria-hidden="true"></div>
     </div>
 
     <div class="patient-head">
@@ -234,6 +239,11 @@
                         <li>{{ $medicine->name }} (x{{ $medicine->pivot->quantity }})</li>
                     @endforeach
                 </ul>
+                @if($hasValue($record->medicines_given))
+                    <div style="margin-top:6px;font-size:12px;color:#92400e;white-space:pre-wrap;">
+                        {{ $record->medicines_given }}
+                    </div>
+                @endif
             @elseif($hasValue($record->medicines_given))
                 {{ $record->medicines_given }}
             @else

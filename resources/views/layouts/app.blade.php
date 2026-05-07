@@ -198,7 +198,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                    </span> Patients
+                    </span> Patient Records
                 </a>
 
                 @if($isBhw || $isAdmin)
@@ -222,14 +222,16 @@
                     </a>
                 @endif
 
-                <a href="{{ $isBhw ? route('bhw.medicines.index') : route('medicines.index') }}"
-                   class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('medicines.*') || request()->routeIs('bhw.medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                    <span class="mr-2 inline-flex align-middle">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 8.5l7 7m-9.5 1a3.5 3.5 0 010-5l5.5-5.5a3.5 3.5 0 115 5L11 16.5a3.5 3.5 0 01-5 0z"/>
-                        </svg>
-                    </span> Inventory
-                </a>
+                @unless($isBhw)
+                    <a href="{{ route('medicines.index') }}"
+                       class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        <span class="mr-2 inline-flex align-middle">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 8.5l7 7m-9.5 1a3.5 3.5 0 010-5l5.5-5.5a3.5 3.5 0 115 5L11 16.5a3.5 3.5 0 01-5 0z"/>
+                            </svg>
+                        </span> Inventory Medicine
+                    </a>
+                @endunless
 
                 @if($isDoctor || $isNurse)
                     <a href="{{ $isDoctor ? route('doctor.pending.index') : route('nurse.pending.index') }}"
@@ -246,7 +248,6 @@
                     <a href="{{ route('admin.users.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.users.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2a3 3 0 00-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span> User Management</a>
                     <a href="{{ route('admin.reports.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.reports.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-3M5 20h14a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg></span> Reports</a>
                     <a href="{{ route('admin.activity-logs.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.activity-logs.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span> Activity Logs</a>
-                    <a href="{{ route('admin.settings.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.settings.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.983 5.25c.472-1.52 2.562-1.52 3.034 0a1.75 1.75 0 002.624 1.016c1.34-.85 2.817.627 1.967 1.967a1.75 1.75 0 001.016 2.624c1.52.472 1.52 2.562 0 3.034a1.75 1.75 0 00-1.016 2.624c.85 1.34-.627 2.817-1.967 1.967a1.75 1.75 0 00-2.624 1.016c-.472 1.52-2.562 1.52-3.034 0a1.75 1.75 0 00-2.624-1.016c-1.34.85-2.817-.627-1.967-1.967a1.75 1.75 0 00-1.016-2.624c-1.52-.472-1.52-2.562 0-3.034a1.75 1.75 0 001.016-2.624c-.85-1.34.627-2.817 1.967-1.967a1.75 1.75 0 002.624-1.016z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span> Settings</a>
                     <a href="{{ route('admin.inventory.ledger') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.inventory.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m-8-4v10l8 4m-8-14l8 4m0 0v10"/></svg></span> Inventory Ledger</a>
                 @endif
 
@@ -256,13 +257,13 @@
                     <div class="pt-1">
                         <button type="button"
                             onclick="toggleReportsMenu()"
-                            class="w-full flex justify-between items-center py-3 px-4 rounded-lg transition {{ request()->routeIs('reports.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                            class="w-full flex justify-between items-center py-3 px-4 rounded-lg transition {{ request()->routeIs('reports.*') || request()->routeIs('bhw.medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                             <span>Reports</span>
-                            <svg id="reports-arrow" class="w-4 h-4 transition-transform {{ request()->routeIs('reports.*') ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg id="reports-arrow" class="w-4 h-4 transition-transform {{ request()->routeIs('reports.*') || request()->routeIs('bhw.medicines.*') ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
-                        <div id="reports-menu" class="ml-4 mt-1 space-y-1 {{ request()->routeIs('reports.*') ? '' : 'hidden' }}">
+                        <div id="reports-menu" class="ml-4 mt-1 space-y-1 {{ request()->routeIs('reports.*') || request()->routeIs('bhw.medicines.*') ? '' : 'hidden' }}">
                             <a href="{{ route('bhw.reports.diagnosis') }}"
                                class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.diagnosis') || request()->routeIs('bhw.reports.diagnosis') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                                 <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-3M5 20h14a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg></span>Diagnosis
@@ -270,6 +271,10 @@
                             <a href="{{ route('bhw.reports.patients') }}"
                                class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.patients') || request()->routeIs('bhw.reports.patients') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                                 <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>Patient
+                            </a>
+                            <a href="{{ route('bhw.medicines.index') }}"
+                               class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('bhw.medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                                <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 8.5l7 7m-9.5 1a3.5 3.5 0 010-5l5.5-5.5a3.5 3.5 0 115 5L11 16.5a3.5 3.5 0 01-5 0z"/></svg></span>Inventory Medicine
                             </a>
                         </div>
                     </div>

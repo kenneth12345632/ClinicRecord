@@ -65,7 +65,7 @@
     {{-- Header Section --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 mt-8">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Clinic Records</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Patient Records</h1>
             <p class="text-gray-500 text-sm mt-1">Showing unique patient history</p>
             @if($isBhwRole || $isAdminRole)
                 <p class="text-amber-800/90 text-xs mt-2 max-w-xl leading-relaxed">New doctor/nurse visits stay in <span class="font-semibold">Medicine queue</span> until BHW confirms. This list shows the <span class="font-semibold">last released visit</span> per patient (or the previous one while a newer visit is still pending).</p>
@@ -73,6 +73,11 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <button type="button" id="togglePatientsBtn"
+                class="px-4 py-2.5 rounded-xl border border-blue-200 text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition shadow-sm">
+                Show Patients
+            </button>
+
             <select id="ageFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer">
                 <option value="all">All Ages</option>
                 <option value="0-11">Infants (0-11 months)</option>
@@ -428,7 +433,25 @@ const recordRows = Array.from(document.querySelectorAll('#recordsTableBody .pati
     };
 });
 
+let recordsVisible = @json((bool) session('show_patients'));
+
+function updateToggleButtonLabel() {
+    const btn = document.getElementById('togglePatientsBtn');
+    if (!btn) return;
+    btn.textContent = recordsVisible ? 'Hide Patients' : 'Show Patients';
+}
+
 function renderRecordPagination(filteredRows) {
+    if (!recordsVisible) {
+        renderPaginationTable({
+            pagerSelector: '#recordsPagination',
+            tableBodySelector: '#recordsTableBody',
+            rows: [],
+            emptyRowHtml: '<tr><td colspan="7" class="px-6 py-16 text-center text-gray-400 italic">Patients are hidden. Click "Show Patients" or choose a filter to display records.</td></tr>'
+        });
+        return;
+    }
+
     if (filteredRows.length === 0) {
         renderPaginationTable({
             pagerSelector: '#recordsPagination',
@@ -448,7 +471,12 @@ function renderRecordPagination(filteredRows) {
 }
 
 // Search & Filter Logic
-function applyFilters() {
+function applyFilters(showPatients = true) {
+    if (showPatients) {
+        recordsVisible = true;
+        updateToggleButtonLabel();
+    }
+
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const ageFilter = document.getElementById('ageFilter').value;
     const genderFilter = document.getElementById('genderFilter').value;
@@ -471,10 +499,12 @@ function applyFilters() {
 }
 
 document.getElementById('searchInput').addEventListener('keyup', applyFilters);
+document.getElementById('searchInput').addEventListener('input', applyFilters);
 document.getElementById('ageFilter').addEventListener('change', applyFilters);
 document.getElementById('genderFilter').addEventListener('change', applyFilters);
 document.getElementById('addressFilter').addEventListener('change', applyFilters);
 document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
     const addressFilter = document.getElementById('addressFilter');
     const uniqueAddresses = [...new Set(recordRows.map(item => item.address).filter(Boolean))].sort();
     uniqueAddresses.forEach((address) => {
@@ -483,7 +513,22 @@ document.addEventListener('DOMContentLoaded', function () {
         opt.textContent = address.toUpperCase();
         addressFilter.appendChild(opt);
     });
+    updateToggleButtonLabel();
     renderRecordPagination(recordRows);
+    if (searchInput && searchInput.value.trim() !== '') {
+        recordsVisible = true;
+        updateToggleButtonLabel();
+        applyFilters(false);
+    }
+
+    const toggleBtn = document.getElementById('togglePatientsBtn');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function () {
+            recordsVisible = !recordsVisible;
+            updateToggleButtonLabel();
+            applyFilters(false);
+        });
+    }
 });
 
 function handleOpenModal(button) {

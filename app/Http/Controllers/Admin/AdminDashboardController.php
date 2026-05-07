@@ -83,7 +83,11 @@ class AdminDashboardController extends Controller
 
         $todaysPatients = ClinicRecord::query()->whereDate('consultation_date', today())->count();
         $totalConsultations = ClinicRecord::count();
-        $pendingConsultations = ClinicRecord::all()->where('workflow_status', 'waiting_for_doctor')->count();
+        $pendingConsultations = ClinicRecord::query()
+            ->latestPerPatient()
+            ->get()
+            ->where('workflow_status', 'waiting_for_doctor')
+            ->count();
         $lowStockMedicines = Medicine::query()->where('stock', '<', 10)->orderBy('stock')->limit(8)->get();
         $recentLogs = ActivityLog::with('user')->latest()->limit(200)->get();
 
