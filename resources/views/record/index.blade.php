@@ -4,7 +4,6 @@
 @php
     $role = auth()->user()->role ?? 'bhw';
     $isNurse = $role === 'nurse';
-    $isDoctorRole = $role === 'doctor';
     $isBhwRole = $role === 'bhw';
     $isAdminRole = $role === 'admin';
     $canEncodeFindings = $isNurse;
@@ -23,6 +22,70 @@
     }
     .select2-container--open { z-index: 9999 !important; }
     input[type=number]::-webkit-inner-spin-button { opacity: 1; }
+
+    /* Patient table readability (same direction as ITR improvements) */
+    .patient-records-table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .patient-records-table thead th {
+        background: linear-gradient(180deg, #eef4ff 0%, #e6efff 100%);
+        color: #35507a;
+        font-size: 0.68rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-bottom: 1px solid #cfe0ff;
+        padding-top: 0.95rem !important;
+        padding-bottom: 0.95rem !important;
+    }
+    .patient-records-table tbody td {
+        font-size: 0.9rem;
+        color: #334155;
+        border-bottom: 1px solid #e8eefb;
+        padding-top: 0.95rem !important;
+        padding-bottom: 0.95rem !important;
+        vertical-align: middle;
+    }
+    .patient-records-table tbody tr:hover {
+        background: #f3f8ff !important;
+    }
+    .patient-records-table tbody tr:nth-child(even) {
+        background: #fcfdff;
+    }
+    .patient-records-table tbody tr:nth-child(odd) {
+        background: #ffffff;
+    }
+    .patient-records-table .patient-name {
+        font-size: 1.02rem;
+        line-height: 1.2;
+        letter-spacing: 0.01em;
+        color: #0f172a !important;
+    }
+    .patient-records-table .patient-dob {
+        font-size: 0.68rem !important;
+        color: #2563eb !important;
+        letter-spacing: 0.03em;
+    }
+    .patient-records-table .patient-vitals {
+        font-size: 0.74rem !important;
+        color: #2b4266 !important;
+        font-weight: 600;
+    }
+    .patient-records-table .patient-age-gender {
+        font-size: 0.9rem !important;
+    }
+    .patient-records-table .patient-age-gender strong {
+        font-size: 0.95rem;
+        color: #111827;
+    }
+    .patient-records-table .patient-address {
+        font-weight: 600;
+        color: #334155;
+    }
+    .patient-records-table .action-btn {
+        border: 1px solid #dbe7ff;
+    }
 </style>
 
 {{-- Hidden data container --}}
@@ -106,8 +169,8 @@
     </div>
 
     {{-- Table Design --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-100">
+    <div class="bg-white rounded-2xl shadow-sm border border-blue-100/80 overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-100 patient-records-table">
             <thead class="bg-gray-50/50">
                 <tr>
                     <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Date</th>
@@ -138,23 +201,23 @@
                     
                     <td class="px-6 py-4 text-sm">
                         <div class="font-bold text-gray-800 capitalize patient-name">{{ $record->first_name }} {{ $record->last_name }}</div>
-                        <div class="text-[10px] font-bold text-blue-500 uppercase tracking-tight">
+                        <div class="text-[10px] font-bold text-blue-500 uppercase tracking-tight patient-dob">
                             DOB: {{ $birthDate->format('M d, Y') }}
                         </div>
                     </td>
 
-                    <td class="px-6 py-4 text-sm text-gray-500">
-                        <span class="font-bold text-gray-700">
+                    <td class="px-6 py-4 text-sm text-gray-500 patient-age-gender">
+                        <strong class="font-bold text-gray-700">
                             @if($ageMonths < 12)
                                 {{ $ageMonths }} mon
                             @else
                                 {{ $ageYears }} yrs
                             @endif
-                        </span> <span class="text-gray-300 mx-1">|</span> {{ $record->gender }}
+                        </strong> <span class="text-gray-300 mx-1">|</span> {{ $record->gender }}
                     </td>
                     
-                    <td class="px-6 py-4 text-sm text-gray-600">{{ $record->address_purok }}</td>
-                    <td class="px-6 py-4 text-xs text-gray-600">
+                    <td class="px-6 py-4 text-sm text-gray-600 patient-address">{{ $record->address_purok }}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600 patient-vitals">
                         T: {{ $record->display_temp ?: '--' }} | BP: {{ $record->display_bp ?: '--' }} | WT: {{ $record->display_weight ?: '--' }}
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-600 italic">
@@ -167,11 +230,11 @@
                     
                     <td class="px-6 py-4 text-right">
                         <div class="flex justify-end gap-3">
-                            @if(!$isNurse)
+                            @if(!$isNurse && !$isAdminRole)
                             <button type="button" 
                                     data-record='{!! json_encode($record) !!}'
                                     onclick="handleOpenModal(this)"
-                                    class="flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                                    class="flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm action-btn">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                                 </svg>
@@ -179,7 +242,7 @@
                             @endif
 
                             <a href="{{ route('record.show', $record->id) }}" 
-                               class="flex items-center justify-center w-9 h-9 rounded-xl bg-gray-50 text-gray-400 hover:bg-gray-800 hover:text-white transition-all shadow-sm">
+                               class="flex items-center justify-center w-9 h-9 rounded-xl bg-gray-50 text-gray-400 hover:bg-gray-800 hover:text-white transition-all shadow-sm action-btn">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -187,7 +250,7 @@
                             </a>
 
                             <a href="{{ route('record.edit', $record->id) }}"
-                               class="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+                               class="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm action-btn"
                                title="{{ $isNurse ? 'Add vitals and triage' : 'Edit Entry' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M17.414 2.586a2 2 0 010 2.828l-8.5 8.5a1 1 0 01-.39.242l-3 1a1 1 0 01-1.265-1.265l1-3a1 1 0 01.242-.39l8.5-8.5a2 2 0 012.828 0z"/>
@@ -205,14 +268,6 @@
     </div>
     <div id="recordsPagination" class="mt-4"></div>
 </div>
-
-@if(!$isNurse && !$isDoctorRole && !$isBhwRole)
-<a href="{{ route('record.create') }}"
-   class="fixed bottom-8 right-8 z-40 inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-blue-700">
-    <span class="text-base leading-none">+</span>
-    Add New Consultation
-</a>
-@endif
 
 {{-- MODAL SECTION --}}
 <div id="quickAddModal" class="fixed inset-0 z-50 hidden overflow-y-auto">

@@ -3,7 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clinic OS</title>
+    @php
+        $pageTitle = 'Dashboard';
+
+        if (request()->routeIs(
+            'dashboard',
+            'admin.dashboard',
+            'doctor.dashboard',
+            'nurse.dashboard',
+            'bhw.dashboard'
+        )) {
+            $pageTitle = 'Dashboard';
+        } elseif (request()->routeIs(
+            'record.create',
+            'doctor.record.create',
+            'nurse.record.create',
+            'bhw.record.create'
+        )) {
+            $pageTitle = 'Add New Consultation';
+        } elseif (request()->routeIs(
+            'record.*',
+            'doctor.record.*',
+            'nurse.record.*',
+            'bhw.record.*'
+        )) {
+            $pageTitle = 'Patient Records';
+        } elseif (request()->routeIs('doctor.pending.*', 'nurse.pending.*')) {
+            $pageTitle = 'Pending Patients';
+        } elseif (request()->routeIs('medicines.*', 'bhw.medicines.*')) {
+            $pageTitle = 'Inventory Medicine';
+        } elseif (request()->routeIs('bhw.dispensing.*', 'admin.dispensing.*')) {
+            $pageTitle = 'Medicine Queue';
+        } elseif (request()->routeIs('reports.diagnosis', 'bhw.reports.diagnosis')) {
+            $pageTitle = 'Diagnosis Reports';
+        } elseif (request()->routeIs('reports.patients', 'bhw.reports.patients')) {
+            $pageTitle = 'Patient Reports';
+        } elseif (request()->routeIs('admin.reports.*')) {
+            $pageTitle = 'Reports';
+        } elseif (request()->routeIs('admin.users.*')) {
+            $pageTitle = 'User Management';
+        } elseif (request()->routeIs('admin.activity-logs.*')) {
+            $pageTitle = 'Activity Logs';
+        } elseif (request()->routeIs('admin.inventory.*')) {
+            $pageTitle = 'Inventory Ledger';
+        } elseif (request()->routeIs('profile.*')) {
+            $pageTitle = 'Profile';
+        }
+    @endphp
+    <title>{{ $pageTitle }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon-logo2.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/favicon-logo2.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,8 +60,8 @@
         tailwind.config = {
             theme: {
                 fontFamily: {
-                    sans: ['"Times New Roman"', 'Times', 'serif'],
-                    serif: ['"Times New Roman"', 'Times', 'serif'],
+                    sans: ['"Segoe UI"', '"Segoe UI Variable"', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
+                    serif: ['"Segoe UI"', '"Segoe UI Variable"', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
                     mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
                 },
             },
@@ -25,7 +74,7 @@
     
     <style>
         html, body {
-            font-family: "Times New Roman", Times, serif;
+            font-family: "Segoe UI", "Segoe UI Variable", Tahoma, Geneva, Verdana, sans-serif;
         }
 
         ::-webkit-scrollbar { width: 6px; }
@@ -146,6 +195,35 @@
             .clinic-os-pagination { flex-direction: column; align-items: stretch !important; }
             .clinic-os-pagination .paginationjs-pages { align-self: center; }
         }
+
+        /* Global table theme (system blue palette) */
+        main table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        main table thead th {
+            background: linear-gradient(180deg, #eef4ff 0%, #e6efff 100%);
+            color: #2f4a73 !important;
+            border-bottom: 1px solid #cfe0ff;
+            font-weight: 900 !important;
+            font-size: 0.72rem !important;
+            letter-spacing: 0.08em !important;
+            text-transform: uppercase;
+        }
+        main table tbody td {
+            border-bottom: 1px solid #e8eefb;
+            color: #334155;
+            font-weight: 600;
+        }
+        main table tbody tr:nth-child(even) {
+            background: #fcfdff;
+        }
+        main table tbody tr:nth-child(odd) {
+            background: #ffffff;
+        }
+        main table tbody tr:hover {
+            background: #f3f8ff !important;
+        }
     </style>
 </head>
 <body class="bg-gray-100 antialiased">
@@ -257,20 +335,20 @@
                     <div class="pt-1">
                         <button type="button"
                             onclick="toggleReportsMenu()"
-                            class="w-full flex justify-between items-center py-3 px-4 rounded-lg transition {{ request()->routeIs('reports.*') || request()->routeIs('bhw.medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                            class="w-full flex justify-between items-center py-3 px-4 rounded-lg transition {{ request()->routeIs('reports.*') || request()->routeIs('bhw.reports.*') || request()->routeIs('bhw.medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                             <span>Reports</span>
-                            <svg id="reports-arrow" class="w-4 h-4 transition-transform {{ request()->routeIs('reports.*') || request()->routeIs('bhw.medicines.*') ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg id="reports-arrow" class="w-4 h-4 transition-transform {{ request()->routeIs('reports.*') || request()->routeIs('bhw.reports.*') || request()->routeIs('bhw.medicines.*') ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
-                        <div id="reports-menu" class="ml-4 mt-1 space-y-1 {{ request()->routeIs('reports.*') || request()->routeIs('bhw.medicines.*') ? '' : 'hidden' }}">
+                        <div id="reports-menu" class="ml-4 mt-1 space-y-1 {{ request()->routeIs('reports.*') || request()->routeIs('bhw.reports.*') || request()->routeIs('bhw.medicines.*') ? '' : 'hidden' }}">
                             <a href="{{ route('bhw.reports.diagnosis') }}"
                                class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.diagnosis') || request()->routeIs('bhw.reports.diagnosis') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                                <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-3M5 20h14a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg></span>Diagnosis
+                                <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-3M5 20h14a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg></span>Diagnosis Reports
                             </a>
                             <a href="{{ route('bhw.reports.patients') }}"
                                class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.patients') || request()->routeIs('bhw.reports.patients') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                                <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>Patient
+                                <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>Patient Reports
                             </a>
                             <a href="{{ route('bhw.medicines.index') }}"
                                class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('bhw.medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">

@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clinic OS</title>
+    <title>@yield('title', 'Login Page')</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon-logo2.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/favicon-logo2.png') }}">
     
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -12,8 +14,8 @@
         tailwind.config = {
             theme: {
                 fontFamily: {
-                    sans: ['"Times New Roman"', 'Times', 'serif'],
-                    serif: ['"Times New Roman"', 'Times', 'serif'],
+                    sans: ['"Segoe UI"', '"Segoe UI Variable"', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
+                    serif: ['"Segoe UI"', '"Segoe UI Variable"', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
                     mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
                 },
             },
@@ -22,7 +24,7 @@
 
     <style>
         html, body {
-            font-family: "Times New Roman", Times, serif;
+            font-family: "Segoe UI", "Segoe UI Variable", Tahoma, Geneva, Verdana, sans-serif;
         }
 
         /* Smooth fade-in for the whole page */
@@ -33,10 +35,10 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+
     </style>
 </head>
 <body class="bg-[#E0E9FF] antialiased text-slate-900 overflow-x-hidden">
-    
     <div class="min-h-screen fade-in">
         @yield('content')
     </div>

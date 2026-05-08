@@ -13,8 +13,7 @@
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="space-y-2">
             <div>
-                <h1 class="text-5xl font-black text-slate-800 tracking-tight">{{ $clinicName }}</h1>
-                <p class="text-sm text-slate-500">{{ $clinicAddress }}</p>
+                <h1 class="text-5xl font-black text-slate-800 tracking-tight">Admin Dashboard</h1>
             </div>
         </div>
         <div class="flex flex-col items-end gap-2">

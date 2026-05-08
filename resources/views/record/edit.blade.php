@@ -188,13 +188,13 @@
                 </div>
             </div>
             @else
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Diagnosis</label>
-                <textarea name="diagnosis" rows="3" placeholder="Describe symptoms/results" required
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition">{{ old('diagnosis', $record->diagnosis) }}</textarea>
-            </div>
-
             @unless($isAdmin)
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Diagnosis</label>
+                    <textarea name="diagnosis" rows="3" placeholder="Describe symptoms/results" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition">{{ old('diagnosis', $record->diagnosis) }}</textarea>
+                </div>
+
                 {{-- Medicines Given Section --}}
                 <div class="border border-slate-100 rounded-2xl p-6 mt-8 bg-white">
                     <div class="flex items-center justify-between mb-6">

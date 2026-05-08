@@ -11,31 +11,27 @@
     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 md:p-8 shadow-sm space-y-6">
         <div class="flex flex-wrap items-start justify-between gap-4 md:items-end">
             <div class="min-w-0">
-                <h1 class="text-4xl font-black text-slate-800">{{ $clinicName }}</h1>
-                <p class="text-slate-500 mt-1 text-sm">{{ $clinicAddress }}</p>
+                <h1 class="text-4xl font-black text-slate-800">BHW Dashboard</h1>
             </div>
-            {{-- BHW dashboard: notification stacked above current date, right-aligned --}}
-            <div class="flex w-full flex-shrink-0 flex-col items-end gap-3 sm:w-auto">
+            {{-- BHW dashboard: notification and date on the same line --}}
+            <div class="flex w-full flex-shrink-0 items-center justify-end gap-3 sm:w-auto">
+                <div class="text-right leading-tight">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Current Date</p>
+                    <p class="text-2xl font-black text-slate-700">{{ now()->format('F d, Y') }}</p>
+                </div>
                 <a href="{{ route('bhw.dispensing.index') }}"
-                   class="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm hover:border-blue-300 hover:bg-blue-50/40 transition"
+                   class="inline-flex items-center justify-center p-0.5 transition"
                    title="Medicine queue">
-                    <span class="relative inline-flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white shadow-inner">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    <span class="relative inline-flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M12 2a5 5 0 00-5 5v3.764c0 .52-.212 1.018-.586 1.383L5.05 13.51A1.5 1.5 0 006.11 16h11.78a1.5 1.5 0 001.06-2.56l-1.364-1.293A1.93 1.93 0 0117 10.764V7a5 5 0 00-5-5z"/>
+                            <path d="M9.75 18a2.25 2.25 0 004.5 0h-4.5z"/>
                         </svg>
                         @if($dashboardMedicineQueueCount > 0)
                             <span class="absolute -top-1 -right-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white leading-none">{{ $dashboardMedicineQueueCount > 99 ? '99+' : $dashboardMedicineQueueCount }}</span>
                         @endif
                     </span>
-                    <div class="text-left pr-1">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Notifications</p>
-                        <p class="text-sm font-black text-slate-800">Medicine queue</p>
-                    </div>
                 </a>
-                <div class="text-right">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Current Date</p>
-                    <p class="text-2xl font-black text-slate-700">{{ now()->format('F d, Y') }}</p>
-                </div>
             </div>
         </div>
 
@@ -80,7 +76,7 @@
                                     {{ strtoupper(substr($recent->first_name, 0, 1)) }}{{ strtoupper(substr($recent->last_name, 0, 1)) }}
                                 </div>
                                 <div class="min-w-0">
-                                    <p class="font-bold text-slate-800 truncate">
+                                    <p class="font-medium text-slate-800 truncate">
                                         {{ \Illuminate\Support\Str::title(trim($recent->first_name . ' ' . ($recent->middle_name ? $recent->middle_name . ' ' : '') . $recent->last_name)) }}
                                     </p>
                                     <p class="text-xs text-slate-500 truncate">{{ $recent->diagnosis }}</p>

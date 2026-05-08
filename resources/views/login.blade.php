@@ -1,58 +1,26 @@
 @extends('layouts.guest')
 
-@section('content')
-{{-- 1. Outer Container (Light blue background) --}}
-<div class="min-h-screen flex items-center justify-center bg-[#E0E9FF] p-4 md:p-8">
-    
-    {{-- 2. Main Card: Split Flexbox Layout --}}
-    <div class="flex flex-col md:flex-row w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden min-h-[600px] border border-gray-100">
-        
-        {{-- ========================================== --}}
-        {{-- LEFT COLUMN: Text Block & Character        --}}
-        {{-- ========================================== --}}
-        {{-- Sets bg color, handles responsive padding, and overflow --}}
-        <div class="w-full md:w-1/2 p-10 sm:p-14 lg:p-20 flex flex-col bg-[#E6F7F5] overflow-hidden relative">
-            
-            {{-- Hello Text Block (Z-index keeps it above background elements) --}}
-            <div class="relative z-10 space-y-3">
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-[#2D8A80] uppercase tracking-tighter leading-none">
-                    HELLO !
-                </h1>
-                {{-- Updated to use the professional off-black color discussed previously --}}
-                <p class="text-base sm:text-lg text-gray-900 font-medium max-w-xs leading-relaxed">
-                    Welcome to Barangay Banilad Health Center!
-                </p>
-            </div>
+@section('title', 'Login Page')
 
-            {{-- 3. Character Image Container (Positioned absolutely) --}}
-            {{-- The responsive positioning ensures it peeks in correctly on desktop but stays managed on mobile --}}
-            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[72%] md:h-[60%] z-20 pointer-events-none">
-    <img 
-        src="{{ asset('images/login-clinic-logo.png') }}" 
-        alt="Barangay Banilad Dumaguete City Logo"
-        class="w-full h-full object-contain object-bottom" 
-    />
-</div>
-            
-            {{-- Decorative teal circle --}}
+@section('content')
+<div class="h-screen overflow-hidden flex items-center justify-center bg-[#E0E9FF] p-4">
+    <div class="w-full max-w-[980px] h-[560px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex">
+        <div class="w-1/2 p-10 flex items-center justify-center bg-[#E6F3F4] overflow-hidden relative">
+            <div class="relative z-10 w-full flex items-center justify-center">
+                <div class="w-[302px] h-[302px] rounded-full overflow-hidden flex items-center justify-center">
+                    <img
+                        src="{{ asset('images/login-clinic-logo.png') }}?v=login-ui-6"
+                        alt="Barangay Banilad Dumaguete City Logo"
+                        class="w-full h-full object-cover object-center"
+                    />
+                </div>
+            </div>
             <div class="absolute -bottom-10 -left-10 w-40 h-40 border-8 border-[#2D8A80]/10 rounded-full"></div>
         </div>
 
-        {{-- ========================================== --}}
-        {{-- RIGHT COLUMN: Logo, Form, and Logic        --}}
-        {{-- ========================================== --}}
-        <div class="w-full md:w-1/2 p-10 sm:p-14 lg:p-20 flex flex-col justify-center bg-white">
-            
-            {{-- Logo area: generic style --}}
-            <div class="mb-12">
-                <h2 class="text-2xl font-bold text-[#2D8A80] tracking-tight">
-                    <span class="font-light text-gray-400"></span> Clinic OS
-                </h2>
-            </div>
-
-            {{-- **Error Display Logic: Kept exactly as is** --}}
+        <div class="w-1/2 p-10 flex flex-col justify-center bg-white">
             @if ($errors->any())
-                <div class="mb-8 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm w-full rounded-r-xl">
+                <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded-r-xl">
                     <ul class="space-y-1 font-medium list-disc list-inside">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -61,36 +29,47 @@
                 </div>
             @endif
 
-            {{-- **Form Start Logic: Kept exactly as is** --}}
+            <h1 class="text-[34px] sm:text-[38px] lg:text-[40px] text-gray-900 font-medium leading-tight mb-2">
+                Welcome to Barangay<br>Banilad Health Center!
+            </h1>
+
             <form action="{{ route('login') }}" method="POST" class="space-y-6 w-full">
                 @csrf
-                
-                {{-- 4. Email Input: Styled to match image 1 and 2 --}}
                 <div class="space-y-2">
                     <label class="block text-xs font-black text-gray-400 uppercase tracking-widest">Username or E-mail</label>
-                    <input type="email" name="email" value="{{ old('email') }}" required placeholder="admin@clinic.com"
-                        class="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-gray-50/50">
+                    <input
+                        type="email"
+                        name="email"
+                        value="{{ old('email') }}"
+                        required
+                        placeholder="admin@clinic.local"
+                        class="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-gray-50/50"
+                    >
                 </div>
 
-                {{-- 5. Password Input: With generic "Forgot?" link styling --}}
                 <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest">Password</label>
-                    </div>
-                    <input type="password" name="password" required placeholder="••••••••"
-                        class="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-gray-50/50">
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest">Password</label>
+                    <input
+                        type="password"
+                        name="password"
+                        required
+                        placeholder="••••••••"
+                        class="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-gray-50/50"
+                    >
                 </div>
 
-                {{-- 6. Submit Button: Re-styled as full-width and rounded-xl (Image 2 style) --}}
                 <div class="pt-6">
-                    <button type="submit" class="w-full py-4 bg-blue-600 text-white text-sm font-black rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition transform hover:-translate-y-0.5 active:scale-95 uppercase tracking-wider">
+                    <button
+                        type="submit"
+                        class="w-full py-4 bg-blue-600 text-white text-sm font-black rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition transform hover:-translate-y-0.5 active:scale-95 uppercase tracking-wider"
+                    >
                         Sign In
                     </button>
                 </div>
-                
-                <div class="text-center mt-10">
-                    <p class="text-sm text-gray-500 font-medium">Contact administrator for account access.</p>
-                </div>
+
+                <p class="text-center text-sm text-gray-500 font-medium mt-10">
+                    Contact administrator for account access.
+                </p>
             </form>
         </div>
     </div>

@@ -6,6 +6,7 @@ use App\Models\ClinicRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\XLSX\Writer;
@@ -24,6 +25,11 @@ class ReportController extends Controller
             (string) $record->last_name,
             (string) $record->birthday,
         ])));
+    }
+
+    private function isBhwViewer(): bool
+    {
+        return strtolower(trim((string) (Auth::user()->role ?? ''))) === 'bhw';
     }
 
     private function applyResolvedDiagnoses(Collection $patients): Collection
@@ -112,6 +118,7 @@ class ReportController extends Controller
             'gender' => $gender,
             'address' => $address,
             'addressOptions' => $addressOptions,
+            'patientReportPrivacyBhw' => $this->isBhwViewer(),
         ]);
     }
 
@@ -250,6 +257,7 @@ class ReportController extends Controller
             'fromDate' => $fromDate,
             'toDate' => $toDate,
             'month' => $month,
+            'diagnosisPrivacyBhw' => $this->isBhwViewer(),
         ]);
     }
 

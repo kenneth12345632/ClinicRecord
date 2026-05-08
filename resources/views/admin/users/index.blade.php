@@ -10,10 +10,25 @@
         <a href="{{ route('admin.users.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">+ Add User</a>
     </div>
 
-    <form method="GET" class="max-w-md">
-        <input name="search" value="{{ $search }}" placeholder="Search users..." class="w-full px-4 py-2 border rounded-lg">
-    </form>
-
+    <div class="flex flex-wrap items-end gap-3">
+        <form method="GET" class="max-w-md flex-1 min-w-[240px]">
+            <input name="search" value="{{ $search }}" placeholder="Search users..." class="w-full px-4 py-2 border rounded-lg">
+        </form>
+        <div>
+            <label for="roleFilter" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Role</label>
+            <select id="roleFilter" class="px-3 py-2 border rounded-lg bg-white text-sm">
+                <option value="all">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="doctor">Doctor</option>
+                <option value="nurse">Nurse</option>
+                <option value="bhw">BHW</option>
+            </select>
+        </div>
+        <button type="button" id="toggleUsersBtn"
+            class="px-4 py-2 rounded-xl border border-blue-200 text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition shadow-sm">
+            Show Users
+        </button>
+    </div>
     <div class="bg-white rounded-xl border overflow-hidden">
         <table class="min-w-full text-sm">
             <thead class="bg-slate-50 text-slate-600">
@@ -25,9 +40,9 @@
                     <th class="px-4 py-3 text-right">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="usersTableBody">
                 @forelse($users as $user)
-                <tr class="border-t">
+                <tr class="border-t user-row" data-role="{{ strtolower((string) $user->role) }}">
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-3">
                             @if(!empty($user->profile_photo_path))
@@ -69,4 +84,54 @@
 
     <div>{{ $users->links() }}</div>
 </div>
+<script>
+    const userRows = Array.from(document.querySelectorAll('#usersTableBody .user-row'));
+    let usersVisible = false;
+
+    function updateUsersToggleLabel() {
+        const btn = document.getElementById('toggleUsersBtn');
+        if (!btn) return;
+        btn.textContent = usersVisible ? 'Hide Users' : 'Show Users';
+    }
+
+    function applyUserRoleFilter() {
+        const roleFilter = document.getElementById('roleFilter');
+        const selectedRole = roleFilter ? roleFilter.value : 'all';
+
+        userRows.forEach((row) => {
+            if (!usersVisible) {
+                row.style.display = 'none';
+                return;
+            }
+
+            const rowRole = (row.getAttribute('data-role') || '').toLowerCase();
+            const matchesRole = selectedRole === 'all' || rowRole === selectedRole;
+            row.style.display = matchesRole ? '' : 'none';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn = document.getElementById('toggleUsersBtn');
+        const roleFilter = document.getElementById('roleFilter');
+        updateUsersToggleLabel();
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function () {
+                usersVisible = !usersVisible;
+                updateUsersToggleLabel();
+                applyUserRoleFilter();
+            });
+        }
+
+        if (roleFilter) {
+            roleFilter.addEventListener('change', function () {
+                usersVisible = true;
+                updateUsersToggleLabel();
+                applyUserRoleFilter();
+            });
+        }
+
+        applyUserRoleFilter();
+    });
+</script>
 @endsection

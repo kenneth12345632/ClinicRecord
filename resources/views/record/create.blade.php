@@ -10,22 +10,81 @@
 @include('partials.birthday-material-picker-assets')
 <style>
     .itr-form .itr-card {
-        border: 1px solid #e2e8f0;
-        border-radius: 1rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.95rem;
         background: #fff;
     }
     .itr-form .itr-label {
-        font-size: 0.72rem;
+        font-size: 0.82rem;
         font-weight: 700;
         letter-spacing: .04em;
         text-transform: uppercase;
-        color: #64748b;
+        color: #334155;
     }
     .itr-form .itr-input,
     .itr-form textarea,
     .itr-form select {
-        min-height: 2.9rem;
-        font-size: .92rem;
+        min-height: 2.85rem;
+        font-size: 0.96rem;
+    }
+    .itr-form label {
+        font-size: 0.8rem !important;
+        font-weight: 700 !important;
+        color: #374151 !important;
+        letter-spacing: 0.01em;
+    }
+    .itr-form input,
+    .itr-form select,
+    .itr-form textarea {
+        border: 1.5px solid #64748b !important;
+        background-color: #ffffff !important;
+        color: #111827 !important;
+        font-size: 0.95rem !important;
+    }
+    .itr-form textarea {
+        min-height: 4.6rem;
+        line-height: 1.35;
+    }
+    .itr-form input::placeholder,
+    .itr-form textarea::placeholder {
+        color: #6b7280 !important;
+        opacity: 1;
+    }
+    .itr-form input[readonly] {
+        border-color: #cbd5e1 !important;
+        background-color: #f8fafc !important;
+    }
+    .itr-form .bg-gray-50,
+    .itr-form .bg-gray-50\/40,
+    .itr-form .bg-gray-50\/50 {
+        background-color: #f8fafc !important;
+    }
+    .itr-form .text-gray-400 {
+        color: #6b7280 !important;
+    }
+    .itr-form .text-gray-500 {
+        color: #374151 !important;
+    }
+    .itr-form .itr-consult-date label {
+        display: block;
+        font-size: 0.68rem !important;
+        font-weight: 700 !important;
+        color: #64748b !important;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 0.1rem;
+    }
+    .itr-form .itr-consult-date input {
+        border: none !important;
+        background: transparent !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+        font-size: 1.45rem !important;
+        line-height: 1.1;
+        font-weight: 700 !important;
+        color: #1d4ed8 !important;
+        text-align: right;
+        box-shadow: none !important;
     }
 </style>
 {{-- Hidden data provider for JavaScript --}}
@@ -67,7 +126,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-3 lg:gap-4 lg:ms-auto">
-                    <div class="text-right">
+                    <div class="text-right itr-consult-date">
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Consultation Date</label>
                         <input type="text" name="consultation_date" id="consultation_date" required autocomplete="off" placeholder="dd/mm/yyyy"
                             data-material-calendar
@@ -75,8 +134,6 @@
                             data-alt-class="border-none bg-transparent font-bold text-blue-700 text-xl p-0 focus:ring-0 text-right outline-none min-w-[9.5rem]"
                             class="border-none bg-transparent font-bold text-blue-700 text-xl p-0 focus:ring-0 text-right outline-none min-w-[9.5rem] cursor-pointer">
                     </div>
-                    <a href="{{ route('record.index') }}" class="px-5 py-3 bg-white border border-slate-300 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition">Cancel</a>
-                    <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 shadow-sm transition">Save Patient Record</button>
                 </div>
             </div>
 
@@ -313,6 +370,11 @@
                                     Only doctor can fill Plan / Medicines.
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-4 pt-1">
+                            <a href="{{ route('record.index') }}" class="px-6 py-3 bg-white border border-slate-300 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition">Cancel</a>
+                            <button type="submit" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 shadow-sm transition">Save Patient Record</button>
                         </div>
 
                     </div>

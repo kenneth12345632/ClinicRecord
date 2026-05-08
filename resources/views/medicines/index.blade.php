@@ -28,12 +28,34 @@
         @endunless
     </div>
 
-    {{-- Search Bar --}}
-    <div class="mb-6 relative max-w-md">
-        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-        </span>
-        <input type="text" id="inventorySearch" onkeyup="runFilters()" placeholder="Search medicine..." class="pl-10 pr-4 py-3 w-full rounded-xl border border-gray-200 outline-none shadow-sm focus:border-blue-500 transition">
+    {{-- Search + dosage unit filter --}}
+    <div class="mb-6 flex flex-col sm:flex-row flex-wrap gap-4 items-end">
+        <div class="relative w-full sm:flex-1 sm:max-w-md min-w-0">
+            <label for="inventorySearch" class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Search</label>
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                </span>
+                <input type="text" id="inventorySearch" onkeyup="runFilters()" placeholder="Search medicine..." class="pl-10 pr-4 py-3 w-full rounded-xl border border-gray-200 outline-none shadow-sm focus:border-blue-500 transition">
+            </div>
+        </div>
+        <div class="w-full sm:w-auto shrink-0">
+            <label for="inventoryUnitFilter" class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Unit</label>
+            <select id="inventoryUnitFilter" onchange="runFilters()"
+                class="w-full sm:w-[11rem] px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer">
+                <option value="all">All units</option>
+                <option value="mcg">mcg</option>
+                <option value="mg">mg</option>
+                <option value="g">g</option>
+                <option value="ml">ml</option>
+            </select>
+        </div>
+        <div class="w-full sm:w-auto shrink-0">
+            <button type="button" id="toggleMedicineBtn"
+                class="px-4 py-3 rounded-xl border border-blue-200 text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition shadow-sm">
+                Show Medicine
+            </button>
+        </div>
     </div>
 
     @if(($expiringSoonMedicines ?? collect())->isNotEmpty())
@@ -134,8 +156,14 @@
                     $editTargetLot = $nearestExpiryLot
                         ?? ($availableLots->isNotEmpty() ? $availableLots->sortBy('id')->first() : null)
                         ?? $lots->sortBy('id')->first();
+                    $dosageUnitsCsv = $lots->pluck('dosage_unit')
+                        ->filter(fn ($u) => $u !== null && trim((string) $u) !== '')
+                        ->map(fn ($u) => strtolower(trim((string) $u)))
+                        ->unique()
+                        ->sort()
+                        ->implode(',');
                 @endphp
-                <tbody class="inventory-lots divide-y divide-gray-100">
+                <tbody class="inventory-lots divide-y divide-gray-100" data-dosage-units="{{ e($dosageUnitsCsv) }}">
                 <tr class="hover:bg-gray-50 transition inventory-row">
                     <td class="px-6 py-4 whitespace-normal">
                         <button type="button"
@@ -378,8 +406,22 @@
         .filter((tbody) => tbody.querySelector('tr.inventory-row'))
         .map((tbody) => {
             const name = tbody.querySelector('.medicine-name')?.textContent.toUpperCase() ?? '';
-            return { element: tbody, name };
+            const unitsCsv = (tbody.getAttribute('data-dosage-units') || '').trim();
+            const units = unitsCsv === '' ? [] : unitsCsv.split(',').map((u) => u.trim().toLowerCase()).filter(Boolean);
+            return { element: tbody, name, units };
         });
+    let inventoryVisible = false;
+
+    function matchesUnitFilter(units, selectedUnit) {
+        if (!selectedUnit || selectedUnit === 'all') return true;
+        return units.includes(selectedUnit);
+    }
+
+    function updateInventoryToggleLabel() {
+        const btn = document.getElementById('toggleMedicineBtn');
+        if (!btn) return;
+        btn.textContent = inventoryVisible ? 'Hide Medicine' : 'Show Medicine';
+    }
 
     function renderInventoryPagination(filteredRows) {
         const pager = $('#inventoryPagination');
@@ -393,7 +435,14 @@
             item.element.style.display = 'none';
         });
 
+        if (!inventoryVisible) {
+            emptyMessage.textContent = 'Medicine records are hidden. Click "Show Medicine" to display records.';
+            emptyMessage.classList.remove('hidden');
+            return;
+        }
+
         if (filteredRows.length === 0) {
+            emptyMessage.textContent = 'No medicine records match your filters.';
             emptyMessage.classList.remove('hidden');
             return;
         }
@@ -417,28 +466,31 @@
 
     function runFilters() {
         const inputEl = document.getElementById("inventorySearch");
-        const input = inputEl.value.trim().toUpperCase();
+        const input = inputEl ? inputEl.value.trim().toUpperCase() : '';
+        const unitEl = document.getElementById('inventoryUnitFilter');
+        const selectedUnit = (unitEl && unitEl.value) ? unitEl.value.trim().toLowerCase() : 'all';
+
+        let filtered = inventoryRows.filter((row) => matchesUnitFilter(row.units, selectedUnit));
+        if (input !== '') {
+            filtered = filtered.filter((row) => row.name.includes(input));
+        }
+
         const pager = $('#inventoryPagination');
         const emptyMessage = document.getElementById("inventoryEmptyMessage");
 
-        if (input === '') {
-            if (pager.data('pagination')) {
-                pager.pagination('destroy');
-            }
-            inventoryRows.forEach(item => {
-                item.element.style.display = 'none';
-            });
-            emptyMessage.textContent = 'Type a medicine name to search.';
-            emptyMessage.classList.remove('hidden');
-            return;
-        }
-
-        emptyMessage.textContent = 'No medicine records found.';
-        const filtered = inventoryRows.filter(row => row.name.includes(input));
         renderInventoryPagination(filtered);
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        updateInventoryToggleLabel();
+        const toggleBtn = document.getElementById('toggleMedicineBtn');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function () {
+                inventoryVisible = !inventoryVisible;
+                updateInventoryToggleLabel();
+                runFilters();
+            });
+        }
         runFilters();
     });
 </script>

@@ -7,28 +7,49 @@
 @endphp
 <style>
     .consultation-record-scope {
-        font-family: "Times New Roman", Times, serif;
+        font-family: "Segoe UI", "Segoe UI Variable", Tahoma, Geneva, Verdana, sans-serif;
+        color: #1e293b;
+    }
+    .consultation-record-scope .panel-card {
+        border: 1px solid #dbe4f0;
+        background: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
     }
     .consultation-record-scope .fld {
         border-radius: 0.625rem;
-        background: #f1f5f9;
-        border: 1px solid #e2e8f0;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem;
-        color: #1e293b;
+        background: #f8fbff;
+        border: 1px solid #dce7f7;
+        padding: 0.62rem 0.8rem;
+        font-size: 0.92rem;
+        color: #0f172a;
+        line-height: 1.35;
     }
     .consultation-record-scope .soap-badge {
         width: 1.75rem;
         height: 1.75rem;
         border-radius: 0.25rem;
-        background: #2563eb;
+        background: #2f6fed;
         color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.7rem;
-        font-weight: 600;
+        font-size: 0.72rem;
+        font-weight: 700;
         flex-shrink: 0;
+    }
+    .consultation-record-scope .section-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #1e293b;
+    }
+    .consultation-record-scope .field-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #64748b;
     }
     @media print {
         .consultation-record-scope .no-print { display: none !important; }
@@ -53,8 +74,8 @@
                 </svg>
             </div>
             <div class="min-w-0">
-                <h1 class="text-xl sm:text-2xl font-semibold uppercase tracking-tight text-slate-900">Consultation Record</h1>
-                <p class="text-slate-500 text-sm mt-0.5">Detailed Patient Encounter</p>
+                <h1 class="text-2xl sm:text-[1.75rem] font-bold uppercase tracking-tight text-slate-900">Consultation Record</h1>
+                <p class="text-slate-600 text-sm mt-0.5 font-medium">Detailed Patient Encounter</p>
             </div>
         </div>
         <div class="flex flex-col items-stretch sm:items-end gap-3 shrink-0">
@@ -78,15 +99,15 @@
     <div class="consultation-grid grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
         {{-- Left: Individual treatment record + history --}}
         <div class="lg:col-span-4 space-y-4">
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h2 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400 mb-4">Individual Treatment Record</h2>
+            <div class="panel-card p-5">
+                <h2 class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 mb-4">Individual Treatment Record</h2>
                 <div class="space-y-3">
                     <div>
-                        <p class="text-[10px] font-semibold uppercase text-slate-500 mb-1">Full Name</p>
+                        <p class="field-label mb-1">Full Name</p>
                         <div class="fld uppercase">{{ $record->last_name }}, {{ $record->first_name }} {{ $record->middle_name }}</div>
                     </div>
                     <div>
-                        <p class="text-[10px] font-semibold uppercase text-slate-500 mb-1">Birthday</p>
+                        <p class="field-label mb-1">Birthday</p>
                         <div class="fld flex items-center gap-2">
                             <span class="text-slate-400" aria-hidden="true">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -96,24 +117,24 @@
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <p class="text-[10px] font-semibold uppercase text-slate-500 mb-1">Age</p>
+                            <p class="field-label mb-1">Age</p>
                             <div class="fld">{{ is_numeric($record->age) ? round($record->age) . ' yrs' : ($record->age ?: '—') }}</div>
                         </div>
                         <div>
-                            <p class="text-[10px] font-semibold uppercase text-slate-500 mb-1">Gender</p>
+                            <p class="field-label mb-1">Gender</p>
                             <div class="fld">{{ $record->gender }}</div>
                         </div>
                     </div>
                     <div>
-                        <p class="text-[10px] font-semibold uppercase text-slate-500 mb-1">Cellphone Number</p>
+                        <p class="field-label mb-1">Cellphone Number</p>
                         <div class="fld">{{ $record->contact_number ?: 'N/A' }}</div>
                     </div>
                     <div>
-                        <p class="text-[10px] font-semibold uppercase text-slate-500 mb-1">Civil Status</p>
+                        <p class="field-label mb-1">Civil Status</p>
                         <div class="fld">{{ $record->civil_status }}</div>
                     </div>
                     <div>
-                        <p class="text-[10px] font-semibold uppercase text-slate-500 mb-1">Address</p>
+                        <p class="field-label mb-1">Address</p>
                         <div class="fld uppercase">{{ $record->address_purok }}</div>
                     </div>
                 </div>
@@ -139,10 +160,10 @@
 
         {{-- Middle: V, S, A, P --}}
         <div class="lg:col-span-4 space-y-4">
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="panel-card p-5">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="soap-badge">V</span>
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-800">Vitals</h2>
+                    <h2 class="section-title uppercase">Vitals</h2>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <div class="rounded-xl border border-slate-100 bg-slate-50 px-2 py-2 text-center">
@@ -188,26 +209,26 @@
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="panel-card p-5">
                 <div class="flex items-center gap-2 mb-3">
                     <span class="soap-badge">S</span>
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-800">Subjective Findings</h2>
+                    <h2 class="section-title uppercase">Subjective Findings</h2>
                 </div>
                 <div class="fld min-h-[4rem] whitespace-pre-line text-slate-700">{{ $record->subjective ?: '—' }}</div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="panel-card p-5">
                 <div class="flex items-center gap-2 mb-3">
                     <span class="soap-badge">A</span>
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-800">Assessment / Diagnosis</h2>
+                    <h2 class="section-title uppercase">Assessment / Diagnosis</h2>
                 </div>
                 <div class="fld min-h-[3.5rem] whitespace-pre-line text-slate-800">{{ $record->diagnosis }}</div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="panel-card p-5">
                 <div class="flex items-center gap-2 mb-3">
                     <span class="soap-badge">P</span>
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-800">Plan / Medicines</h2>
+                    <h2 class="section-title uppercase">Plan / Medicines</h2>
                 </div>
                 @if($record->follow_up_recommendation)
                     <div class="fld mb-3 whitespace-pre-line text-slate-700">{{ $record->follow_up_recommendation }}</div>
@@ -265,19 +286,19 @@
 
         {{-- Right: O, L --}}
         <div class="lg:col-span-4 space-y-4">
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="panel-card p-5">
                 <div class="flex items-center gap-2 mb-3">
                     <span class="soap-badge">O</span>
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-800">Objective Findings</h2>
+                    <h2 class="section-title uppercase">Objective Findings</h2>
                 </div>
                 <div class="fld min-h-[5rem] whitespace-pre-line text-slate-700 border-dashed">{{ $record->objective ?: '—' }}</div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="panel-card p-5">
                 <div class="flex items-center justify-between gap-2 mb-3">
                     <div class="flex items-center gap-2">
                         <span class="soap-badge">L</span>
-                        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-800">Laboratory Upload</h2>
+                        <h2 class="section-title uppercase">Laboratory Upload</h2>
                     </div>
                     @if($record->laboratoryFiles && $record->laboratoryFiles->count() > 0)
                         <span class="text-[10px] font-semibold uppercase text-slate-400">{{ $record->laboratoryFiles->count() }} file(s)</span>

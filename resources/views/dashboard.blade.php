@@ -6,8 +6,7 @@
     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 md:p-8 shadow-sm space-y-6">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <h1 class="text-4xl font-black text-slate-800">Barangay Banilad Health Care Center</h1>
-                <p class="text-slate-500 mt-1 text-sm">Daily summary and center management overview</p>
+                <h1 class="text-4xl font-black text-slate-800">Dashboard</h1>
             </div>
             <div class="text-right">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Current Date</p>
