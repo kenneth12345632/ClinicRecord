@@ -32,10 +32,10 @@ class ReportController extends Controller
         return strtolower(trim((string) (Auth::user()->role ?? ''))) === 'bhw';
     }
 
-    private function applyResolvedDiagnoses(Collection $patients): Collection
+    private function applyResolvedDiagnoses(Collection $patientRecords): Collection
     {
-        if ($patients->isEmpty()) {
-            return $patients;
+        if ($patientRecords->isEmpty()) {
+            return $patientRecords;
         }
 
         $latestActualDiagnoses = ClinicRecord::query()
@@ -48,7 +48,7 @@ class ReportController extends Controller
             ->unique(fn (ClinicRecord $record) => $this->patientKey($record))
             ->mapWithKeys(fn (ClinicRecord $record) => [$this->patientKey($record) => $record->diagnosis]);
 
-        return $patients->map(function (ClinicRecord $record) use ($latestActualDiagnoses) {
+        return $patientRecords->map(function (ClinicRecord $record) use ($latestActualDiagnoses) {
             $record->resolved_diagnosis = $latestActualDiagnoses->get(
                 $this->patientKey($record),
                 $record->diagnosis
@@ -71,14 +71,14 @@ class ReportController extends Controller
         });
     }
 
-    public function patient(Request $request)
+    public function patientRecords(Request $request)
     {
         $search = $request->get('search');
         $ageGroup = $request->get('age_group', 'all');
         $gender = strtolower((string) $request->get('gender', 'all'));
         $address = $request->get('address', 'all');
 
-        $patientsQuery = ClinicRecord::whereIn('id', function ($query) {
+        $patientRecordsQuery = ClinicRecord::whereIn('id', function ($query) {
             $query->selectRaw('MAX(id)')
                 ->from('clinic_records')
                 ->groupBy('first_name', 'last_name', 'birthday');
@@ -100,8 +100,8 @@ class ReportController extends Controller
             ->orderBy('consultation_date', 'desc')
             ->orderBy('id', 'desc');
 
-        $patients = $this->applyAgeGroupFilter($patientsQuery, $ageGroup === 'all' ? null : $ageGroup)->get();
-        $patients = $this->applyResolvedDiagnoses($patients);
+        $patientRecords = $this->applyAgeGroupFilter($patientRecordsQuery, $ageGroup === 'all' ? null : $ageGroup)->get();
+        $patientRecords = $this->applyResolvedDiagnoses($patientRecords);
         $addressOptions = ClinicRecord::query()
             ->whereNotNull('address_purok')
             ->where('address_purok', '!=', '')
@@ -111,8 +111,8 @@ class ReportController extends Controller
             ->pluck('address_purok')
             ->values();
 
-        return view('reports.patient', [
-            'patients' => $patients,
+        return view('reports.patient_records', [
+            'patientRecords' => $patientRecords,
             'search' => $search,
             'ageGroup' => $ageGroup,
             'gender' => $gender,
@@ -122,14 +122,14 @@ class ReportController extends Controller
         ]);
     }
 
-    public function exportPatientExcel(Request $request)
+    public function exportPatientRecordExcel(Request $request)
     {
         $search = $request->get('search');
         $ageGroup = $request->get('age_group', 'all');
         $gender = strtolower((string) $request->get('gender', 'all'));
         $address = $request->get('address', 'all');
 
-        $patientsQuery = ClinicRecord::whereIn('id', function ($query) {
+        $patientRecordsQuery = ClinicRecord::whereIn('id', function ($query) {
             $query->selectRaw('MAX(id)')
                 ->from('clinic_records')
                 ->groupBy('first_name', 'last_name', 'birthday');
@@ -151,8 +151,8 @@ class ReportController extends Controller
             ->orderBy('consultation_date', 'desc')
             ->orderBy('id', 'desc');
 
-        $patients = $this->applyAgeGroupFilter($patientsQuery, $ageGroup === 'all' ? null : $ageGroup)->get();
-        $patients = $this->applyResolvedDiagnoses($patients);
+        $patientRecords = $this->applyAgeGroupFilter($patientRecordsQuery, $ageGroup === 'all' ? null : $ageGroup)->get();
+        $patientRecords = $this->applyResolvedDiagnoses($patientRecords);
 
         $headers = [
             'Consultation Date',
@@ -165,17 +165,17 @@ class ReportController extends Controller
             'Diagnosis',
         ];
 
-        $filenamePrefix = $ageGroup !== 'all' ? 'patient-report-' . $ageGroup : 'patient-report';
+        $filenamePrefix = $ageGroup !== 'all' ? 'patient-records-report-' . $ageGroup : 'patient-records-report';
         $filename = $filenamePrefix . '-' . now()->format('Y-m-d-His') . '.xlsx';
         $tempPath = storage_path('app/' . $filename);
 
         $writer = new Writer();
         $writer->openToFile($tempPath);
-        $writer->addRow(Row::fromValues(['Patient Report']));
+        $writer->addRow(Row::fromValues(['Patient Records Report']));
         $writer->addRow(Row::fromValues([]));
         $writer->addRow(Row::fromValues($headers));
 
-        foreach ($patients as $record) {
+        foreach ($patientRecords as $record) {
             $consultationDate = $record->consultation_date
                 ? Carbon::parse($record->consultation_date)->format('M d, Y')
                 : '';

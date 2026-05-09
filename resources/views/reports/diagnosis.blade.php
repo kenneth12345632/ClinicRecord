@@ -8,7 +8,7 @@
     $diagnosisIndexRoute = $diagnosisPrivacyBhw ? route('bhw.reports.diagnosis') : route('reports.diagnosis');
     $diagnosisExportRoute = $diagnosisPrivacyBhw ? route('bhw.reports.diagnosis.export') : route('reports.diagnosis.export');
     $paginationEmptyRowHtml = '<tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 italic">' . e($diagnosisEmptyTableMessage) . '</td></tr>';
-    $diagnosisRowsHiddenMessageHtml = '<tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 italic">Records are hidden. Click &quot;Show Patients&quot; to display them.</td></tr>';
+    $diagnosisRowsHiddenMessageHtml = '<tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 italic">Records are hidden. Click &quot;Show Patient Records&quot; to display them.</td></tr>';
     $diagnosisExportQuery = array_filter([
         'search' => $search,
         'from_date' => $fromDate ?? null,
@@ -31,7 +31,7 @@
 
     @if($diagnosisPrivacyBhw)
         <div class="mb-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900">
-            Patient rows stay blank until you click <strong>Show Patients</strong> (optional: use Search to narrow by patient, diagnosis, or dates). Each diagnosis stays masked until you click <strong>Show diagnosis</strong> on that row.
+            Patient record rows stay blank until you click <strong>Show Patient Records</strong> (optional: use Search to narrow by patient, diagnosis, or dates). Each diagnosis stays masked until you click <strong>Show diagnosis</strong> on that row.
         </div>
     @endif
 
@@ -72,7 +72,7 @@
                     @if($diagnosisPrivacyBhw)
                         <button type="button" id="toggleDiagnosisRowsBtn"
                             class="px-4 py-2.5 rounded-xl border border-blue-200 text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition shadow-sm">
-                            Show Patients
+                            Show Patient Records
                         </button>
                     @endif
                 </div>
@@ -168,7 +168,7 @@
         function updateDiagnosisToggleLabel() {
             const btn = document.getElementById('toggleDiagnosisRowsBtn');
             if (!btn) return;
-            btn.textContent = reportRowsVisible ? 'Hide Patients' : 'Show Patients';
+            btn.textContent = reportRowsVisible ? 'Hide Patient Records' : 'Show Patient Records';
         }
 
         function renderDiagnosisPagination() {

@@ -301,7 +301,7 @@ class MedicineDispensingController extends Controller
             return redirect()
                 ->route($this->patientRecordsIndexRoute())
                 ->with('success', $msg)
-                ->with('show_patients', true);
+                ->with('show_patient_records', true);
         }
 
         if ($hasAnyReleased) {

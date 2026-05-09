@@ -3,8 +3,8 @@
 @section('content')
 @php
     $patientReportPrivacyBhw = $patientReportPrivacyBhw ?? false;
-    $patientReportIndexRoute = $patientReportPrivacyBhw ? route('bhw.reports.patients') : route('reports.patients');
-    $patientReportExportRoute = $patientReportPrivacyBhw ? route('bhw.reports.patients.export') : route('reports.patients.export');
+    $patientReportIndexRoute = $patientReportPrivacyBhw ? route('bhw.reports.patient_records') : route('reports.patient_records');
+    $patientReportExportRoute = $patientReportPrivacyBhw ? route('bhw.reports.patient_records.export') : route('reports.patient_records.export');
     $patientReportExportQuery = array_filter([
         'search' => $search,
         'age_group' => $ageGroup,
@@ -13,13 +13,13 @@
     ], fn ($v) => $v !== null && $v !== '');
     $patientReportExportUrl = $patientReportExportRoute . ($patientReportExportQuery !== [] ? '?' . http_build_query($patientReportExportQuery) : '');
     $paginationEmptyRowHtml = '<tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 italic">No patient records found.</td></tr>';
-    $patientRowsHiddenMessageHtml = '<tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 italic">Records are hidden. Click &quot;Show Patients&quot; to display them.</td></tr>';
+    $patientRowsHiddenMessageHtml = '<tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 italic">Records are hidden. Click &quot;Show Patient Records&quot; to display them.</td></tr>';
 @endphp
 <div class="max-w-7xl mx-auto pb-20 px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 mt-8">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Patient Report</h1>
-            <p class="text-gray-500 text-sm mt-1">Unique patient list and latest consultation details</p>
+            <h1 class="text-3xl font-bold text-gray-800">Patient Records Report</h1>
+            <p class="text-gray-500 text-sm mt-1">Unique patient record list and latest consultation details</p>
         </div>
         <a href="{{ $patientReportExportUrl }}"
             class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition">
@@ -29,7 +29,7 @@
 
     @if($patientReportPrivacyBhw)
         <div class="mb-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900">
-            The table stays blank until you click <strong>Show Patients</strong>. Use the filters and search to narrow results, then click <strong>Show Patients</strong> to view matching rows (changing a dropdown reloads the page with your choices).
+            The table stays blank until you click <strong>Show Patient Records</strong>. Use the filters and search to narrow results, then click <strong>Show Patient Records</strong> to view matching rows (changing a dropdown reloads the page with your choices).
         </div>
     @endif
 
@@ -40,7 +40,7 @@
                     @if($patientReportPrivacyBhw)
                         <button type="button" id="togglePatientReportBtn"
                             class="px-4 py-2.5 rounded-xl border border-blue-200 text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition shadow-sm shrink-0">
-                            Show Patients
+                            Show Patient Records
                         </button>
                     @endif
                     <select id="age_group_filter" name="age_group"
@@ -67,7 +67,7 @@
                 <div class="flex flex-wrap gap-3 items-center w-full">
                     <div class="relative flex-1 min-w-[min(100%,16rem)] md:max-w-2xl">
                         <input type="text" name="search" id="patient_report_search" value="{{ $search }}"
-                            placeholder="Search patients..."
+                            placeholder="Search patient records..."
                             class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm">
                         <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -92,7 +92,7 @@
                 </tr>
             </thead>
             <tbody id="patientReportTableBody" class="divide-y divide-gray-50">
-                @forelse($patients as $record)
+                @forelse($patientRecords as $record)
                     @php
                         $birthDate = \Carbon\Carbon::parse($record->birthday);
                         $ageYears = (int) $birthDate->diffInYears(now());
@@ -167,7 +167,7 @@
         function updatePatientReportToggleLabel() {
             const btn = document.getElementById('togglePatientReportBtn');
             if (!btn) return;
-            btn.textContent = reportRowsVisible ? 'Hide Patients' : 'Show Patients';
+            btn.textContent = reportRowsVisible ? 'Hide Patient Records' : 'Show Patient Records';
         }
 
         function renderPatientReportPagination() {

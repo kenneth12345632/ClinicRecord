@@ -14,7 +14,8 @@ Use this map to quickly locate code by account role.
 ## Models
 
 - `app/Models/ClinicRecord.php` now includes role-oriented query scopes:
-  - `latestPerPatient()`
+  - `latestPerPatientRecord()`
+  - `latestPerPatientRecordRegistryVisible()`
   - `forBhwDashboard()`
   - `forDoctorNurseDashboard()`
 

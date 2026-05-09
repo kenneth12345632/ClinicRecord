@@ -156,8 +156,8 @@
 <body onload="window.print()">
 @php
     $hasValue = fn ($value) => !is_null($value) && trim((string) $value) !== '' && strtoupper(trim((string) $value)) !== 'N/A';
-    $clinicLogoPath = \App\Models\Setting::getValue('clinic_logo');
-    $clinicLogoUrl = $clinicLogoPath ? asset('storage/' . ltrim($clinicLogoPath, '/')) : null;
+    $clinicLogoPath = config('clinic.logo_path');
+    $clinicLogoUrl = $clinicLogoPath ? asset('storage/' . ltrim((string) $clinicLogoPath, '/')) : null;
 @endphp
 <div class="paper">
     <div class="top-header">

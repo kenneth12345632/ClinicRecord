@@ -40,8 +40,8 @@ class AdminDashboardController extends Controller
         $repeatedSymptomsPatients = 0;
         $unresolvedConsultations = 0;
 
-        foreach ($grouped as $patientRecords) {
-            $latest = $patientRecords->last();
+        foreach ($grouped as $identityRecords) {
+            $latest = $identityRecords->last();
             $latestStatus = trim((string) $latest?->condition_update);
 
             if ($latestStatus === 'recovered') {
@@ -52,7 +52,7 @@ class AdminDashboardController extends Controller
                 $unresolvedConsultations++;
             }
 
-            $lastThree = $patientRecords->slice(-3)->values();
+            $lastThree = $identityRecords->slice(-3)->values();
             if ($lastThree->count() >= 3) {
                 $sameIssue = $lastThree
                     ->map(fn (ClinicRecord $record) => $this->normalizedIssueSignature($record))
@@ -67,31 +67,31 @@ class AdminDashboardController extends Controller
         }
 
         return [
-            'recovered_patients' => $recoveredPatients,
-            'repeated_symptoms_patients' => $repeatedSymptomsPatients,
+            'recovered_patient_records' => $recoveredPatients,
+            'repeated_symptoms_patient_records' => $repeatedSymptomsPatients,
             'unresolved_consultation_count' => $unresolvedConsultations,
         ];
     }
 
     public function index(): View
     {
-        $totalPatients = ClinicRecord::query()
+        $totalPatientRecords = ClinicRecord::query()
             ->select('first_name', 'last_name', 'birthday')
             ->groupBy('first_name', 'last_name', 'birthday')
             ->get()
             ->count();
 
-        $todaysPatients = ClinicRecord::query()->whereDate('consultation_date', today())->count();
+        $todaysPatientRecords = ClinicRecord::query()->whereDate('consultation_date', today())->count();
         $totalConsultations = ClinicRecord::count();
         $pendingConsultations = ClinicRecord::query()
-            ->latestPerPatient()
+            ->latestPerPatientRecord()
             ->get()
             ->where('workflow_status', 'waiting_for_doctor')
             ->count();
         $lowStockMedicines = Medicine::query()->where('stock', '<', 10)->orderBy('stock')->limit(8)->get();
         $recentLogs = ActivityLog::with('user')->latest()->limit(200)->get();
 
-        $weeklyPatients = ClinicRecord::query()
+        $weeklyPatientRecords = ClinicRecord::query()
             ->whereDate('consultation_date', '>=', now()->subDays(6))
             ->selectRaw('DATE(consultation_date) as day, COUNT(*) as total')
             ->groupBy('day')
@@ -100,13 +100,13 @@ class AdminDashboardController extends Controller
         $recoveryAnalytics = $this->buildRecoveryAnalytics();
 
         return view('admin.dashboard', compact(
-            'totalPatients',
-            'todaysPatients',
+            'totalPatientRecords',
+            'todaysPatientRecords',
             'totalConsultations',
             'pendingConsultations',
             'lowStockMedicines',
             'recentLogs',
-            'weeklyPatients',
+            'weeklyPatientRecords',
             'recoveryAnalytics'
         ));
     }

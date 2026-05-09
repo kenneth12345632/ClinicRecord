@@ -17,7 +17,7 @@ class DashboardController extends Controller
             abort(403);
         }
 
-        $totalPatients = ClinicRecord::select('first_name', 'last_name', 'birthday')
+        $totalPatientRecords = ClinicRecord::select('first_name', 'last_name', 'birthday')
             ->groupBy('first_name', 'last_name', 'birthday')
             ->get()
             ->count();
@@ -31,7 +31,7 @@ class DashboardController extends Controller
             ->unique(fn ($item) => $item->first_name . $item->last_name . $item->birthday)
             ->take(5);
 
-        $weeklyPatients = ClinicRecord::query()
+        $weeklyPatientRecords = ClinicRecord::query()
             ->whereDate('consultation_date', '>=', now()->subDays(6))
             ->selectRaw('DATE(consultation_date) as day, COUNT(*) as total')
             ->groupBy('day')
@@ -39,11 +39,11 @@ class DashboardController extends Controller
             ->get();
 
         return view('doctor.dashboard.index', [
-            'totalPatients' => $totalPatients,
+            'totalPatientRecords' => $totalPatientRecords,
             'todayConsultations' => $todayConsultations,
             'lowStockCount' => $lowStockCount,
             'recentRecords' => $recentRecords,
-            'weeklyPatients' => $weeklyPatients,
+            'weeklyPatientRecords' => $weeklyPatientRecords,
             'isDoctorAvailable' => (bool) (Auth::user()?->is_doctor_available),
         ]);
     }

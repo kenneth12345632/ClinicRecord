@@ -17,15 +17,15 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                 <div class="flex items-center justify-between">
-                    <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Total Patients</p>
+                    <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Total Patient Records</p>
                     <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center text-xs">👥</span>
                 </div>
-                <p class="text-4xl font-black mt-2 text-slate-800">{{ $totalPatients ?? 0 }}</p>
+                <p class="text-4xl font-black mt-2 text-slate-800">{{ $totalPatientRecords ?? 0 }}</p>
                 <p class="text-[10px] font-semibold uppercase tracking-wide text-emerald-600 mt-2">Live registry count</p>
             </div>
             <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                 <div class="flex items-center justify-between">
-                    <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Today's Patients</p>
+                    <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Today's Patient Records</p>
                     <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center text-xs">🏥</span>
                 </div>
                 <p class="text-4xl font-black mt-2 text-slate-800">{{ $todayConsultations ?? 0 }}</p>

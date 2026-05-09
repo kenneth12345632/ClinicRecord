@@ -94,7 +94,7 @@ protected $fillable = [
         return 'waiting_for_doctor';
     }
 
-    public function scopeLatestPerPatient(Builder $query): Builder
+    public function scopeLatestPerPatientRecord(Builder $query): Builder
     {
         return $query->whereIn('id', function ($subQuery) {
             $subQuery->selectRaw('MAX(id)')
@@ -104,12 +104,12 @@ protected $fillable = [
     }
 
     /**
-     * Latest visit per patient that is already published to the registry.
+     * Latest visit per patient record identity that is already published to the registry.
      *
      * BHW intake rows (placeholder diagnosis, no doctor/nurse signer) never appear here. A row must
      * have doctor_consulted_by set so only EMR consultations released by BHW count as registry entries.
      */
-    public function scopeLatestPerPatientRegistryVisible(Builder $query): Builder
+    public function scopeLatestPerPatientRecordRegistryVisible(Builder $query): Builder
     {
         return $query->whereIn('id', function ($subQuery) {
             $subQuery->select(DB::raw('MAX(cr.id)'))
@@ -123,14 +123,14 @@ protected $fillable = [
 
     public function scopeForBhwDashboard(Builder $query): Builder
     {
-        return $query->latestPerPatient()
+        return $query->latestPerPatientRecord()
             ->orderBy('consultation_date', 'desc')
             ->orderBy('id', 'desc');
     }
 
     public function scopeForDoctorNurseDashboard(Builder $query): Builder
     {
-        return $query->latestPerPatient()
+        return $query->latestPerPatientRecord()
             ->orderBy('consultation_date', 'desc')
             ->orderBy('id', 'desc');
     }

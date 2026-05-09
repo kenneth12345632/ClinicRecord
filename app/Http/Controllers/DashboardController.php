@@ -10,8 +10,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. UNIQUE PATIENTS: Counts unique combinations of name + birthday
-        $totalPatients = ClinicRecord::select('first_name', 'last_name', 'birthday')
+        // 1. Unique patient record identities: distinct name + birthday
+        $totalPatientRecords = ClinicRecord::select('first_name', 'last_name', 'birthday')
             ->groupBy('first_name', 'last_name', 'birthday')
             ->get()
             ->count();
@@ -32,7 +32,7 @@ class DashboardController extends Controller
             })
             ->take(5);
 return view('dashboard', [
-        'totalPatients'      => $totalPatients,
+        'totalPatientRecords' => $totalPatientRecords,
         'todayConsultations' => $todayConsultations,
         'lowStockCount'      => $lowStockCount,
         'recentRecords'      => $recentRecords,

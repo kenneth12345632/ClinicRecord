@@ -293,7 +293,7 @@ class DoctorClinicRecordController extends Controller
 
     public function dashboard()
     {
-        $totalPatients = ClinicRecord::select('first_name', 'last_name', 'birthday')
+        $totalPatientRecords = ClinicRecord::select('first_name', 'last_name', 'birthday')
             ->groupBy('first_name', 'last_name', 'birthday')
             ->get()
             ->count();
@@ -310,7 +310,7 @@ class DoctorClinicRecordController extends Controller
         $recoveryMonitoring = $this->buildRecoveryMonitoring();
 
         return view('doctor.dashboard', [
-            'totalPatients'      => $totalPatients,
+            'totalPatientRecords' => $totalPatientRecords,
             'todayConsultations' => $todayConsultations,
             'lowStockCount'      => $lowStockCount,
             'recentRecords'      => $recentRecords,
@@ -325,7 +325,7 @@ class DoctorClinicRecordController extends Controller
         $allMedicines = $this->getDispensableMedicinesForSelection();
 
         $records = ClinicRecord::query()
-            ->latestPerPatientRegistryVisible()
+            ->latestPerPatientRecordRegistryVisible()
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('first_name', 'like', "%{$search}%")
@@ -345,7 +345,7 @@ class DoctorClinicRecordController extends Controller
         ]);
     }
 
-    public function pendingPatients(Request $request)
+    public function pendingPatientRecords(Request $request)
     {
         $search = $request->get('search');
 
@@ -382,7 +382,7 @@ class DoctorClinicRecordController extends Controller
         $allMedicines = $this->getDispensableMedicinesForSelection();
         $patientRecordId = $request->query('patient_record_id');
         if (!$patientRecordId) {
-            return redirect()->route($routePrefix . '.record.index')->with('success', 'Select a patient first to add a new consultation.');
+            return redirect()->route($routePrefix . '.record.index')->with('success', 'Select a patient record first to add a new consultation.');
         }
 
         $patient = ClinicRecord::findOrFail($patientRecordId);
@@ -401,7 +401,7 @@ class DoctorClinicRecordController extends Controller
         ]);
     }
 
-    public function patientInfo($id)
+    public function patientRecordInfo($id)
     {
         $record = ClinicRecord::findOrFail($id);
 

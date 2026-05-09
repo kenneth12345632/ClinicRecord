@@ -12,7 +12,6 @@ use App\Http\Controllers\Bhw\DashboardController as BhwDashboardController;
 use App\Http\Controllers\Bhw\MedicineDispensingController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\UserManagementController;
-use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\InventoryController as AdminInventoryController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
@@ -93,8 +92,8 @@ Route::middleware('auth')->group(function () {
 
         // Reports
         Route::prefix('reports')->name('reports.')->middleware('role:admin,bhw')->group(function () {
-            Route::get('/patients', [ReportController::class, 'patient'])->name('patients');
-            Route::get('/patients/export', [ReportController::class, 'exportPatientExcel'])->name('patients.export');
+            Route::get('/patient-records', [ReportController::class, 'patientRecords'])->name('patient_records');
+            Route::get('/patient-records/export', [ReportController::class, 'exportPatientRecordExcel'])->name('patient_records.export');
             Route::get('/diagnosis', [ReportController::class, 'diagnosis'])->name('diagnosis');
             Route::get('/diagnosis/export', [ReportController::class, 'exportDiagnosisExcel'])->name('diagnosis.export');
         });
@@ -124,8 +123,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/medicines-destroy-group', [MedicineController::class, 'destroyGroup'])->name('medicines.destroy_group');
 
         Route::prefix('reports')->name('reports.')->group(function () {
-            Route::get('/patients', [ReportController::class, 'patient'])->name('patients');
-            Route::get('/patients/export', [ReportController::class, 'exportPatientExcel'])->name('patients.export');
+            Route::get('/patient-records', [ReportController::class, 'patientRecords'])->name('patient_records');
+            Route::get('/patient-records/export', [ReportController::class, 'exportPatientRecordExcel'])->name('patient_records.export');
             Route::get('/diagnosis', [ReportController::class, 'diagnosis'])->name('diagnosis');
             Route::get('/diagnosis/export', [ReportController::class, 'exportDiagnosisExcel'])->name('diagnosis.export');
         });
@@ -135,9 +134,9 @@ Route::middleware('auth')->group(function () {
     Route::prefix('doctor')->name('doctor.')->middleware('role:doctor')->group(function () {
         Route::get('/dashboard', [DoctorDashboardController::class, 'index'])->name('dashboard');
         Route::post('/availability/toggle', [DoctorClinicRecordController::class, 'toggleAvailability'])->name('availability.toggle')->middleware('role:doctor');
-        Route::get('/pending-patients', [DoctorClinicRecordController::class, 'pendingPatients'])->name('pending.index');
+        Route::get('/pending-patient-records', [DoctorClinicRecordController::class, 'pendingPatientRecords'])->name('pending.index');
 
-        Route::get('/patient/{id}', [DoctorClinicRecordController::class, 'patientInfo'])->name('patient.info');
+        Route::get('/patient-records/{id}', [DoctorClinicRecordController::class, 'patientRecordInfo'])->name('patient_record.info');
 
         Route::prefix('record')->name('record.')->group(function () {
             Route::get('/', [DoctorClinicRecordController::class, 'index'])->name('index');
@@ -151,8 +150,8 @@ Route::middleware('auth')->group(function () {
     // --- NURSE AREA ---
     Route::prefix('nurse')->name('nurse.')->middleware('role:nurse')->group(function () {
         Route::get('/dashboard', [NurseDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/pending-patients', [DoctorClinicRecordController::class, 'pendingPatients'])->name('pending.index');
-        Route::get('/patient/{id}', [DoctorClinicRecordController::class, 'patientInfo'])->name('patient.info');
+        Route::get('/pending-patient-records', [DoctorClinicRecordController::class, 'pendingPatientRecords'])->name('pending.index');
+        Route::get('/patient-records/{id}', [DoctorClinicRecordController::class, 'patientRecordInfo'])->name('patient_record.info');
 
         Route::prefix('record')->name('record.')->group(function () {
             Route::get('/', [DoctorClinicRecordController::class, 'index'])->name('index');
@@ -242,9 +241,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
         Route::patch('/users/{user}/status', [UserManagementController::class, 'toggleStatus'])->name('users.status');
         Route::post('/users/{user}/reset-password', [UserManagementController::class, 'resetPassword'])->name('users.reset-password');
-
-        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
-        Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
 
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
         Route::get('/inventory/ledger', [AdminInventoryController::class, 'ledger'])->name('inventory.ledger');

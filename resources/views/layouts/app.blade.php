@@ -29,15 +29,15 @@
         )) {
             $pageTitle = 'Patient Records';
         } elseif (request()->routeIs('doctor.pending.*', 'nurse.pending.*')) {
-            $pageTitle = 'Pending Patients';
+            $pageTitle = 'Pending Patient';
         } elseif (request()->routeIs('medicines.*', 'bhw.medicines.*')) {
             $pageTitle = 'Inventory Medicine';
         } elseif (request()->routeIs('bhw.dispensing.*', 'admin.dispensing.*')) {
             $pageTitle = 'Medicine Queue';
         } elseif (request()->routeIs('reports.diagnosis', 'bhw.reports.diagnosis')) {
             $pageTitle = 'Diagnosis Reports';
-        } elseif (request()->routeIs('reports.patients', 'bhw.reports.patients')) {
-            $pageTitle = 'Patient Reports';
+        } elseif (request()->routeIs('reports.patient_records', 'bhw.reports.patient_records')) {
+            $pageTitle = 'Patient Records Report';
         } elseif (request()->routeIs('admin.reports.*')) {
             $pageTitle = 'Reports';
         } elseif (request()->routeIs('admin.users.*')) {
@@ -232,8 +232,8 @@
         <aside class="w-64 bg-slate-900 text-white flex flex-col shadow-xl z-10">
             <div class="p-6 text-xl font-bold border-b border-slate-800 flex items-center gap-2">
                 @php
-                    $clinicName = \App\Models\Setting::getValue('clinic_name', 'Brgy. Banilad Health Center') ?: 'Brgy. Banilad Health Center';
-                    $clinicLogoPath = \App\Models\Setting::getValue('clinic_logo');
+                    $clinicName = config('clinic.name');
+                    $clinicLogoPath = config('clinic.logo_path');
                     $clinicLogoUrl = $clinicLogoPath ? asset('storage/' . ltrim($clinicLogoPath, '/')) : null;
                 @endphp
                 @if($clinicLogoUrl)
@@ -318,7 +318,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6m-6 14h6M9 5a1 1 0 000 2h.5a1 1 0 011 1v1.5a3.5 3.5 0 01-1.025 2.475L8.8 13.15a2 2 0 000 2.828l1.175 1.175A3.5 3.5 0 0111 19.628V20a1 1 0 01-1 1H9m6-16a1 1 0 010 2h-.5a1 1 0 00-1 1v1.5a3.5 3.5 0 001.025 2.475L15.2 13.15a2 2 0 010 2.828l-1.175 1.175A3.5 3.5 0 0013 19.628V20a1 1 0 001 1h1"/>
                             </svg>
-                        </span> Pending Patients
+                        </span> Pending Patient
                     </a>
                 @endif
 
@@ -346,9 +346,9 @@
                                class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.diagnosis') || request()->routeIs('bhw.reports.diagnosis') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                                 <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-3M5 20h14a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg></span>Diagnosis Reports
                             </a>
-                            <a href="{{ route('bhw.reports.patients') }}"
-                               class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.patients') || request()->routeIs('bhw.reports.patients') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                                <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>Patient Reports
+                            <a href="{{ route('bhw.reports.patient_records') }}"
+                               class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.patient_records') || request()->routeIs('bhw.reports.patient_records') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                                <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>Patient Records Report
                             </a>
                             <a href="{{ route('bhw.medicines.index') }}"
                                class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('bhw.medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">

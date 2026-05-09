@@ -28,8 +28,8 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Total Patients</p>
-                        <p class="text-4xl leading-none mt-1 font-black text-slate-800">{{ $totalPatients ?? 0 }}</p>
+                        <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Total Patient Records</p>
+                        <p class="text-4xl leading-none mt-1 font-black text-slate-800">{{ $totalPatientRecords ?? 0 }}</p>
                     </div>
                 </div>
             </div>
@@ -42,7 +42,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Today's Patients</p>
+                        <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Today's Patient Records</p>
                         <p class="text-4xl leading-none mt-1 font-black text-slate-800">{{ $todayConsultations ?? 0 }}</p>
                     </div>
                 </div>

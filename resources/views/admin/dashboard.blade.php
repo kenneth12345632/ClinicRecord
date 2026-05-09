@@ -2,8 +2,8 @@
 
 @section('content')
 @php
-    $clinicName = \App\Models\Setting::getValue('clinic_name', 'Barangay Banilad Health Care Center') ?: 'Barangay Banilad Health Care Center';
-    $clinicAddress = \App\Models\Setting::getValue('clinic_address', 'Centralized operations and system insights.') ?: 'Centralized operations and system insights.';
+    $clinicName = config('clinic.name');
+    $clinicAddress = config('clinic.address') ?: 'Centralized operations and system insights.';
 @endphp
 
 <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
@@ -39,19 +39,19 @@
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
         <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div class="flex items-center justify-between">
-                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Total Patients</p>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Total Patient Records</p>
                 <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">👥</span>
             </div>
-            <p class="mt-2 text-4xl font-black leading-none text-slate-800">{{ $totalPatients }}</p>
+            <p class="mt-2 text-4xl font-black leading-none text-slate-800">{{ $totalPatientRecords }}</p>
             <p class="mt-3 text-[10px] font-semibold uppercase text-emerald-600">Live registry count</p>
         </div>
 
         <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div class="flex items-center justify-between">
-                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Today's Patients</p>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Today's Patient Records</p>
                 <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">📅</span>
             </div>
-            <p class="mt-2 text-4xl font-black leading-none text-slate-800">{{ $todaysPatients }}</p>
+            <p class="mt-2 text-4xl font-black leading-none text-slate-800">{{ $todaysPatientRecords }}</p>
             <p class="mt-3 text-[10px] font-semibold uppercase text-slate-500">Current day census</p>
         </div>
 
@@ -133,16 +133,16 @@
         <div class="space-y-4">
             <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h3 class="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
-                    <span class="text-blue-500">📈</span> Weekly Patients Trend
+                    <span class="text-blue-500">📈</span> Weekly Patient Records Trend
                 </h3>
 
-                @if($weeklyPatients->count() > 0)
+                @if($weeklyPatientRecords->count() > 0)
                     <div class="relative h-64 rounded-xl border border-slate-100 bg-white p-3">
-                        <canvas id="weeklyPatientsTrendChart"></canvas>
+                        <canvas id="weeklyPatientRecordsTrendChart"></canvas>
                     </div>
                 @else
                     <div class="rounded-xl border border-dashed border-slate-200 p-8 text-center text-sm text-slate-500">
-                        No recent patient trend data.
+                        No recent patient record trend data.
                     </div>
                 @endif
             </div>
@@ -169,10 +169,10 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-        const canvas = document.getElementById('weeklyPatientsTrendChart');
+        const canvas = document.getElementById('weeklyPatientRecordsTrendChart');
         if (!canvas || typeof Chart === 'undefined') return;
 
-        const rawRows = @json($weeklyPatients->values()->map(function ($row) {
+        const rawRows = @json($weeklyPatientRecords->values()->map(function ($row) {
             return [
                 'label' => \Carbon\Carbon::parse($row->day)->format('D M d'),
                 'value' => (int) $row->total,

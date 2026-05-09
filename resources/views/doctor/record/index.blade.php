@@ -52,7 +52,7 @@
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <button type="button" id="togglePatientsBtn"
                 class="px-4 py-2.5 rounded-xl border border-blue-200 text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition shadow-sm">
-                Show Patients
+                Show Patient Records
             </button>
 
             <select id="ageFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer">
@@ -73,7 +73,7 @@
             </select>
 
             <div class="relative flex-grow md:flex-grow-0">
-                <input type="text" id="searchInput" placeholder="Search patients..." 
+                <input type="text" id="searchInput" placeholder="Search patient records..." 
                     class="pl-10 pr-4 py-2.5 w-full md:w-64 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm">
                 <svg class="w-5 h-5 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -385,7 +385,7 @@ let recordsVisible = false;
 function updateToggleButtonLabel() {
     const btn = document.getElementById('togglePatientsBtn');
     if (!btn) return;
-    btn.textContent = recordsVisible ? 'Hide Patients' : 'Show Patients';
+    btn.textContent = recordsVisible ? 'Hide Patient Records' : 'Show Patient Records';
 }
 
 function renderRecordPagination(filteredRows) {
@@ -394,7 +394,7 @@ function renderRecordPagination(filteredRows) {
             pagerSelector: '#recordsPagination',
             tableBodySelector: '#recordsTableBody',
             rows: [],
-            emptyRowHtml: '<tr><td colspan="7" class="px-6 py-16 text-center text-gray-400 italic">Patients are hidden. Click "Show Patients" or choose a filter to display records.</td></tr>'
+            emptyRowHtml: '<tr><td colspan="7" class="px-6 py-16 text-center text-gray-400 italic">Patient records are hidden. Click "Show Patient Records" or choose a filter to display records.</td></tr>'
         });
         return;
     }
@@ -417,8 +417,8 @@ function renderRecordPagination(filteredRows) {
     });
 }
 
-function applyFilters(showPatients = true) {
-    if (showPatients) {
+function applyFilters(showPatientRecords = true) {
+    if (showPatientRecords) {
         recordsVisible = true;
         updateToggleButtonLabel();
     }

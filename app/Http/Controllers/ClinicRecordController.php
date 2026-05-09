@@ -158,7 +158,7 @@ class ClinicRecordController extends Controller
         $allMedicines = $this->getDispensableMedicinesForSelection();
 
         $records = ClinicRecord::query()
-            ->latestPerPatientRegistryVisible()
+            ->latestPerPatientRecordRegistryVisible()
         ->when($search, function($query) use ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
