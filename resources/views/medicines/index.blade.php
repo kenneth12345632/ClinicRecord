@@ -7,7 +7,9 @@
     $currentRole = auth()->user()->role ?? null;
     $isDoctorRole = $currentRole === 'doctor';
     $isNurseRole = $currentRole === 'nurse';
+    $isAdminRole = $currentRole === 'admin';
     $isReadOnlyInventoryRole = $isDoctorRole || $isNurseRole;
+    $canShowAddMedicineButton = !$isReadOnlyInventoryRole && !$isAdminRole;
 @endphp
 {{-- Load Alpine.js for floating overlays --}}
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -19,13 +21,13 @@
             <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Medicine Inventory</h1>
             <p class="text-gray-500 text-sm mt-1">One row per medicine; the <span class="text-slate-600 font-medium">chevron</span> lists every releasable batch (qty &amp; expiry, soonest first). Open <span class="text-slate-600 font-medium">View</span> for full history.</p>
         </div>
-        @unless($isReadOnlyInventoryRole)
+        @if($canShowAddMedicineButton)
             <a href="{{ route('medicines.create') }}"
                 class="inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-blue-700 transition self-start md:self-auto">
                 <span class="text-base leading-none font-bold" aria-hidden="true">+</span>
                 <span>Add Medicine</span>
             </a>
-        @endunless
+        @endif
     </div>
 
     {{-- Search + dosage unit filter --}}
@@ -209,11 +211,11 @@
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </button>
 
-                            @unless($isReadOnlyInventoryRole)
+                            @if(!$isReadOnlyInventoryRole && !$isAdminRole)
                                 <button type="button" @click="openAddLot = '{{ $grpKey }}'" title="Add stock" aria-label="Add stock" class="p-2 bg-[#ECFDF5] text-[#10B981] rounded-xl hover:opacity-80 transition shadow-sm shrink-0">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                                 </button>
-                            @endunless
+                            @endif
 
                             @unless($isReadOnlyInventoryRole)
                                 @if($editTargetLot)
@@ -278,8 +280,9 @@
                         </div>
 
                         {{-- MODAL 2: ADD NEW LOT --}}
-                        <div x-show="openAddLot == '{{ $grpKey }}'" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" style="display: none;" x-transition.opacity>
-                            <div @click.away="openAddLot = null" class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden text-left whitespace-normal">
+                        {{-- backdrop: @click.self only — Flatpickr renders on document.body; @click.away on the panel treated those clicks as “outside” and closed the modal. --}}
+                        <div x-show="openAddLot == '{{ $grpKey }}'" @click.self="openAddLot = null" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" style="display: none;" x-transition.opacity>
+                            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden text-left whitespace-normal">
                                 <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center">
                                     <div>
                                         <h2 class="text-2xl font-bold text-gray-900">Add New Stock</h2>
@@ -410,7 +413,7 @@
             const units = unitsCsv === '' ? [] : unitsCsv.split(',').map((u) => u.trim().toLowerCase()).filter(Boolean);
             return { element: tbody, name, units };
         });
-    let inventoryVisible = false;
+    let inventoryVisible = localStorage.getItem('toggle_medicine_inventory') === 'true';
 
     function matchesUnitFilter(units, selectedUnit) {
         if (!selectedUnit || selectedUnit === 'all') return true;
@@ -487,6 +490,7 @@
         if (toggleBtn) {
             toggleBtn.addEventListener('click', function () {
                 inventoryVisible = !inventoryVisible;
+                localStorage.setItem('toggle_medicine_inventory', inventoryVisible);
                 updateInventoryToggleLabel();
                 runFilters();
             });

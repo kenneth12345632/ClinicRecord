@@ -16,6 +16,13 @@ class MedicineController extends Controller
         }
     }
 
+    private function ensureAdminCannotOpenAddMedicineForm(): void
+    {
+        if ((auth()->user()->role ?? null) === 'admin') {
+            abort(403, 'Administrator accounts cannot add new medicines from this form.');
+        }
+    }
+
     /**
      * Display the main inventory list.
      */
@@ -63,6 +70,7 @@ class MedicineController extends Controller
     public function create()
     {
         $this->ensureDoctorCannotMutateInventory();
+        $this->ensureAdminCannotOpenAddMedicineForm();
 
         $catalog = $this->medicineCatalogSuggestionCollections();
 

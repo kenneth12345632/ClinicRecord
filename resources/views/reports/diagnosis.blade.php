@@ -31,7 +31,7 @@
 
     @if($diagnosisPrivacyBhw)
         <div class="mb-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900">
-            Patient record rows stay blank until you click <strong>Show Patient Records</strong> (optional: use Search to narrow by patient, diagnosis, or dates). Each diagnosis stays masked until you click <strong>Show diagnosis</strong> on that row.
+            Patient record rows stay blank until you click <strong>Show Patient Records</strong> (optional: use Search to narrow by patient, diagnosis, or dates).
         </div>
     @endif
 
@@ -102,19 +102,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-600">
-                            @if($diagnosisPrivacyBhw)
-                                @php $diagShort = \Illuminate\Support\Str::limit($record->diagnosis, 70); @endphp
-                                <div class="diagnosis-privacy-cell space-y-1">
-                                    <span class="diagnosis-visible-text hidden italic">"{{ $diagShort }}"</span>
-                                    <span class="diagnosis-hidden-label text-xs text-gray-400">Hidden — click Show to view</span>
-                                    <button type="button"
-                                        class="diagnosis-toggle-btn text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline w-fit text-left">
-                                        Show diagnosis
-                                    </button>
-                                </div>
-                            @else
-                                <span class="italic">"{{ \Illuminate\Support\Str::limit($record->diagnosis, 70) }}"</span>
-                            @endif
+                            <span class="italic">"{{ \Illuminate\Support\Str::limit($record->diagnosis, 70) }}"</span>
                         </td>
                         <td class="px-6 py-4 text-xs text-gray-600">
                             T: {{ $record->temp ?: '--' }},
@@ -150,7 +138,9 @@
 
         const diagnosisReportRows = Array.from(document.querySelectorAll('#diagnosisReportTableBody .diagnosis-report-row')).map(row => row.outerHTML);
 
-        let reportRowsVisible = !diagnosisPrivacyBhw;
+        let reportRowsVisible = diagnosisPrivacyBhw
+            ? localStorage.getItem('toggle_diagnosis_records') === 'true'
+            : true;
 
         function destroyDiagnosisPager() {
             if (!window.jQuery || !pagerEl) return;
@@ -207,6 +197,7 @@
                 e.preventDefault();
                 e.stopPropagation();
                 reportRowsVisible = !reportRowsVisible;
+                localStorage.setItem('toggle_diagnosis_records', reportRowsVisible);
                 updateDiagnosisToggleLabel();
                 renderDiagnosisPagination();
             });
@@ -216,29 +207,6 @@
         updateDiagnosisToggleLabel();
 
         if (!tbody) return;
-
-        tbody.addEventListener('click', function (e) {
-            const btn = e.target.closest('.diagnosis-toggle-btn');
-            if (!btn || !tbody.contains(btn)) return;
-
-            const cell = btn.closest('.diagnosis-privacy-cell');
-            if (!cell) return;
-
-            const visible = cell.querySelector('.diagnosis-visible-text');
-            const hiddenLabel = cell.querySelector('.diagnosis-hidden-label');
-            if (!visible || !hiddenLabel) return;
-
-            const isShown = !visible.classList.contains('hidden');
-            if (isShown) {
-                visible.classList.add('hidden');
-                hiddenLabel.classList.remove('hidden');
-                btn.textContent = 'Show diagnosis';
-            } else {
-                visible.classList.remove('hidden');
-                hiddenLabel.classList.add('hidden');
-                btn.textContent = 'Hide diagnosis';
-            }
-        });
     });
 </script>
 @endpush

@@ -261,7 +261,7 @@ class MedicineDispensingController extends Controller
                 $record->refresh();
                 $releaseNoteText = $manualReleaseNote !== '' ? (' | BHW note: ' . $manualReleaseNote) : '';
                 $record->update([
-                    'medicines_given' => 'Given: ' . implode(', ', $summary) . ' | Released by BHW: ' . $bhwName . ' on ' . now()->format('M d, Y g:i A') . $releaseNoteText,
+                    'medicines_given' => 'Released by BHW: ' . $bhwName . ' on ' . now()->format('M d, Y g:i A') . $releaseNoteText,
                     'published_to_registry_at' => now(),
                 ]);
             }

@@ -86,7 +86,7 @@
 </div>
 <script>
     const userRows = Array.from(document.querySelectorAll('#usersTableBody .user-row'));
-    let usersVisible = false;
+    let usersVisible = localStorage.getItem('toggle_admin_users') === 'true';
 
     function updateUsersToggleLabel() {
         const btn = document.getElementById('toggleUsersBtn');
@@ -118,6 +118,7 @@
         if (toggleBtn) {
             toggleBtn.addEventListener('click', function () {
                 usersVisible = !usersVisible;
+                localStorage.setItem('toggle_admin_users', usersVisible);
                 updateUsersToggleLabel();
                 applyUserRoleFilter();
             });
@@ -126,6 +127,7 @@
         if (roleFilter) {
             roleFilter.addEventListener('change', function () {
                 usersVisible = true;
+                localStorage.setItem('toggle_admin_users', true);
                 updateUsersToggleLabel();
                 applyUserRoleFilter();
             });

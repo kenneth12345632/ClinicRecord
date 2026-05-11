@@ -134,4 +134,48 @@ protected $fillable = [
             ->orderBy('consultation_date', 'desc')
             ->orderBy('id', 'desc');
     }
+
+    /**
+     * BHW release line for medicine footers (legacy rows stored "Given: … | Released by BHW: …").
+     */
+    public function medicinesGivenReleaseFooter(): ?string
+    {
+        $raw = $this->medicines_given;
+        if ($raw === null || trim((string) $raw) === '') {
+            return null;
+        }
+        $s = trim((string) $raw);
+
+        if (str_starts_with($s, 'Released to patient records by BHW:')) {
+            return $s;
+        }
+
+        $byBhw = 'Released by BHW:';
+        if (str_starts_with($s, $byBhw)) {
+            return $s;
+        }
+
+        $pos = stripos($s, $byBhw);
+        if ($pos !== false) {
+            return trim(substr($s, $pos));
+        }
+
+        return null;
+    }
+
+    /**
+     * Non-release medicines_given text (e.g. awaiting BHW dispensing).
+     */
+    public function medicinesGivenSupplementaryNote(): ?string
+    {
+        $raw = trim((string) ($this->medicines_given ?? ''));
+        if ($raw === '') {
+            return null;
+        }
+        if ($this->medicinesGivenReleaseFooter() !== null) {
+            return null;
+        }
+
+        return $raw;
+    }
 }

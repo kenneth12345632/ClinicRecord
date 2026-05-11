@@ -149,7 +149,9 @@
 
         const patientReportRows = Array.from(document.querySelectorAll('#patientReportTableBody .patient-report-row')).map(row => row.outerHTML);
 
-        let reportRowsVisible = !patientReportPrivacyBhw;
+        let reportRowsVisible = patientReportPrivacyBhw
+            ? localStorage.getItem('toggle_patient_report_records') === 'true'
+            : true;
 
         function destroyPatientPager() {
             if (!window.jQuery || !pagerEl) return;
@@ -215,6 +217,7 @@
                 e.preventDefault();
                 e.stopPropagation();
                 reportRowsVisible = !reportRowsVisible;
+                localStorage.setItem('toggle_patient_report_records', reportRowsVisible);
                 updatePatientReportToggleLabel();
                 renderPatientReportPagination();
             });

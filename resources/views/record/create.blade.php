@@ -129,7 +129,7 @@
                     <div class="text-right itr-consult-date">
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Consultation Date</label>
                         <input type="text" name="consultation_date" id="consultation_date" required autocomplete="off" placeholder="dd/mm/yyyy"
-                            data-material-calendar
+                            data-material-calendar data-fp-compact
                             data-default="{{ old('consultation_date', \Carbon\Carbon::now()->format('Y-m-d')) }}"
                             data-alt-class="border-none bg-transparent font-bold text-blue-700 text-xl p-0 focus:ring-0 text-right outline-none min-w-[9.5rem]"
                             class="border-none bg-transparent font-bold text-blue-700 text-xl p-0 focus:ring-0 text-right outline-none min-w-[9.5rem] cursor-pointer">
@@ -161,6 +161,7 @@
                                 <label class="block text-xs font-bold text-gray-500 mb-1">Birthday</label>
                                 <div class="relative w-full">
                                     <input type="text" name="birthday" id="birthday" autocomplete="off" required placeholder="dd/mm/yyyy"
+                                        data-fp-compact
                                         data-default="{{ $birthdayOld }}"
                                         data-alt-class="w-full px-3 py-2 pr-10 rounded-lg border border-gray-200 text-sm focus:border-blue-400 outline-none font-semibold text-gray-900"
                                         class="w-full px-3 py-2 pr-10 rounded-lg border border-gray-200 text-sm focus:border-blue-400 outline-none font-semibold text-gray-900">

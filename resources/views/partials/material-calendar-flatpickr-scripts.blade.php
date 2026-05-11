@@ -42,6 +42,9 @@
 
     function bindMaterialFpSurface(fp) {
         fp.calendarContainer.classList.add('fp-material-calendar');
+        if (typeof window !== 'undefined' && window.__FP_MEDICINE_NEUTRAL_CALENDAR__) {
+            fp.calendarContainer.classList.add('fp-medicine-neutral-admin');
+        }
         ensureMaterialFpBanner(fp);
         updateMaterialFpHeadline(fp);
     }
@@ -90,7 +93,31 @@
         return Math.min(yMax, Math.max(yMin, y));
     }
 
-    /* Inventory: typed year input + compact list (5 visible rows via size="5") */
+    /* Lightweight sync only — avoids rebuilding <select>, which flashes then “disappears” when month/year fires during use. */
+    function syncMedicineInventoryYearComboValues(fp) {
+        var bounds = medicineInventoryYearBounds(fp);
+        if (!bounds || !fp.calendarContainer) {
+            return false;
+        }
+        var wrap = fp.calendarContainer.querySelector('.flatpickr-current-month .numInputWrapper');
+        if (!wrap) {
+            return false;
+        }
+        var stack = wrap.querySelector('.fp-inv-year-stack');
+        var inp = stack ? stack.querySelector('input.fp-inv-year-direct') : null;
+        if (!inp) {
+            return false;
+        }
+        var yMin = bounds.yMin;
+        var yMax = bounds.yMax;
+        var cy = clampMedicineYear(fp.currentYear, yMin, yMax) || yMin;
+        inp.setAttribute('min', String(yMin));
+        inp.setAttribute('max', String(yMax));
+        inp.value = String(cy);
+        return true;
+    }
+
+    /* Inventory: year via number input only (native flatpickr year input stays hidden). */
     function installMedicineInventoryYearCombo(fp) {
         var bounds = medicineInventoryYearBounds(fp);
         if (!bounds || !fp.calendarContainer) {
@@ -119,39 +146,26 @@
                 wrap.insertBefore(stack, wrap.firstChild);
             }
 
+            stack.querySelectorAll('select.fp-inv-year-list').forEach(function (n) {
+                n.remove();
+            });
+
             var inp = stack.querySelector('input.fp-inv-year-direct');
-            var sel = stack.querySelector('select.fp-inv-year-list');
             if (!inp) {
                 inp = document.createElement('input');
                 inp.type = 'number';
                 inp.className = 'fp-inv-year-direct';
                 inp.setAttribute('inputmode', 'numeric');
-                inp.setAttribute('aria-label', 'Year (type)');
+                inp.setAttribute('aria-label', 'Year');
                 stack.appendChild(inp);
-            }
-            if (!sel) {
-                sel = document.createElement('select');
-                sel.className = 'fp-inv-year-list';
-                sel.setAttribute('size', '5');
-                sel.setAttribute('aria-label', 'Year (list)');
-                stack.appendChild(sel);
             }
 
             inp.setAttribute('min', String(yMin));
             inp.setAttribute('max', String(yMax));
 
-            sel.innerHTML = '';
-            for (var yi = yMin; yi <= yMax; yi++) {
-                var opt = document.createElement('option');
-                opt.value = String(yi);
-                opt.textContent = String(yi);
-                sel.appendChild(opt);
-            }
-
             var cy = fp.currentYear;
             cy = clampMedicineYear(cy, yMin, yMax) || yMin;
             inp.value = String(cy);
-            sel.value = String(cy);
 
             if (!stack.dataset.fpInvYearListeners) {
                 stack.dataset.fpInvYearListeners = '1';
@@ -164,8 +178,7 @@
                     var vmin = b.yMin;
                     var vmax = b.yMax;
                     var iEl = stack.querySelector('input.fp-inv-year-direct');
-                    var sEl = stack.querySelector('select.fp-inv-year-list');
-                    if (!iEl || !sEl) {
+                    if (!iEl) {
                         return;
                     }
                     var v = parseInt(String(iEl.value), 10);
@@ -174,7 +187,6 @@
                         c = clampMedicineYear(fp.currentYear, vmin, vmax) || vmin;
                     }
                     iEl.value = String(c);
-                    sEl.value = String(c);
                     if (fp.changeYear) {
                         fp.changeYear(c);
                     }
@@ -183,29 +195,6 @@
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         stack.querySelector('input.fp-inv-year-direct').dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                });
-
-                sel.addEventListener('change', function () {
-                    var b = medicineInventoryYearBounds(fp);
-                    if (!b) {
-                        return;
-                    }
-                    var vmin = b.yMin;
-                    var vmax = b.yMax;
-                    var iEl = stack.querySelector('input.fp-inv-year-direct');
-                    var sEl = stack.querySelector('select.fp-inv-year-list');
-                    if (!iEl || !sEl) {
-                        return;
-                    }
-                    var v = parseInt(String(sEl.value), 10);
-                    var c = clampMedicineYear(v, vmin, vmax);
-                    if (c == null) {
-                        return;
-                    }
-                    iEl.value = String(c);
-                    if (fp.changeYear) {
-                        fp.changeYear(c);
                     }
                 });
             }
@@ -227,6 +216,9 @@
         var origYearChange = opts.onYearChange;
         opts.onReady = function (a, b, fp) {
             bindMaterialFpSurface(fp);
+            if (extras.compactCalendar) {
+                fp.calendarContainer.classList.add('fp-compact-calendar');
+            }
             if (extras.medicineInventoryPicker) {
                 fp.calendarContainer.classList.add('fp-medicine-inventory-picker');
                 installMedicineInventoryYearCombo(fp);
@@ -245,7 +237,7 @@
             }
         };
         opts.onMonthChange = function (a, b, fp) {
-            if (extras.medicineInventoryPicker) {
+            if (extras.medicineInventoryPicker && !syncMedicineInventoryYearComboValues(fp)) {
                 installMedicineInventoryYearCombo(fp);
             }
             if (typeof origMonthChange === 'function') {
@@ -253,7 +245,7 @@
             }
         };
         opts.onYearChange = function (a, b, fp) {
-            if (extras.medicineInventoryPicker) {
+            if (extras.medicineInventoryPicker && !syncMedicineInventoryYearComboValues(fp)) {
                 installMedicineInventoryYearCombo(fp);
             }
             if (typeof origYearChange === 'function') {
@@ -345,7 +337,8 @@
                 updateMaterialFpHeadline(inst);
             }
         };
-        attachMaterialHooks(o, null);
+        var isBdayCompact = el.getAttribute('data-fp-compact') !== null;
+        attachMaterialHooks(o, isBdayCompact ? { compactCalendar: true } : null);
         flatpickr(el, o);
 
         if (typeof window.calculateAge === 'function') {
@@ -400,7 +393,8 @@
                     o.maxDate = px;
                 }
             }
-            attachMaterialHooks(o, null);
+            var isCompact = el.getAttribute('data-fp-compact') !== null;
+            attachMaterialHooks(o, isCompact ? { compactCalendar: true } : null);
             flatpickr(el, o);
         });
     }

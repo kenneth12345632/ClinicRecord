@@ -97,10 +97,9 @@
     </div>
 
     <div class="consultation-grid grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
-        {{-- Left: Individual treatment record + history --}}
+        {{-- Left: patient demographics + history --}}
         <div class="lg:col-span-4 space-y-4">
             <div class="panel-card p-5">
-                <h2 class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 mb-4">Individual Treatment Record</h2>
                 <div class="space-y-3">
                     <div>
                         <p class="field-label mb-1">Full Name</p>
@@ -234,31 +233,49 @@
                     <div class="fld mb-3 whitespace-pre-line text-slate-700">{{ $record->follow_up_recommendation }}</div>
                 @endif
                 @if($record->medicines && $record->medicines->count() > 0)
-                    <div class="overflow-hidden rounded-xl border border-slate-200">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr class="border-b border-slate-200 bg-slate-50 text-left">
-                                    <th class="px-3 py-2 font-semibold text-slate-600">Medicine</th>
-                                    <th class="px-3 py-2 font-semibold text-slate-600 text-right w-24">Qty</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($record->medicines as $medicine)
-                                    <tr class="border-b border-slate-100 last:border-0">
-                                        <td class="px-3 py-2 text-slate-800">{{ $medicine->name }}</td>
-                                        <td class="px-3 py-2 text-right text-slate-700">{{ $medicine->pivot->quantity }}</td>
+                    <div class="overflow-hidden rounded-xl border border-slate-200 {{ $record->medicinesGivenReleaseFooter() ? 'flex min-h-[7rem] flex-col' : '' }}">
+                        <div class="{{ $record->medicinesGivenReleaseFooter() ? 'min-h-0 flex-1' : '' }}">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-slate-200 bg-slate-50 text-left">
+                                        <th class="px-3 py-2 font-semibold text-slate-600">Medicine</th>
+                                        <th class="px-3 py-2 font-semibold text-slate-600 text-right w-24">Qty</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    @if($hasValue($record->medicines_given))
-                        <div class="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 whitespace-pre-line">
-                            {{ $record->medicines_given }}
+                                </thead>
+                                <tbody>
+                                    @foreach($record->medicines as $medicine)
+                                        <tr class="border-b border-slate-100 last:border-0">
+                                            <td class="px-3 py-2 text-slate-800">{{ $medicine->name }}</td>
+                                            <td class="px-3 py-2 text-right text-slate-700">{{ $medicine->pivot->quantity }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            @if($record->medicinesGivenSupplementaryNote())
+                                <div class="border-t border-amber-100 bg-amber-50/60 px-3 py-2 text-xs font-semibold text-amber-800 whitespace-pre-line text-left">
+                                    {{ $record->medicinesGivenSupplementaryNote() }}
+                                </div>
+                            @endif
                         </div>
-                    @endif
+                        @if($record->medicinesGivenReleaseFooter())
+                            <div class="mt-auto border-t border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 whitespace-pre-line text-right">
+                                {{ $record->medicinesGivenReleaseFooter() }}
+                            </div>
+                        @endif
+                    </div>
                 @elseif($hasValue($record->medicines_given))
-                    <div class="fld whitespace-pre-line text-slate-700">{{ $record->medicines_given }}</div>
+                    <div class="overflow-hidden rounded-xl border border-slate-200 {{ $record->medicinesGivenReleaseFooter() ? 'flex min-h-[4rem] flex-col' : '' }}">
+                        <div class="px-3 py-2 {{ $record->medicinesGivenReleaseFooter() ? 'min-h-0 flex-1' : '' }}">
+                            @if($record->medicinesGivenSupplementaryNote())
+                                <div class="fld whitespace-pre-line text-slate-700">{{ $record->medicinesGivenSupplementaryNote() }}</div>
+                            @endif
+                        </div>
+                        @if($record->medicinesGivenReleaseFooter())
+                            <div class="mt-auto border-t border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 whitespace-pre-line text-right">
+                                {{ $record->medicinesGivenReleaseFooter() }}
+                            </div>
+                        @endif
+                    </div>
                 @else
                     <p class="text-sm text-slate-400 italic">No medications prescribed.</p>
                 @endif

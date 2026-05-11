@@ -279,13 +279,12 @@
                     </span> Patient Records
                 </a>
 
-                @if($isBhw || $isAdmin)
+                @if($isBhw)
                     @php
                         $medicineQueueCount = \App\Models\ClinicRecord::awaitingMedicineDispensing()->count();
-                        $medicineQueueRoutePrefix = $isAdmin ? 'admin' : 'bhw';
                     @endphp
-                    <a href="{{ route($medicineQueueRoutePrefix . '.dispensing.index') }}"
-                       class="flex items-center justify-between gap-2 py-3 px-4 rounded-lg transition {{ request()->routeIs('bhw.dispensing.*', 'admin.dispensing.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    <a href="{{ route('bhw.dispensing.index') }}"
+                       class="flex items-center justify-between gap-2 py-3 px-4 rounded-lg transition {{ request()->routeIs('bhw.dispensing.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                         <span class="flex items-center min-w-0">
                             <span class="mr-2 inline-flex align-middle shrink-0 relative">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

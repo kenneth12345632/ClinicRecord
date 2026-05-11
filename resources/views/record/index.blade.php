@@ -488,7 +488,7 @@ const recordRows = Array.from(document.querySelectorAll('#recordsTableBody .pati
     };
 });
 
-let recordsVisible = @json((bool) session('show_patient_records'));
+let recordsVisible = localStorage.getItem('toggle_bhw_patient_records') === 'true';
 
 function updateToggleButtonLabel() {
     const btn = document.getElementById('togglePatientsBtn');
@@ -529,6 +529,7 @@ function renderRecordPagination(filteredRows) {
 function applyFilters(showPatientRecords = true) {
     if (showPatientRecords) {
         recordsVisible = true;
+        localStorage.setItem('toggle_bhw_patient_records', true);
         updateToggleButtonLabel();
     }
 
@@ -572,6 +573,7 @@ document.addEventListener('DOMContentLoaded', function () {
     renderRecordPagination(recordRows);
     if (searchInput && searchInput.value.trim() !== '') {
         recordsVisible = true;
+        localStorage.setItem('toggle_bhw_patient_records', true);
         updateToggleButtonLabel();
         applyFilters(false);
     }
@@ -580,6 +582,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (toggleBtn) {
         toggleBtn.addEventListener('click', function () {
             recordsVisible = !recordsVisible;
+            localStorage.setItem('toggle_bhw_patient_records', recordsVisible);
             updateToggleButtonLabel();
             applyFilters(false);
         });

@@ -7,32 +7,15 @@
 @endphp
 
 <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
-    @php
-        $adminDashboardMedicineQueueCount = \App\Models\ClinicRecord::awaitingMedicineDispensing()->count();
-    @endphp
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="space-y-2">
             <div>
                 <h1 class="text-5xl font-black text-slate-800 tracking-tight">Admin Dashboard</h1>
             </div>
         </div>
-        <div class="flex flex-col items-end gap-2">
-            <a href="{{ route('admin.dispensing.index') }}"
-               class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-2.5 shadow-sm hover:border-blue-300 hover:bg-blue-50 transition"
-               title="Medicine queue">
-                <span class="relative inline-flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white shadow-inner">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                    </svg>
-                    @if($adminDashboardMedicineQueueCount > 0)
-                        <span class="absolute -top-1 -right-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white leading-none">{{ $adminDashboardMedicineQueueCount > 99 ? '99+' : $adminDashboardMedicineQueueCount }}</span>
-                    @endif
-                </span>
-            </a>
-            <div class="text-right">
-                <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Today</p>
-                <p class="text-2xl font-black text-slate-700">{{ now()->format('F d, Y') }}</p>
-            </div>
+        <div class="text-right">
+            <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Today</p>
+            <p class="text-2xl font-black text-slate-700">{{ now()->format('F d, Y') }}</p>
         </div>
     </div>
 

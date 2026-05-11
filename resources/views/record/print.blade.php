@@ -2,6 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    {{--
+        Chrome / Edge put the PAGE URL in the print header center when <title> is missing or useless.
+        A real title replaces that slot (you cannot erase the browser header bar from HTML—turn off
+        "Headers and footers" in Print → More settings for a truly blank edge).
+    --}}
     <title>Individual Treatment Record</title>
     <style>
         :root {
@@ -56,7 +61,6 @@
             line-height: 1.15;
         }
         .heading .small { font-size: 13px; color: #334155; font-weight: 400; }
-        .heading .mid { font-size: 18px; font-weight: 400; letter-spacing: .15px; line-height: 1.25; }
         .heading .title { font-size: 44px; font-weight: 400; letter-spacing: .15px; margin-top: 4px; }
         .patient-head {
             display: flex;
@@ -130,13 +134,23 @@
             padding-left: 18px;
             font-size: 15px;
         }
-        .foot {
-            margin-top: 10px;
-            text-align: center;
-            font-size: 10px;
+        .box-medicine {
+            display: flex;
+            flex-direction: column;
+            min-height: 88px;
+        }
+        .box-medicine-body {
+            flex: 1 1 auto;
+        }
+        .medicine-release-footer {
+            margin-top: auto;
+            padding-top: 10px;
+            font-size: 12px;
             font-weight: 400;
-            color: #475569;
-            letter-spacing: .35px;
+            color: #92400e;
+            text-align: right;
+            white-space: pre-wrap;
+            line-height: 1.35;
         }
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
@@ -157,20 +171,17 @@
 @php
     $hasValue = fn ($value) => !is_null($value) && trim((string) $value) !== '' && strtoupper(trim((string) $value)) !== 'N/A';
     $clinicLogoPath = config('clinic.logo_path');
-    $clinicLogoUrl = $clinicLogoPath ? asset('storage/' . ltrim((string) $clinicLogoPath, '/')) : null;
+    $clinicLogoUrl = $clinicLogoPath
+        ? asset('storage/' . ltrim((string) $clinicLogoPath, '/'))
+        : asset('images/login-clinic-logo.png');
 @endphp
 <div class="paper">
     <div class="top-header">
         <div class="logo-wrap">
-            @if($clinicLogoUrl)
-                <img src="{{ $clinicLogoUrl }}" alt="Clinic logo">
-            @else
-                <span style="font-size:11px;font-weight:400;color:#64748b;">LOGO</span>
-            @endif
+            <img src="{{ $clinicLogoUrl }}" alt="Clinic logo">
         </div>
         <div class="heading">
             <div class="small">Republic of the Philippines</div>
-            <div class="mid">BARANGAY BANILAD HEALTH CENTER</div>
             <div class="small">Dumaguete City</div>
             <div class="title">INDIVIDUAL TREATMENT RECORD</div>
         </div>
@@ -232,27 +243,35 @@
 
     <div class="section">
         <div class="section-title">Medicine</div>
-        <div class="box">
-            @if($record->medicines && $record->medicines->count() > 0)
-                <ul class="med-list">
-                    @foreach($record->medicines as $medicine)
-                        <li>{{ $medicine->name }} (x{{ $medicine->pivot->quantity }})</li>
-                    @endforeach
-                </ul>
-                @if($hasValue($record->medicines_given))
-                    <div style="margin-top:6px;font-size:12px;color:#92400e;white-space:pre-wrap;">
-                        {{ $record->medicines_given }}
-                    </div>
+        @php
+            $medicinePrintFlex = (bool) $record->medicinesGivenReleaseFooter();
+        @endphp
+        <div class="box{{ $medicinePrintFlex ? ' box-medicine' : '' }}">
+            <div class="box-medicine-body">
+                @if($record->medicines && $record->medicines->count() > 0)
+                    <ul class="med-list">
+                        @foreach($record->medicines as $medicine)
+                            <li>{{ $medicine->name }} (x{{ $medicine->pivot->quantity }})</li>
+                        @endforeach
+                    </ul>
+                    @if($record->medicinesGivenSupplementaryNote())
+                        <div style="margin-top:6px;font-size:12px;color:#92400e;white-space:pre-wrap;text-align:left;">
+                            {{ $record->medicinesGivenSupplementaryNote() }}
+                        </div>
+                    @endif
+                @elseif($hasValue($record->medicines_given))
+                    @if($record->medicinesGivenSupplementaryNote())
+                        <div style="font-size:12px;color:#92400e;white-space:pre-wrap;text-align:left;">{{ $record->medicinesGivenSupplementaryNote() }}</div>
+                    @endif
+                @else
+                    N/A
                 @endif
-            @elseif($hasValue($record->medicines_given))
-                {{ $record->medicines_given }}
-            @else
-                N/A
+            </div>
+            @if($record->medicinesGivenReleaseFooter())
+                <div class="medicine-release-footer">{{ $record->medicinesGivenReleaseFooter() }}</div>
             @endif
         </div>
     </div>
-
-    <div class="foot">GENERATED VIA CLINIC OS - {{ now()->format('Y-m-d H:i') }}</div>
 </div>
 </body>
 </html>
