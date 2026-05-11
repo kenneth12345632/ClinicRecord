@@ -20,7 +20,7 @@
 
         <div class="w-1/2 p-10 flex flex-col justify-center bg-white">
             @if ($errors->any())
-                <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded-r-xl">
+                <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded-r-xl text-left">
                     <ul class="space-y-1 font-medium list-disc list-inside">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -29,8 +29,8 @@
                 </div>
             @endif
 
-            <h1 class="text-[34px] sm:text-[38px] lg:text-[40px] text-gray-900 font-medium leading-tight mb-2">
-                Welcome to Barangay<br>Banilad Health Center!
+            <h1 class="text-center text-[34px] sm:text-[38px] lg:text-[40px] text-gray-900 font-medium leading-tight mb-2">
+                Barangay Banilad<br>Health Center!
             </h1>
 
             <form action="{{ route('login') }}" method="POST" class="space-y-6 w-full">
@@ -43,7 +43,7 @@
                         value="{{ old('email') }}"
                         required
                         placeholder="admin@clinic.local"
-                        class="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-gray-50/50"
+                        class="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-gray-50/50 text-left"
                     >
                 </div>
 
@@ -54,14 +54,14 @@
                         name="password"
                         required
                         placeholder="••••••••"
-                        class="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-gray-50/50"
+                        class="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-gray-50/50 text-left"
                     >
                 </div>
 
                 <div class="pt-6">
                     <button
                         type="submit"
-                        class="w-full py-4 bg-blue-600 text-white text-sm font-black rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition transform hover:-translate-y-0.5 active:scale-95 uppercase tracking-wider"
+                        class="w-full py-4 bg-blue-600 text-white text-sm font-black rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition transform hover:-translate-y-0.5 active:scale-95 uppercase tracking-wider text-center"
                     >
                         Sign In
                     </button>

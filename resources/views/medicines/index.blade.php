@@ -16,7 +16,7 @@
     {{-- Header Section --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Inventory Medicine</h1>
+            <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Medicine Inventory</h1>
             <p class="text-gray-500 text-sm mt-1">One row per medicine; the <span class="text-slate-600 font-medium">chevron</span> lists every releasable batch (qty &amp; expiry, soonest first). Open <span class="text-slate-600 font-medium">View</span> for full history.</p>
         </div>
         @unless($isReadOnlyInventoryRole)

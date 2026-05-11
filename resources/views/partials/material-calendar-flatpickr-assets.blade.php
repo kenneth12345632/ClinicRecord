@@ -173,7 +173,7 @@
         display: none !important;
     }
 
-    /* Inventory medicine: year combo + month must stay visible (flex was shrinking month <select> to 0) */
+    /* Medicine inventory: year combo + month must stay visible (flex was shrinking month <select> to 0) */
     .flatpickr-calendar.fp-material-calendar.fp-medicine-inventory-picker {
         overflow: visible !important;
         min-width: min(100vw - 24px, 340px);

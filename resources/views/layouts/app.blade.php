@@ -31,7 +31,7 @@
         } elseif (request()->routeIs('doctor.pending.*', 'nurse.pending.*')) {
             $pageTitle = 'Pending Patient';
         } elseif (request()->routeIs('medicines.*', 'bhw.medicines.*')) {
-            $pageTitle = 'Inventory Medicine';
+            $pageTitle = 'Medicine Inventory';
         } elseif (request()->routeIs('bhw.dispensing.*', 'admin.dispensing.*')) {
             $pageTitle = 'Medicine Queue';
         } elseif (request()->routeIs('reports.diagnosis', 'bhw.reports.diagnosis')) {
@@ -307,7 +307,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 8.5l7 7m-9.5 1a3.5 3.5 0 010-5l5.5-5.5a3.5 3.5 0 115 5L11 16.5a3.5 3.5 0 01-5 0z"/>
                             </svg>
-                        </span> Inventory Medicine
+                        </span> Medicine Inventory
                     </a>
                 @endunless
 
@@ -352,7 +352,7 @@
                             </a>
                             <a href="{{ route('bhw.medicines.index') }}"
                                class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('bhw.medicines.*') ? 'bg-slate-800 text-white border-l-4 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                                <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 8.5l7 7m-9.5 1a3.5 3.5 0 010-5l5.5-5.5a3.5 3.5 0 115 5L11 16.5a3.5 3.5 0 01-5 0z"/></svg></span>Inventory Medicine
+                                <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 8.5l7 7m-9.5 1a3.5 3.5 0 010-5l5.5-5.5a3.5 3.5 0 115 5L11 16.5a3.5 3.5 0 01-5 0z"/></svg></span>Medicine Inventory
                             </a>
                         </div>
                     </div>
