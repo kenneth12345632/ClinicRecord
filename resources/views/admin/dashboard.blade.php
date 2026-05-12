@@ -169,8 +169,8 @@
 
         const ctx = canvas.getContext('2d');
         const gradientA = ctx.createLinearGradient(0, 0, 0, 260);
-        gradientA.addColorStop(0, 'rgba(16, 185, 129, 0.45)');
-        gradientA.addColorStop(1, 'rgba(16, 185, 129, 0.02)');
+        gradientA.addColorStop(0, 'rgba(239, 68, 68, 0.45)');
+        gradientA.addColorStop(1, 'rgba(239, 68, 68, 0.02)');
 
         new Chart(ctx, {
             type: 'line',
@@ -179,14 +179,14 @@
                 datasets: [
                     {
                         data: values,
-                        borderColor: '#059669',
+                        borderColor: '#dc2626',
                         backgroundColor: gradientA,
                         fill: true,
                         tension: 0.2,
                         pointRadius: 4,
                         pointHoverRadius: 5,
-                        pointBackgroundColor: '#16a34a',
-                        pointBorderColor: '#16a34a',
+                        pointBackgroundColor: '#ef4444',
+                        pointBorderColor: '#ef4444',
                         pointBorderWidth: 0,
                     }
                 ]

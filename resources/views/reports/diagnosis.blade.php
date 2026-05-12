@@ -24,13 +24,13 @@
             <p class="text-gray-500 text-sm mt-1">All consultation diagnosis records</p>
         </div>
         <a href="{{ $diagnosisExportUrl }}"
-            class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition">
+            class="px-5 py-2.5 rounded-xl text-sm font-bold transition" style="background-color: #16a34a !important; color: #fff !important;">
             Export Excel
         </a>
     </div>
 
     @if($diagnosisPrivacyBhw)
-        <div class="mb-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+        <div class="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
             Patient record rows stay blank until you click <strong>Show Patient Records</strong> (optional: use Search to narrow by patient, diagnosis, or dates).
         </div>
     @endif
@@ -40,28 +40,28 @@
             <form method="GET" action="{{ $diagnosisIndexRoute }}" class="flex flex-wrap gap-3 items-end">
                 <input type="text" name="search" value="{{ $search }}"
                     placeholder="Search diagnosis or patient..."
-                    class="w-full md:w-80 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    class="w-full md:w-80 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-400 outline-none">
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">From</label>
                     <input type="text" name="from_date" autocomplete="off" placeholder="dd/mm/yyyy"
                         data-material-calendar data-default="{{ $fromDate ?? '' }}"
-                        data-alt-class="w-[11rem] px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                        class="w-[11rem] px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
+                        data-alt-class="w-[11rem] px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-400 outline-none"
+                        class="w-[11rem] px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-400 outline-none cursor-pointer">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">To</label>
                     <input type="text" name="to_date" autocomplete="off" placeholder="dd/mm/yyyy"
                         data-material-calendar data-default="{{ $toDate ?? '' }}"
-                        data-alt-class="w-[11rem] px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                        class="w-[11rem] px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
+                        data-alt-class="w-[11rem] px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-400 outline-none"
+                        class="w-[11rem] px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-400 outline-none cursor-pointer">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Month</label>
                     <input type="month" name="month" value="{{ $month ?? '' }}"
-                        class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-400 outline-none">
                 </div>
                 <button type="submit"
-                    class="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition">
+                    class="px-5 py-2.5 rounded-xl text-sm font-bold transition" style="background-color: #16a34a !important; color: #fff !important;">
                     Search
                 </button>
                 <div class="flex flex-wrap items-center gap-3">
@@ -71,7 +71,7 @@
                     </a>
                     @if($diagnosisPrivacyBhw)
                         <button type="button" id="toggleDiagnosisRowsBtn"
-                            class="px-4 py-2.5 rounded-xl border border-blue-200 text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition shadow-sm">
+                            class="px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-sm" style="background-color: #dcfce7 !important; border: 2px solid #86efac !important; color: #16a34a !important;">
                             Show Patient Records
                         </button>
                     @endif
@@ -91,7 +91,7 @@
             </thead>
             <tbody id="diagnosisReportTableBody" class="divide-y divide-gray-50">
                 @forelse($diagnosisReports as $record)
-                    <tr class="hover:bg-blue-50/30 transition diagnosis-report-row">
+                    <tr class="hover:bg-green-50/30 transition diagnosis-report-row">
                         <td class="px-6 py-4 text-sm text-gray-600 font-medium">
                             {{ \Carbon\Carbon::parse($record->consultation_date)->format('M d, Y') }}
                         </td>

@@ -55,6 +55,6 @@
     </div>
 </div>
 <label class="inline-flex items-center gap-2 mt-4">
-    <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $user->is_active ?? true))>
+    <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $user->is_active ?? true)) style="accent-color: #16a34a;">
     <span class="text-sm">Active Account</span>
 </label>

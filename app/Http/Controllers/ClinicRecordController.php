@@ -270,7 +270,7 @@ class ClinicRecordController extends Controller
             );
         });
 
-        return redirect()->route('record.index')->with('success', 'Record saved!');
+        return redirect()->route('record.create')->with('success', 'Record saved!');
     }
 
     public function show($id)

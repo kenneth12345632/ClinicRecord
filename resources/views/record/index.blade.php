@@ -8,9 +8,7 @@
     $isAdminRole = $role === 'admin';
     $canEncodeFindings = $isNurse;
 @endphp
-{{-- 1. ADD SELECT2 DEPENDENCIES --}}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{{-- Select2 loaded globally in layout --}}
 
 <style>
     .select2-container--default .select2-selection--single {
@@ -21,6 +19,45 @@
         align-items: center;
     }
     .select2-container--open { z-index: 9999 !important; }
+    #togglePatientsBtn {
+        background-color: #dcfce7 !important;
+        border: 2px solid #86efac !important;
+        color: #16a34a !important;
+    }
+
+    /* Select2 green theme */
+    .green-select2 + .select2-container .select2-selection--single {
+        background: #fff !important;
+        border: 2px solid #86efac !important;
+        border-radius: 9999px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .green-select2 + .select2-container .select2-selection__rendered {
+        color: #000 !important;
+        font-weight: 700 !important;
+        font-size: 0.875rem !important;
+        padding-left: 16px !important;
+    }
+    .select2-results__option--highlighted {
+        background-color: #bbf7d0 !important;
+        color: #000 !important;
+    }
+    .select2-results__option--selected {
+        background-color: #dcfce7 !important;
+        color: #000 !important;
+    }
+    .select2-results__option {
+        color: #000 !important;
+        font-weight: 600 !important;
+        padding: 8px 12px !important;
+    }
+    .select2-dropdown {
+        border: 1px solid #86efac !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+    }
     input[type=number]::-webkit-inner-spin-button { opacity: 1; }
 
     /* Patient table readability (same direction as ITR improvements) */
@@ -29,29 +66,29 @@
         border-spacing: 0;
     }
     .patient-records-table thead th {
-        background: linear-gradient(180deg, #eef4ff 0%, #e6efff 100%);
-        color: #35507a;
+        background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 100%);
+        color: #1a1a1a;
         font-size: 0.68rem !important;
         font-weight: 800 !important;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        border-bottom: 1px solid #cfe0ff;
+        border-bottom: 1px solid #a7f3d0;
         padding-top: 0.95rem !important;
         padding-bottom: 0.95rem !important;
     }
     .patient-records-table tbody td {
         font-size: 0.9rem;
-        color: #334155;
-        border-bottom: 1px solid #e8eefb;
+        color: #1a1a1a;
+        border-bottom: 1px solid #d1fae5;
         padding-top: 0.95rem !important;
         padding-bottom: 0.95rem !important;
         vertical-align: middle;
     }
     .patient-records-table tbody tr:hover {
-        background: #f3f8ff !important;
+        background: #f0fdf4 !important;
     }
     .patient-records-table tbody tr:nth-child(even) {
-        background: #fcfdff;
+        background: #f9fefb;
     }
     .patient-records-table tbody tr:nth-child(odd) {
         background: #ffffff;
@@ -64,7 +101,7 @@
     }
     .patient-records-table .patient-dob {
         font-size: 0.68rem !important;
-        color: #2563eb !important;
+        color: #1a1a1a !important;
         letter-spacing: 0.03em;
     }
     .patient-records-table .patient-vitals {
@@ -84,7 +121,7 @@
         color: #334155;
     }
     .patient-records-table .action-btn {
-        border: 1px solid #dbe7ff;
+        border: 1px solid #d1fae5;
     }
 </style>
 
@@ -137,30 +174,31 @@
 
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <button type="button" id="togglePatientsBtn"
-                class="px-4 py-2.5 rounded-xl border border-blue-200 text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition shadow-sm">
+                style="background-color: #dcfce7 !important; border: 2px solid #86efac !important; color: #16a34a !important;"
+                class="px-5 py-2.5 rounded-full text-sm font-bold hover:opacity-90 transition shadow-sm">
                 Show Patient Records
             </button>
 
-            <select id="ageFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer">
-                <option value="all">All Ages</option>
+            <select id="ageFilter" class="green-select2">
+                <option value="all" disabled selected>All Ages</option>
                 <option value="0-11">Infants (0-11 months)</option>
                 <option value="12-59">Children (12-59 months)</option>
                 <option value="senior">Seniors (60+ years)</option>
             </select>
 
-            <select id="genderFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer">
-                <option value="all">All Gender</option>
+            <select id="genderFilter" class="green-select2">
+                <option value="all" disabled selected>All Gender</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
             </select>
 
-            <select id="addressFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer min-w-[180px]">
-                <option value="all">All Address</option>
+            <select id="addressFilter" class="green-select2" style="min-width:180px;">
+                <option value="all" disabled selected>All Address</option>
             </select>
 
             <div class="relative flex-grow md:flex-grow-0">
                 <input type="text" id="searchInput" placeholder="Search patient records..." 
-                    class="pl-10 pr-4 py-2.5 w-full md:w-64 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm">
+                    class="pl-10 pr-4 py-2.5 w-full md:w-64 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-300 focus:border-green-400 outline-none shadow-sm">
                 <svg class="w-5 h-5 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
@@ -169,7 +207,7 @@
     </div>
 
     {{-- Table Design --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-blue-100/80 overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-sm border border-green-200/80 overflow-hidden">
         <table class="min-w-full divide-y divide-gray-100 patient-records-table">
             <thead class="bg-gray-50/50">
                 <tr>
@@ -177,6 +215,7 @@
                     <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Patient Name</th>
                     <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Age / Gender</th>
                     <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Address</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Diagnosis</th>
                     <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Latest Vitals</th>
                     <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</th>
                     <th class="px-6 py-4 text-right text-[10px] font-bold text-gray-400 uppercase tracking-widest">Actions</th>
@@ -189,7 +228,7 @@
                     $ageYears = (int)$birthDate->diffInYears(now()); 
                     $ageMonths = (int)$birthDate->diffInMonths(now());
                 @endphp
-                <tr class="hover:bg-blue-50/30 transition patient-row" 
+                <tr class="hover:bg-green-50/30 transition patient-row" 
                     data-age-years="{{ $ageYears }}" 
                     data-age-months="{{ $ageMonths }}"
                     data-gender="{{ strtolower($record->gender) }}"
@@ -209,14 +248,21 @@
                     <td class="px-6 py-4 text-sm text-gray-500 patient-age-gender">
                         <strong class="font-bold text-gray-700">
                             @if($ageMonths < 12)
-                                {{ $ageMonths }} mon
+                                {{ $ageMonths }} {{ $ageMonths === 1 ? 'month' : 'months' }}
                             @else
-                                {{ $ageYears }} yrs
+                                {{ $ageYears }} {{ $ageYears === 1 ? 'year' : 'years' }}
                             @endif
                         </strong> <span class="text-gray-300 mx-1">|</span> {{ $record->gender }}
                     </td>
                     
                     <td class="px-6 py-4 text-sm text-gray-600 patient-address">{{ $record->address_purok }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        @if(in_array(trim((string) $record->diagnosis), ['For doctor assessment', 'waiting_for_doctor/nurse'], true))
+                            --
+                        @else
+                            {{ $record->diagnosis }}
+                        @endif
+                    </td>
                     <td class="px-6 py-4 text-xs text-gray-600 patient-vitals">
                         T: {{ $record->display_temp ?: '--' }} | BP: {{ $record->display_bp ?: '--' }} | WT: {{ $record->display_weight ?: '--' }}
                     </td>
@@ -311,7 +357,7 @@
                                 name="subjective"
                                 rows="2"
                                 {{ $canEncodeFindings ? '' : 'readonly onclick=showNurseOnlyNotice(\'Subjective Findings\')' }}
-                                class="w-full p-4 border rounded-2xl outline-none transition text-sm {{ $canEncodeFindings ? 'bg-gray-50 border-gray-100 focus:ring-2 focus:ring-blue-100 focus:bg-white' : 'bg-gray-50 border-gray-100 text-gray-500 cursor-not-allowed' }}"
+                                class="w-full p-4 border rounded-2xl outline-none transition text-sm {{ $canEncodeFindings ? 'bg-gray-50 border-gray-100 focus:ring-2 focus:ring-green-200 focus:bg-white' : 'bg-gray-50 border-gray-100 text-gray-500 cursor-not-allowed' }}"
                                 placeholder="{{ $canEncodeFindings ? 'Patient\'s complaints...' : 'Only nurse can fill this out.' }}"
                             ></textarea>
                         </div>
@@ -321,22 +367,22 @@
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3 ml-1">Vital Signs</label>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                                 <div>
-                                    <input type="text" name="temp" placeholder="Temp °C" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm">
+                                    <input type="text" name="temp" placeholder="Temp °C" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-200 text-sm">
                                 </div>
                                 <div>
-                                    <input type="text" name="bp" placeholder="BP (120/80)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm">
+                                    <input type="text" name="bp" placeholder="BP (120/80)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-200 text-sm">
                                 </div>
                                 <div>
-                                    <input type="text" name="weight" id="quick_weight" placeholder="Weight (kg)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm">
+                                    <input type="text" name="weight" id="quick_weight" placeholder="Weight (kg)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-200 text-sm">
                                 </div>
                                 <div>
-                                    <input type="text" name="height" id="quick_height" placeholder="Height (cm)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm">
+                                    <input type="text" name="height" id="quick_height" placeholder="Height (cm)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-200 text-sm">
                                 </div>
                                 <div>
-                                    <input type="text" name="pr" placeholder="PR (bpm)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm">
+                                    <input type="text" name="pr" placeholder="PR (bpm)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-200 text-sm">
                                 </div>
                                 <div>
-                                    <input type="text" name="rr" placeholder="RR (cpm)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm">
+                                    <input type="text" name="rr" placeholder="RR (cpm)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-200 text-sm">
                                 </div>
                                 <div class="md:col-span-2">
                                     <input type="text" id="quick_bmi_display" placeholder="BMI (Auto)" readonly class="w-full p-3 bg-blue-50 border border-blue-100 rounded-xl outline-none text-sm font-semibold text-blue-700">
@@ -351,7 +397,7 @@
                                 name="objective"
                                 rows="2"
                                 {{ $canEncodeFindings ? '' : 'readonly onclick=showNurseOnlyNotice(\'Objective Findings\')' }}
-                                class="w-full p-4 border border-gray-100 rounded-2xl outline-none transition text-sm {{ $canEncodeFindings ? 'bg-gray-50 focus:ring-2 focus:ring-blue-100 focus:bg-white' : 'bg-gray-50 text-gray-500 cursor-not-allowed' }}"
+                                class="w-full p-4 border border-gray-100 rounded-2xl outline-none transition text-sm {{ $canEncodeFindings ? 'bg-gray-50 focus:ring-2 focus:ring-green-200 focus:bg-white' : 'bg-gray-50 text-gray-500 cursor-not-allowed' }}"
                                 placeholder="{{ $canEncodeFindings ? 'Findings from physical examination...' : 'Only nurse can fill this out.' }}"
                             ></textarea>
                         </div>
@@ -369,7 +415,7 @@
 
                 <div class="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
                     <button type="button" onclick="closeQuickAdd()" class="px-6 py-3 text-sm font-bold text-gray-400 hover:text-gray-600 transition">Discard</button>
-                    <button type="submit" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-md transition active:scale-95">Save Entry</button>
+                    <button type="submit" class="px-8 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 shadow-md transition active:scale-95">Save Entry</button>
                 </div>
             </form>
         </div>
@@ -587,6 +633,7 @@ document.addEventListener('DOMContentLoaded', function () {
             applyFilters(false);
         });
     }
+
 });
 
 function handleOpenModal(button) {
@@ -649,4 +696,6 @@ document.addEventListener('input', function (e) {
     }
 });
 </script>
+
+{{-- Select2 green theme handled globally --}}
 @endsection

@@ -40,13 +40,83 @@
         line.textContent = d ? formatMaterialHeadline(d) : '';
     }
 
+    function addYearNavButtons(fp) {
+        var months = fp.calendarContainer.querySelector('.flatpickr-months');
+        if (!months || months.querySelector('.fp-year-nav')) return;
+
+        var prevYear = document.createElement('button');
+        prevYear.type = 'button';
+        prevYear.className = 'fp-year-nav';
+        prevYear.innerHTML = '&laquo;';
+        prevYear.title = 'Previous year';
+        prevYear.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            fp.changeYear(fp.currentYear - 1);
+        });
+
+        var nextYear = document.createElement('button');
+        nextYear.type = 'button';
+        nextYear.className = 'fp-year-nav';
+        nextYear.innerHTML = '&raquo;';
+        nextYear.title = 'Next year';
+        nextYear.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            fp.changeYear(fp.currentYear + 1);
+        });
+
+        var prevMonth = months.querySelector('.flatpickr-prev-month');
+        var nextMonth = months.querySelector('.flatpickr-next-month');
+
+        if (prevMonth) {
+            prevYear.style.order = '0';
+            prevMonth.style.order = '1';
+            months.insertBefore(prevYear, months.firstChild);
+        }
+        if (nextMonth) {
+            nextYear.style.order = '4';
+            nextMonth.style.order = '3';
+            months.appendChild(nextYear);
+        }
+
+        replaceYearInputWithLabel(fp);
+    }
+
+    function replaceYearInputWithLabel(fp) {
+        var cal = fp.calendarContainer;
+        if (!cal) return;
+        if (cal.querySelector('.fp-year-label')) return;
+
+        var cm = cal.querySelector('.flatpickr-current-month');
+        if (!cm) return;
+
+        var wrap = cm.querySelector('.numInputWrapper');
+        if (wrap) wrap.style.display = 'none';
+
+        var label = document.createElement('span');
+        label.className = 'fp-year-label';
+        label.textContent = fp.currentYear;
+
+        var monthSelect = cm.querySelector('.flatpickr-monthDropdown-months');
+        if (monthSelect && monthSelect.nextSibling) {
+            cm.insertBefore(label, monthSelect.nextSibling);
+        } else {
+            cm.appendChild(label);
+        }
+    }
+
+    function updateYearLabel(fp) {
+        var label = fp.calendarContainer.querySelector('.fp-year-label');
+        if (label) label.textContent = fp.currentYear;
+    }
+
     function bindMaterialFpSurface(fp) {
         fp.calendarContainer.classList.add('fp-material-calendar');
         if (typeof window !== 'undefined' && window.__FP_MEDICINE_NEUTRAL_CALENDAR__) {
             fp.calendarContainer.classList.add('fp-medicine-neutral-admin');
         }
-        ensureMaterialFpBanner(fp);
-        updateMaterialFpHeadline(fp);
+        addYearNavButtons(fp);
     }
 
     function parseAttrDate(attr, edge) {
@@ -221,39 +291,28 @@
             }
             if (extras.medicineInventoryPicker) {
                 fp.calendarContainer.classList.add('fp-medicine-inventory-picker');
-                installMedicineInventoryYearCombo(fp);
             }
             if (typeof origReady === 'function') {
                 origReady.call(this, a, b, fp);
             }
         };
         opts.onOpen = function (a, b, fp) {
-            updateMaterialFpHeadline(fp);
-            if (extras.medicineInventoryPicker) {
-                installMedicineInventoryYearCombo(fp);
-            }
             if (typeof origOpen === 'function') {
                 origOpen.call(this, a, b, fp);
             }
         };
         opts.onMonthChange = function (a, b, fp) {
-            if (extras.medicineInventoryPicker && !syncMedicineInventoryYearComboValues(fp)) {
-                installMedicineInventoryYearCombo(fp);
-            }
             if (typeof origMonthChange === 'function') {
                 origMonthChange.call(this, a, b, fp);
             }
         };
         opts.onYearChange = function (a, b, fp) {
-            if (extras.medicineInventoryPicker && !syncMedicineInventoryYearComboValues(fp)) {
-                installMedicineInventoryYearCombo(fp);
-            }
+            updateYearLabel(fp);
             if (typeof origYearChange === 'function') {
                 origYearChange.call(this, a, b, fp);
             }
         };
         opts.onChange = function (a, b, fp) {
-            updateMaterialFpHeadline(fp);
             if (typeof origChange === 'function') {
                 origChange.call(this, a, b, fp);
             }
@@ -272,11 +331,14 @@
                 return;
             }
             var editDates = el.getAttribute('data-inventory-edit-dates') === 'true';
+            var isArrival = el.hasAttribute('data-medicine-arrival');
             var def = el.getAttribute('data-default');
             if (editDates) {
                 if (!def || String(def).trim() === '') {
                     def = null;
                 }
+            } else if (isArrival) {
+                def = 'today';
             } else {
                 if (def) {
                     var parsedEarly = new Date(def + 'T12:00:00');
@@ -294,12 +356,12 @@
                 altInput: true,
                 altFormat: 'd/m/Y',
                 altInputClass: altClass,
-                defaultDate: def || undefined,
+                defaultDate: isArrival ? new Date() : (def || undefined),
                 disableMobile: true,
                 allowInput: false,
                 closeOnSelect: true
             };
-            if (!editDates) {
+            if (!editDates && !isArrival) {
                 o.minDate = min;
             }
             attachMaterialHooks(o, editDates ? null : { medicineInventoryPicker: true });
@@ -334,7 +396,6 @@
                 if (typeof window.calculateAge === 'function') {
                     window.calculateAge();
                 }
-                updateMaterialFpHeadline(inst);
             }
         };
         var isBdayCompact = el.getAttribute('data-fp-compact') !== null;
@@ -364,7 +425,7 @@
             var altClass =
                 altClassRaw && altClassRaw.trim() !== ''
                     ? altClassRaw
-                    : 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none';
+                    : 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-400 outline-none';
             var altFmt = el.getAttribute('data-fp-alt-format') || 'd/m/Y';
             var allowMobileNative = el.getAttribute('data-fp-native-mobile') === 'true';
             var minA = el.getAttribute('data-fp-min');

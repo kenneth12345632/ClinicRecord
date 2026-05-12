@@ -9,7 +9,7 @@
     $latestObjectiveSansQueue = preg_replace('/^\s*Queue\s*No:\s*\d+\s*\r?\n?/i', '', $latestObjective) ?? $latestObjective;
 @endphp
 <div id="medicine-data" data-list='@json($allMedicines ?? [])' style="display: none;"></div>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{{-- Select2 loaded globally --}}
 @include('partials.material-calendar-flatpickr-assets')
 <style>
     .itr-form .itr-card {
@@ -42,6 +42,21 @@
         border: 1.5px solid #64748b !important;
         background-color: #ffffff !important;
         color: #111827 !important;
+        font-size: 0.95rem !important;
+    }
+    .itr-form .select2-container--default .select2-selection--single {
+        border: 1.5px solid #64748b !important;
+        border-radius: 0.5rem !important;
+        background: #fff !important;
+        height: 2.85rem !important;
+    }
+    .itr-form .select2-container--default.select2-container--open .select2-selection--single {
+        background: #fff !important;
+        border-color: #16a34a !important;
+    }
+    .itr-form .select2-container--default .select2-selection__rendered {
+        color: #111827 !important;
+        font-weight: 500 !important;
         font-size: 0.95rem !important;
     }
     .itr-form textarea {
@@ -85,9 +100,110 @@
         font-size: 1.45rem !important;
         line-height: 1.1;
         font-weight: 700 !important;
-        color: #1d4ed8 !important;
+        color: #000000 !important;
         text-align: right;
         box-shadow: none !important;
+    }
+
+    /* Dark mode for ITR form */
+    .dark .itr-form .itr-card {
+        border: 1px solid #22543d !important;
+        background: #0f1d1a !important;
+    }
+    .dark .itr-form .itr-label {
+        color: #22c55e !important;
+    }
+    .dark .itr-form label {
+        color: #cbd5e1 !important;
+    }
+    .dark .itr-form input,
+    .dark .itr-form select,
+    .dark .itr-form textarea {
+        border: 1.5px solid #334155 !important;
+        background-color: #111827 !important;
+        color: #e2e8f0 !important;
+        border-radius: 0.65rem !important;
+    }
+    .dark .itr-form input::placeholder,
+    .dark .itr-form textarea::placeholder {
+        color: #4b5563 !important;
+    }
+    .dark .itr-form input[readonly] {
+        border-color: #1f3329 !important;
+        background-color: #0d1912 !important;
+        color: #64748b !important;
+    }
+    .dark .itr-form .bg-gray-50,
+    .dark .itr-form .bg-gray-50\/40,
+    .dark .itr-form .bg-gray-50\/50 {
+        background-color: #0b1120 !important;
+    }
+    .dark .itr-form .text-gray-400 {
+        color: #64748b !important;
+    }
+    .dark .itr-form .text-gray-500 {
+        color: #94a3b8 !important;
+    }
+    .dark .itr-form h3 {
+        color: #22c55e !important;
+        border-color: #1f3329 !important;
+    }
+    .dark .itr-form .itr-consult-date label {
+        color: #94a3b8 !important;
+    }
+    .dark .itr-form .itr-consult-date input {
+        color: #f1f5f9 !important;
+        background: transparent !important;
+        border: none !important;
+    }
+    .dark .itr-form .select2-container--default .select2-selection--single {
+        border: 1.5px solid #334155 !important;
+        background: #111827 !important;
+        border-radius: 0.65rem !important;
+    }
+    .dark .itr-form .select2-container--default .select2-selection__rendered {
+        color: #e2e8f0 !important;
+    }
+    .dark .itr-form .select2-container--default.select2-container--open .select2-selection--single {
+        background: #111827 !important;
+        border-color: #22c55e !important;
+    }
+    .dark .itr-form input:focus,
+    .dark .itr-form select:focus,
+    .dark .itr-form textarea:focus {
+        border-color: #22c55e !important;
+        box-shadow: 0 0 0 1px rgba(34,197,94,0.2) !important;
+    }
+    /* Outer form wrapper */
+    .dark .bg-white.rounded-3xl {
+        background-color: #0f172a !important;
+        border-color: #1e293b !important;
+    }
+    /* Header bar */
+    .dark .itr-form .bg-slate-50\/70,
+    .dark .bg-slate-50\/70 {
+        background-color: #111827 !important;
+        border-color: #1e293b !important;
+    }
+    /* Form body area */
+    .dark .itr-form .bg-slate-50\/40,
+    .dark .bg-slate-50\/40 {
+        background-color: #0b1120 !important;
+    }
+    /* Header title */
+    .dark .itr-form h2,
+    .dark .bg-slate-50\/70 h2 {
+        color: #f1f5f9 !important;
+    }
+    /* "Add New Consultation" subtitle */
+    .dark .bg-slate-50\/70 .text-slate-500,
+    .dark .bg-slate-50\/70 p {
+        color: #22c55e !important;
+    }
+    /* Section icon badges */
+    .dark .itr-form .itr-card .w-6.h-6,
+    .dark .itr-form .itr-card .w-5.h-5 {
+        color: #22c55e !important;
     }
 </style>
 
@@ -115,7 +231,7 @@
 
             <div class="px-6 py-5 lg:px-8 border-b border-slate-200 bg-slate-50/70 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div class="flex items-start gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
+                    <div class="w-10 h-10 rounded-xl bg-green-600 text-white flex items-center justify-center shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -131,8 +247,8 @@
                         <input type="text" name="consultation_date" id="consultation_date" required autocomplete="off" placeholder="dd/mm/yyyy"
                             data-material-calendar
                             data-default="{{ old('consultation_date', \Carbon\Carbon::now()->format('Y-m-d')) }}"
-                            data-alt-class="border-none bg-transparent font-bold text-blue-700 text-xl p-0 focus:ring-0 text-right outline-none min-w-[9.5rem]"
-                            class="border-none bg-transparent font-bold text-blue-700 text-xl p-0 focus:ring-0 text-right outline-none min-w-[9.5rem] cursor-pointer">
+                            data-alt-class="border-none bg-transparent font-bold text-black text-xl p-0 focus:ring-0 text-right outline-none min-w-[9.5rem]"
+                            class="border-none bg-transparent font-bold text-black text-xl p-0 focus:ring-0 text-right outline-none min-w-[9.5rem] cursor-pointer">
                     </div>
                 </div>
             </div>
@@ -140,7 +256,7 @@
             <div class="p-6 lg:p-8 bg-slate-50/40">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-7">
                     <div class="lg:col-span-5 space-y-6 itr-card p-5 lg:p-6">
-                        <h3 class="font-bold text-blue-600 border-b pb-2 text-sm uppercase tracking-wider">Patient Information</h3>
+                        <h3 class="font-bold text-green-600 border-b pb-2 text-sm uppercase tracking-wider">Patient Information</h3>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div class="col-span-2">
@@ -185,7 +301,10 @@
                             </div>
                         </div>
 
-                        <div class="pt-2" x-data="labUploader()">
+                        <div class="pt-2 {{ $isNurse ? 'relative opacity-60' : '' }}" x-data="labUploader()">
+                            @if($isNurse)
+                                <div class="absolute inset-0 z-10 cursor-not-allowed" onclick="showDoctorOnlyNotice('Laboratory Upload')"></div>
+                            @endif
                             <div class="flex items-center justify-between">
                                 <label class="block text-xs font-bold text-gray-500 mb-1">Laboratory Upload (Optional)</label>
                                 <button type="button" @click="clearAll()" x-show="files.length > 0"
@@ -197,14 +316,14 @@
 
                             <input x-ref="input" type="file" name="laboratory_images[]" multiple accept=".jpg,.jpeg,.png,.webp" class="hidden" @change="onPick($event)">
 
-                            <div class="rounded-2xl border-2 border-dashed border-gray-200 bg-white p-6 text-center cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition"
+                            <div class="rounded-2xl border-2 border-dashed border-gray-200 bg-white p-6 text-center cursor-pointer hover:border-green-300 hover:bg-green-50/30 transition"
                                 @click="$refs.input.click()"
                                 @dragover.prevent="isDragging = true"
                                 @dragleave.prevent="isDragging = false"
                                 @drop.prevent="onDrop($event)"
-                                :class="isDragging ? 'border-blue-400 bg-blue-50/40' : ''">
+                                :class="isDragging ? 'border-green-400 bg-green-50/40' : ''">
                                 <div class="flex flex-col items-center gap-2">
-                                    <div class="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
+                                    <div class="w-10 h-10 rounded-2xl bg-green-50 flex items-center justify-center text-green-600">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M12 12v9m0-9l-3 3m3-3l3 3"/>
                                         </svg>
@@ -212,7 +331,7 @@
                                     <p class="text-sm font-bold text-gray-600">Drag files to upload</p>
                                     <p class="text-[10px] text-gray-400 uppercase tracking-widest">or</p>
                                     <button type="button"
-                                        class="px-4 py-2 rounded-xl bg-white border border-gray-200 text-blue-600 font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 transition">
+                                        class="px-4 py-2 rounded-xl bg-white border border-gray-200 text-green-600 font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 transition">
                                         Browse Files
                                     </button>
                                     <p class="text-[10px] text-gray-400 mt-1">
@@ -253,7 +372,7 @@
                     <div class="lg:col-span-7 space-y-5">
                         <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center gap-2 mb-2">
-                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">V</span>
+                                <span class="bg-green-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">V</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Vitals</label>
                             </div>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -264,15 +383,15 @@
                                 <div class="relative"><span class="absolute left-2 top-2 text-[10px] font-bold text-gray-400">WT</span><input type="text" readonly value="{{ $latest?->weight }}" placeholder="kg" class="w-full pl-8 pr-2 py-2 bg-white border border-gray-100 rounded-lg text-xs outline-none cursor-default"></div>
                                 <div class="relative"><span class="absolute left-2 top-2 text-[10px] font-bold text-gray-400">HT</span><input type="text" readonly value="{{ $latest?->height }}" placeholder="cm" class="w-full pl-8 pr-2 py-2 bg-white border border-gray-100 rounded-lg text-xs outline-none cursor-default"></div>
                                 <div class="relative col-span-2">
-                                    <span class="absolute left-2 top-2 text-[10px] font-bold text-blue-500">BMI</span>
-                                    <input type="text" readonly value="{{ $latest?->bmi }}" placeholder="Auto" class="w-full pl-10 pr-2 py-2 border border-blue-100 bg-blue-50/50 rounded-lg text-xs font-bold text-blue-700 cursor-default">
+                                    <span class="absolute left-2 top-2 text-[10px] font-bold text-green-500">BMI</span>
+                                    <input type="text" readonly value="{{ $latest?->bmi }}" placeholder="Auto" class="w-full pl-10 pr-2 py-2 border border-green-100 bg-green-50/50 rounded-lg text-xs font-bold text-green-700 cursor-default">
                                 </div>
                             </div>
                         </div>
 
                         <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center gap-2 mb-2">
-                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">S</span>
+                                <span class="bg-green-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">S</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Subjective Findings</label>
                             </div>
                             <textarea
@@ -286,7 +405,7 @@
 
                         <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center gap-2 mb-2">
-                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">O</span>
+                                <span class="bg-green-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">O</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Objective Findings</label>
                             </div>
                             <textarea
@@ -300,7 +419,7 @@
 
                         <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center gap-2 mb-2">
-                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">A</span>
+                                <span class="bg-green-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">A</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Assessment / Diagnosis</label>
                             </div>
                             <textarea
@@ -308,13 +427,13 @@
                                 rows="2"
                                 {{ $isNurse ? 'readonly' : 'required' }}
                                 placeholder="{{ $isNurse ? 'Only doctor can fill this out.' : 'Medical assessment...' }}"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-blue-50 {{ $isNurse ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : 'bg-blue-50/10' }} text-sm outline-none"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-green-50 {{ $isNurse ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : 'bg-green-50/10' }} text-sm outline-none"
                             >{{ old('diagnosis', $isNurse ? 'For doctor assessment' : '') }}</textarea>
                         </div>
 
                         <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center gap-2 mb-2">
-                                <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">P</span>
+                                <span class="bg-green-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">P</span>
                                 <label class="text-xs font-bold text-gray-700 uppercase">Treatment Plan</label>
                             </div>
                             <textarea
@@ -322,14 +441,14 @@
                                 rows="2"
                                 {{ $isNurse ? 'readonly' : 'required' }}
                                 placeholder="{{ $isNurse ? 'Only doctor can fill this out.' : 'Enter treatment plan...' }}"
-                                class="w-full px-4 py-3 rounded-xl border text-sm outline-none {{ $isNurse ? 'border-gray-100 bg-gray-50 text-gray-500 cursor-not-allowed' : 'border-gray-200 focus:ring-2 focus:ring-blue-100' }}"
+                                class="w-full px-4 py-3 rounded-xl border text-sm outline-none {{ $isNurse ? 'border-gray-100 bg-gray-50 text-gray-500 cursor-not-allowed' : 'border-gray-200 focus:ring-2 focus:ring-green-200' }}"
                             >{{ old('follow_up_recommendation') }}</textarea>
                         </div>
 
                         <div class="itr-card p-4 lg:p-5">
                             <div class="flex items-center justify-between mb-2">
                                 <div class="flex items-center gap-2">
-                                    <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">M</span>
+                                    <span class="bg-green-600 text-white w-6 h-6 flex items-center justify-center rounded font-bold text-xs">M</span>
                                     <label class="text-xs font-bold text-gray-700 uppercase">Medicines (prescription)</label>
                                 </div>
                                 @if($isNurse)
@@ -337,7 +456,7 @@
                                         title="Only doctors can add prescription medicines"
                                         class="text-gray-400 text-[10px] font-bold tracking-widest cursor-not-allowed">+ ADD ITEM</button>
                                 @else
-                                    <button type="button" id="add-medicine-btn" class="text-blue-600 hover:text-blue-800 text-[10px] font-bold tracking-widest">+ ADD ITEM</button>
+                                    <button type="button" id="add-medicine-btn" class="text-green-600 hover:text-green-800 text-[10px] font-bold tracking-widest">+ ADD ITEM</button>
                                 @endif
                             </div>
                             <p class="text-[11px] text-slate-500 mb-2 leading-relaxed">Inventory is <span class="font-semibold text-slate-700">not</span> reduced here. After you save, BHW uses <span class="font-semibold text-slate-700">Medicine queue</span> (bell in sidebar) to release stock when the patient actually receives the medicine.</p>
@@ -349,7 +468,14 @@
                             <div id="medicine-rows-container" class="space-y-3"></div>
                             <div class="mt-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Previous Consultation Encoder</p>
-                                <p class="text-sm font-bold text-gray-700 uppercase">{{ $latest?->consulted_by ?: '—' }}</p>
+                                @php
+                                    $prevEncoder = $latest?->consulted_by ?: '—';
+                                    $prevEncoderLower = strtolower(trim((string) $prevEncoder));
+                                    if ($prevEncoder !== '—' && !str_starts_with($prevEncoderLower, 'bhw ') && !str_starts_with($prevEncoderLower, 'dr.') && !str_starts_with($prevEncoderLower, 'dr ') && !str_starts_with($prevEncoderLower, 'nurse ')) {
+                                        $prevEncoder = 'BHW ' . $prevEncoder;
+                                    }
+                                @endphp
+                                <p class="text-sm font-bold text-gray-700 uppercase">{{ $prevEncoder }}</p>
                             </div>
                             <div class="mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
                                 <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Consulted By (Current User)</p>
@@ -362,9 +488,9 @@
                                 </p>
                             </div>
                             @if($roleNormalized === 'nurse')
-                            <div class="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-xl">
-                                <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Consulted by (Nurse)</p>
-                                <p class="text-sm font-bold text-blue-700 uppercase">
+                            <div class="mt-3 p-3 bg-green-50 border border-green-100 rounded-xl">
+                                <p class="text-[10px] font-black text-green-400 uppercase tracking-widest mb-1">Consulted by (Nurse)</p>
+                                <p class="text-sm font-bold text-green-700 uppercase">
                                     Nurse {{ trim((auth()->user()->first_name ?? '').' '.(auth()->user()->middle_name ?? '').' '.(auth()->user()->last_name ?? '')) }}
                                 </p>
                             </div>
@@ -372,8 +498,8 @@
                         </div>
 
                         <div class="flex items-center justify-end gap-4 pt-1">
-                            <a href="{{ route($routePrefix . '.record.index') }}" class="px-6 py-3 bg-white border border-slate-300 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition">Cancel</a>
-                            <button type="submit" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 shadow-sm transition">Save Patient Record</button>
+                            <a href="{{ route($routePrefix . '.pending.index') }}" class="px-6 py-3 bg-white border border-slate-300 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition">Cancel</a>
+                            <button type="submit" class="px-8 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 shadow-sm transition">Save Patient Record</button>
                         </div>
 
                     </div>
@@ -383,7 +509,7 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{{-- Select2 JS loaded globally --}}
 
 <script>
     function labUploader() {
@@ -465,6 +591,23 @@
                 this.syncToInput();
             },
         };
+    }
+
+    function showDoctorOnlyNotice(sectionName) {
+        const existing = document.getElementById('doctor-only-alert');
+        if (existing) existing.remove();
+
+        const alert = document.createElement('div');
+        alert.id = 'doctor-only-alert';
+        alert.className = 'fixed top-5 right-5 z-[9999] bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-xl shadow-lg text-sm font-semibold';
+        alert.textContent = `${sectionName} can only be filled out by a Doctor.`;
+        document.body.appendChild(alert);
+
+        setTimeout(() => {
+            alert.style.opacity = '0';
+            alert.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => alert.remove(), 300);
+        }, 2200);
     }
 
     function setupNativeRequiredValidation(form) {

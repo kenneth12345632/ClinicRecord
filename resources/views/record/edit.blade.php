@@ -11,7 +11,7 @@
 @if(!$isNurse)
     @include('partials.birthday-material-picker-assets')
 @endif
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{{-- Select2 loaded globally --}}
 
 <div class="max-w-4xl mx-auto py-8">
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -28,17 +28,17 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">First Name</label>
                     <input type="text" name="first_name" value="{{ old('first_name', $record->first_name) }}" required {{ $isNurse ? 'readonly' : '' }}
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-gray-50">
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition bg-gray-50">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Middle Name</label>
                     <input type="text" name="middle_name" value="{{ old('middle_name', $record->middle_name) }}" {{ $isNurse ? 'readonly' : '' }}
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-gray-50">
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition bg-gray-50">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Last Name</label>
                     <input type="text" name="last_name" value="{{ old('last_name', $record->last_name) }}" required {{ $isNurse ? 'readonly' : '' }}
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-gray-50">
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition bg-gray-50">
                 </div>
             </div>
 
@@ -47,14 +47,14 @@
                     <label class="block text-sm font-bold text-gray-700 mb-2">Date of Consultation</label>
                     @if($isNurse)
                         <input type="date" name="consultation_date" value="{{ old('consultation_date', $record->consultation_date->format('Y-m-d')) }}" required readonly
-                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-gray-50">
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition bg-gray-50">
                     @else
                         <div class="relative w-full">
                             <input type="text" name="consultation_date" id="consultation_date" autocomplete="off" placeholder="dd/mm/yyyy" required
                                 data-material-calendar
                                 data-default="{{ old('consultation_date', $record->consultation_date->format('Y-m-d')) }}"
-                                data-alt-class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition font-semibold text-gray-900 bg-white"
-                                class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition font-semibold text-gray-900 bg-white cursor-pointer">
+                                data-alt-class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition font-semibold text-gray-900 bg-white"
+                                class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition font-semibold text-gray-900 bg-white cursor-pointer">
                             <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -69,8 +69,8 @@
                         <div class="relative w-full">
                             <input type="text" name="birthday" id="birthday" autocomplete="off" required placeholder="dd/mm/yyyy"
                                 data-default="{{ $birthdayOld }}"
-                                data-alt-class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition font-semibold text-gray-900 bg-white"
-                                class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition font-semibold text-gray-900 bg-white">
+                                data-alt-class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition font-semibold text-gray-900 bg-white"
+                                class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition font-semibold text-gray-900 bg-white">
                             <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -89,7 +89,7 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Contact Number</label>
                     <input type="text" name="contact_number" value="{{ old('contact_number', $record->contact_number) }}" {{ $isNurse ? 'readonly' : '' }}
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition">
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Purok / Address</label>
@@ -105,7 +105,7 @@
                                 ->unique()
                                 ->values();
                         @endphp
-                        <select name="address_purok" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-white">
+                        <select name="address_purok" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition bg-white">
                             <option value="" disabled {{ $selectedAddress ? '' : 'selected' }}>Select address</option>
                             @foreach($addressList as $address)
                                 <option value="{{ $address }}" {{ strtoupper((string) $selectedAddress) === $address ? 'selected' : '' }}>
@@ -115,7 +115,7 @@
                         </select>
                     @else
                         <input type="text" name="address_purok" value="{{ old('address_purok', $record->address_purok) }}" required {{ $isNurse ? 'readonly' : '' }}
-                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition">
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition">
                     @endif
                 </div>
             </div>
@@ -123,14 +123,14 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Gender</label>
-                    <select name="gender" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-white" {{ $isNurse ? 'disabled' : '' }}>
+                    <select name="gender" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition bg-white" {{ $isNurse ? 'disabled' : '' }}>
                         <option value="Male" {{ $record->gender == 'Male' ? 'selected' : '' }}>Male</option>
                         <option value="Female" {{ $record->gender == 'Female' ? 'selected' : '' }}>Female</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Civil Status</label>
-                    <select name="civil_status" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition bg-white" {{ $isNurse ? 'disabled' : '' }}>
+                    <select name="civil_status" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition bg-white" {{ $isNurse ? 'disabled' : '' }}>
                         <option value="Single" {{ $record->civil_status == 'Single' ? 'selected' : '' }}>Single</option>
                         <option value="Married" {{ $record->civil_status == 'Married' ? 'selected' : '' }}>Married</option>
                         <option value="Widowed" {{ $record->civil_status == 'Widowed' ? 'selected' : '' }}>Widowed</option>
@@ -192,7 +192,7 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Diagnosis</label>
                     <textarea name="diagnosis" rows="3" placeholder="Describe symptoms/results" required
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition">{{ old('diagnosis', $record->diagnosis) }}</textarea>
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 outline-none transition">{{ old('diagnosis', $record->diagnosis) }}</textarea>
                 </div>
 
                 {{-- Medicines Given Section --}}
@@ -212,7 +212,7 @@
             @endif
 
             <div class="pt-6 flex gap-4">
-                <button type="submit" class="flex-grow bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 shadow-lg transition">
+                <button type="submit" class="flex-grow bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 shadow-lg transition">
                     Update Record
                 </button>
                 <a href="{{ route('record.index') }}" class="px-8 py-4 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition text-center">
@@ -230,7 +230,7 @@
      style="display:none;"></div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{{-- Select2 JS loaded globally --}}
 
 <script>
     function calculateAge() {
@@ -245,7 +245,7 @@
             years--;
             months += 12;
         }
-        display.value = (years === 0) ? `${months} Mon` : `${years} yrs`;
+        display.value = (years === 0) ? `${months} ${months === 1 ? 'month' : 'months'}` : `${years} ${years === 1 ? 'year' : 'years'}`;
     }
 
     window.calculateAge = calculateAge;

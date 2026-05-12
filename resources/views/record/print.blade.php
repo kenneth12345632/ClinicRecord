@@ -72,9 +72,9 @@
             margin-top: 6px;
         }
         .patient-name { font-size: 24px; font-weight: 400; text-transform: uppercase; }
-        .patient-file { font-size: 13px; color: #1d4ed8; font-weight: 400; margin-top: 2px; }
+        .patient-file { font-size: 13px; color: #000000; font-weight: 400; margin-top: 2px; }
         .consult-date-label { font-size: 10px; text-transform: uppercase; color: var(--muted); font-weight: 400; }
-        .consult-date { font-size: 18px; font-weight: 400; color: #1e40af; margin-top: 2px; text-align: right; }
+        .consult-date { font-size: 18px; font-weight: 400; color: #000000; margin-top: 2px; text-align: right; }
         .grid-info {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -133,11 +133,17 @@
             margin: 0;
             padding-left: 18px;
             font-size: 15px;
+            line-height: 1.3;
+        }
+        .med-list li {
+            margin-bottom: 1px;
+            padding: 0;
         }
         .box-medicine {
             display: flex;
             flex-direction: column;
-            min-height: 88px;
+            padding-top: 4px;
+            padding-bottom: 4px;
         }
         .box-medicine-body {
             flex: 1 1 auto;
@@ -153,7 +159,7 @@
             line-height: 1.35;
         }
         @media print {
-            @page { size: A4 portrait; margin: 10mm; }
+            @page { size: A4 portrait; margin: 0; }
             html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             body { background: #fff !important; }
             .paper {
@@ -161,7 +167,7 @@
                 margin: 0;
                 width: auto;
                 min-height: auto;
-                padding: 2mm 0 0;
+                padding: 10mm;
                 max-width: 100%;
             }
         }

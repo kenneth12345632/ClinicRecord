@@ -348,6 +348,7 @@ class DoctorClinicRecordController extends Controller
     public function pendingPatientRecords(Request $request)
     {
         $search = $request->get('search');
+        $isNurse = $this->currentRole() === 'nurse';
 
         $records = ClinicRecord::whereIn('id', function ($query) {
             $query->select(DB::raw('MAX(id)'))
@@ -362,7 +363,19 @@ class DoctorClinicRecordController extends Controller
                 });
             })
             ->get()
-            ->filter(fn (ClinicRecord $record) => $this->isPendingDiagnosis($record->diagnosis))
+            ->filter(function (ClinicRecord $record) use ($isNurse) {
+                if (!$this->isPendingDiagnosis($record->diagnosis)) {
+                    return false;
+                }
+
+                $diagnosis = trim((string) $record->diagnosis);
+
+                if ($isNurse) {
+                    return $diagnosis === self::DOCTOR_PLACEHOLDER_DIAGNOSIS;
+                }
+
+                return $diagnosis === self::NURSE_PLACEHOLDER_DIAGNOSIS;
+            })
             ->sortBy([
                 ['consultation_date', 'asc'],
                 ['id', 'asc'],
@@ -608,7 +621,7 @@ class DoctorClinicRecordController extends Controller
         });
 
         $routePrefix = $this->currentRole() === 'nurse' ? 'nurse' : 'doctor';
-        return redirect()->route($routePrefix . '.record.index')->with('success', 'Record saved!');
+        return redirect()->route($routePrefix . '.pending.index')->with('success', 'Record saved!');
     }
 
     public function show($id)

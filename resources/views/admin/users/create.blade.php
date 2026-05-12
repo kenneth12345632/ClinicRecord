@@ -20,7 +20,7 @@
     <form method="POST" action="{{ route('admin.users.store') }}" enctype="multipart/form-data" class="bg-white p-6 rounded-xl border space-y-4">
         @csrf
         @include('admin.users._form')
-        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold">Create User</button>
+        <button style="background-color: #16a34a !important; color: #fff !important;" class="px-5 py-2.5 rounded-full font-bold text-sm hover:opacity-90 transition shadow-sm">Create User</button>
     </form>
 </div>
 @endsection

@@ -23,7 +23,7 @@
         </div>
         @if($canShowAddMedicineButton)
             <a href="{{ route('medicines.create') }}"
-                class="inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-blue-700 transition self-start md:self-auto">
+                class="inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap px-5 py-2.5 text-sm font-bold rounded-xl shadow-sm transition self-start md:self-auto" style="background-color: #16a34a !important; color: #fff !important;">
                 <span class="text-base leading-none font-bold" aria-hidden="true">+</span>
                 <span>Add Medicine</span>
             </a>
@@ -38,14 +38,14 @@
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
                 </span>
-                <input type="text" id="inventorySearch" onkeyup="runFilters()" placeholder="Search medicine..." class="pl-10 pr-4 py-3 w-full rounded-xl border border-gray-200 outline-none shadow-sm focus:border-blue-500 transition">
+                <input type="text" id="inventorySearch" onkeyup="runFilters()" placeholder="Search medicine..." class="pl-10 pr-4 py-3 w-full rounded-xl border border-gray-200 outline-none shadow-sm focus:border-green-400 transition">
             </div>
         </div>
         <div class="w-full sm:w-auto shrink-0">
             <label for="inventoryUnitFilter" class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Unit</label>
             <select id="inventoryUnitFilter" onchange="runFilters()"
-                class="w-full sm:w-[11rem] px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer">
-                <option value="all">All units</option>
+                class="w-full sm:w-[11rem] px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-green-400 outline-none shadow-sm cursor-pointer">
+                <option value="all" disabled selected>All units</option>
                 <option value="mcg">mcg</option>
                 <option value="mg">mg</option>
                 <option value="g">g</option>
@@ -54,7 +54,8 @@
         </div>
         <div class="w-full sm:w-auto shrink-0">
             <button type="button" id="toggleMedicineBtn"
-                class="px-4 py-3 rounded-xl border border-blue-200 text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition shadow-sm">
+                style="background-color: #dcfce7 !important; border: 2px solid #86efac !important; color: #16a34a !important;"
+                class="px-5 py-2.5 rounded-full text-sm font-bold hover:opacity-90 transition shadow-sm">
                 Show Medicine
             </button>
         </div>
@@ -170,7 +171,7 @@
                     <td class="px-6 py-4 whitespace-normal">
                         <button type="button"
                             @click="openStacks = openStacks === '{{ $stackKey }}' ? null : '{{ $stackKey }}'"
-                            class="group w-full text-left flex items-start gap-3 rounded-xl border-2 border-transparent px-3 py-2 -mx-1 -my-1 transition hover:border-blue-200 hover:bg-blue-50/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                            class="group w-full text-left flex items-start gap-3 rounded-xl border-2 border-transparent px-3 py-2 -mx-1 -my-1 transition hover:border-green-200 hover:bg-green-50/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
                             :class="openStacks === '{{ $stackKey }}' ? 'border-blue-500 bg-white shadow-sm' : ''"
                             :aria-expanded="openStacks === '{{ $stackKey }}' ? 'true' : 'false'"
                             aria-controls="panels-{{ $stackKey }}">
@@ -219,7 +220,7 @@
 
                             @unless($isReadOnlyInventoryRole)
                                 @if($editTargetLot)
-                                    <a href="{{ route('medicines.edit', $editTargetLot) }}" title="Edit batch (soonest releasable, or first listed)" aria-label="Edit medicine batch" class="inline-flex items-center justify-center p-2.5 bg-[#EFF6FF] text-[#2563EB] rounded-xl hover:opacity-80 transition shadow-sm shrink-0">
+                                    <a href="{{ route('medicines.edit', $editTargetLot) }}" title="Edit batch (soonest releasable, or first listed)" aria-label="Edit medicine batch" class="inline-flex items-center justify-center p-2.5 bg-green-50 text-green-600 rounded-xl hover:opacity-80 transition shadow-sm shrink-0">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     </a>
                                 @endif
@@ -267,7 +268,7 @@
                                         </div>
 
                                         <div class="flex flex-col gap-2 pl-6 border-l border-gray-50">
-                                            <a href="{{ route('medicines.show', $hist) }}" class="px-5 py-2 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase text-center hover:bg-blue-100 transition">View</a>
+                                            <a href="{{ route('medicines.show', $hist) }}" class="px-5 py-2 bg-green-50 text-green-600 rounded-xl text-[10px] font-black uppercase text-center hover:bg-green-100 transition">View</a>
                                         </div>
                                     </div>
                                     @empty
@@ -327,7 +328,7 @@
                                     </div>
                                     <div><label class="block text-xs font-black text-gray-400 uppercase mb-1 tracking-widest">Quantity</label><input type="number" name="stock" value="1" min="1" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none shadow-sm" required></div>
                                     <div class="flex gap-3 pt-4">
-                                        <button type="submit" class="flex-grow py-4 bg-blue-600 text-white font-black rounded-xl shadow-lg hover:bg-blue-700 transition uppercase text-xs">Add Stock</button>
+                                        <button type="submit" class="flex-grow py-4 bg-green-600 text-white font-black rounded-xl shadow-lg hover:bg-green-700 transition uppercase text-xs">Add Stock</button>
                                         <button type="button" @click="openAddLot = null" class="px-6 py-4 bg-gray-50 text-gray-500 font-bold rounded-xl text-xs uppercase">Cancel</button>
                                     </div>
                                 </form>
@@ -338,7 +339,7 @@
                 <tr id="panels-{{ $stackKey }}" x-show="openStacks === '{{ $stackKey }}'" class="inventory-expand-row bg-slate-50/80 divide-y divide-gray-100 border-b border-gray-100 last:border-b-0" style="display: none;">
                     <td colspan="5" class="px-6 py-5 align-top">
                         <div class="rounded-xl border-2 border-blue-500 bg-white shadow-lg shadow-blue-500/10 overflow-hidden max-w-full">
-                            <div class="px-5 py-3.5 border-b-2 border-blue-500 bg-blue-50/90 flex items-center justify-between gap-3">
+                            <div class="px-5 py-3.5 border-b-2 border-green-500 bg-green-50/90 flex items-center justify-between gap-3">
                                 <div>
                                     <p class="text-xs font-bold uppercase tracking-wider text-blue-700">Current stacks (releasable)</p>
                                     <p class="text-sm font-bold text-slate-900 mt-0.5 break-words">{{ $name }}</p>
@@ -352,7 +353,7 @@
                                         $stackLabel = $stackLot->batch_number ? 'Batch ' . $stackLot->batch_number : 'Lot #' . $stackLot->id;
                                     @endphp
                                     <a href="{{ route('medicines.show', $stackLot) }}"
-                                        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-5 py-4 text-left transition hover:bg-blue-50 focus:outline-none focus-visible:bg-blue-50 group">
+                                        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-5 py-4 text-left transition hover:bg-green-50 focus:outline-none focus-visible:bg-green-50 group">
                                         <div class="min-w-0">
                                             <p class="text-sm font-bold text-slate-900 group-hover:text-blue-700">{{ $stackLabel }}</p>
                                             <p class="text-xs text-slate-500 mt-1">
@@ -375,7 +376,7 @@
                                                     @if($stackLot->expiration_date){{ $stackLot->expiration_date->format('M d, Y') }}@else N/A @endif
                                                 </span>
                                             </div>
-                                            <span class="inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-50 p-2.5 text-blue-600 ring-1 ring-inset ring-blue-100 group-hover:bg-blue-100" title="View batch">
+                                            <span class="inline-flex shrink-0 items-center justify-center rounded-xl bg-green-50 p-2.5 text-green-600 ring-1 ring-inset ring-green-100 group-hover:bg-green-100" title="View batch">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                                 <span class="sr-only">View batch</span>
                                             </span>

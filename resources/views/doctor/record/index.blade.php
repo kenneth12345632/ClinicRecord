@@ -5,17 +5,8 @@
     $roleNormalized = strtolower(trim((string) (auth()->user()->role ?? 'doctor')));
     $routePrefix = $roleNormalized === 'nurse' ? 'nurse' : 'doctor';
 @endphp
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
+{{-- Select2 loaded globally in layout --}}
 <style>
-    .select2-container--default .select2-selection--single {
-        height: 42px !important;
-        border-radius: 10px !important;
-        border: 1px solid #e2e8f0 !important;
-        display: flex;
-        align-items: center;
-    }
     .select2-container--open { z-index: 9999 !important; }
     input[type=number]::-webkit-inner-spin-button { opacity: 1; }
 </style>
@@ -51,30 +42,30 @@
 
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <button type="button" id="togglePatientsBtn"
-                class="px-4 py-2.5 rounded-xl border border-blue-200 text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition shadow-sm">
+                class="px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-sm" style="background-color: #dcfce7 !important; border: 2px solid #86efac !important; color: #16a34a !important;">
                 Show Patient Records
             </button>
 
-            <select id="ageFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer">
-                <option value="all">All Ages</option>
+            <select id="ageFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-green-500 outline-none shadow-sm cursor-pointer">
+                <option value="all" disabled selected>All Ages</option>
                 <option value="0-11">Infants (0-11 months)</option>
                 <option value="12-59">Children (12-59 months)</option>
                 <option value="senior">Seniors (60+ years)</option>
             </select>
 
-            <select id="genderFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer">
-                <option value="all">All Gender</option>
+            <select id="genderFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-green-500 outline-none shadow-sm cursor-pointer">
+                <option value="all" disabled selected>All Gender</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
             </select>
 
-            <select id="addressFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer min-w-[180px]">
-                <option value="all">All Address</option>
+            <select id="addressFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-green-500 outline-none shadow-sm cursor-pointer min-w-[180px]">
+                <option value="all" disabled selected>All Address</option>
             </select>
 
             <div class="relative flex-grow md:flex-grow-0">
                 <input type="text" id="searchInput" placeholder="Search patient records..." 
-                    class="pl-10 pr-4 py-2.5 w-full md:w-64 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm">
+                    class="pl-10 pr-4 py-2.5 w-full md:w-64 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-500 outline-none shadow-sm">
                 <svg class="w-5 h-5 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
@@ -122,9 +113,9 @@
                     <td class="px-6 py-4 text-sm text-gray-500">
                         <span class="font-bold text-gray-700">
                             @if($ageMonths < 12)
-                                {{ $ageMonths }} mon
+                                {{ $ageMonths }} {{ $ageMonths === 1 ? 'month' : 'months' }}
                             @else
-                                {{ $ageYears }} yrs
+                                {{ $ageYears }} {{ $ageYears === 1 ? 'year' : 'years' }}
                             @endif
                         </span> <span class="text-gray-300 mx-1">|</span> {{ $record->gender }}
                     </td>
@@ -187,26 +178,26 @@
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3 ml-1">Vital Signs</label>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                <div><input type="text" name="temp" placeholder="Temp °C" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm"></div>
-                                <div><input type="text" name="bp" placeholder="BP (120/80)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm"></div>
-                                <div><input type="text" name="weight" id="quick_weight" placeholder="Weight (kg)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm"></div>
-                                <div><input type="text" name="height" id="quick_height" placeholder="Height (cm)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 text-sm"></div>
+                                <div><input type="text" name="temp" placeholder="Temp °C" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-100 text-sm"></div>
+                                <div><input type="text" name="bp" placeholder="BP (120/80)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-100 text-sm"></div>
+                                <div><input type="text" name="weight" id="quick_weight" placeholder="Weight (kg)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-100 text-sm"></div>
+                                <div><input type="text" name="height" id="quick_height" placeholder="Height (cm)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-100 text-sm"></div>
                             </div>
                         </div>
 
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 ml-1">Subjective</label>
-                            <textarea name="subjective" rows="2" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition text-sm" placeholder="Patient's complaints..."></textarea>
+                            <textarea name="subjective" rows="2" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-green-100 focus:bg-white transition text-sm" placeholder="Patient's complaints..."></textarea>
                         </div>
 
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 ml-1">Physical Exam (Objective)</label>
-                            <textarea name="objective" rows="2" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition text-sm" placeholder="Findings from physical examination..."></textarea>
+                            <textarea name="objective" rows="2" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-green-100 focus:bg-white transition text-sm" placeholder="Findings from physical examination..."></textarea>
                         </div>
 
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 ml-1">Diagnosis / Assessment</label>
-                            <textarea name="diagnosis" rows="2" required class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition text-sm" placeholder="What is the diagnosis?"></textarea>
+                            <textarea name="diagnosis" rows="2" required class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-green-100 focus:bg-white transition text-sm" placeholder="What is the diagnosis?"></textarea>
                         </div>
 
                         <div x-data="labUploader()" class="pt-1">
@@ -279,7 +270,7 @@
 
                 <div class="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
                     <button type="button" onclick="closeQuickAdd()" class="px-6 py-3 text-sm font-bold text-gray-400 hover:text-gray-600 transition">Discard</button>
-                    <button type="submit" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-md transition active:scale-95">Save Entry</button>
+                    <button type="submit" class="px-8 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 shadow-md transition active:scale-95">Save Entry</button>
                 </div>
             </form>
         </div>
@@ -504,7 +495,7 @@ function createMedicineRow() {
         <div>
             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Quantity</label>
             <input type="number" name="medicines[${rowIndex}][quantity]" placeholder="Qty" required min="1" value="1"
-                   class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-semibold h-[42px] outline-none focus:border-blue-400">
+                   class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-semibold h-[42px] outline-none focus:border-green-400">
         </div>
         <button type="button" class="text-gray-300 hover:text-red-500 self-end mb-1 transition justify-self-end" title="Remove medicine row" onclick="this.parentElement.remove()">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>

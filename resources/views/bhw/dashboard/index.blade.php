@@ -22,7 +22,7 @@
                 <a href="{{ route('bhw.dispensing.index') }}"
                    class="inline-flex items-center justify-center p-0.5 transition"
                    title="Medicine queue">
-                    <span class="relative inline-flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                    <span class="relative inline-flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-600 ring-1 ring-green-100 dark:bg-green-900/40 dark:text-green-400 dark:ring-green-800">
                         <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                             <path d="M12 2a5 5 0 00-5 5v3.764c0 .52-.212 1.018-.586 1.383L5.05 13.51A1.5 1.5 0 006.11 16h11.78a1.5 1.5 0 001.06-2.56l-1.364-1.293A1.93 1.93 0 0117 10.764V7a5 5 0 00-5-5z"/>
                             <path d="M9.75 18a2.25 2.25 0 004.5 0h-4.5z"/>
@@ -127,8 +127,8 @@
         const values = rawRows.map(row => row.value);
         const ctx = canvas.getContext('2d');
         const gradientA = ctx.createLinearGradient(0, 0, 0, 260);
-        gradientA.addColorStop(0, 'rgba(16, 185, 129, 0.45)');
-        gradientA.addColorStop(1, 'rgba(16, 185, 129, 0.02)');
+        gradientA.addColorStop(0, 'rgba(239, 68, 68, 0.45)');
+        gradientA.addColorStop(1, 'rgba(239, 68, 68, 0.02)');
 
         new Chart(ctx, {
             type: 'line',
@@ -136,14 +136,14 @@
                 labels,
                 datasets: [{
                     data: values,
-                    borderColor: '#059669',
+                    borderColor: '#dc2626',
                     backgroundColor: gradientA,
                     fill: true,
                     tension: 0.2,
                     pointRadius: 4,
                     pointHoverRadius: 5,
-                    pointBackgroundColor: '#16a34a',
-                    pointBorderColor: '#16a34a',
+                    pointBackgroundColor: '#ef4444',
+                    pointBorderColor: '#ef4444',
                     pointBorderWidth: 0,
                 }]
             },
@@ -152,11 +152,19 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    x: { grid: { color: '#f1f5f9' }, border: { display: false } },
+                    x: {
+                        grid: { color: document.documentElement.classList.contains('dark') ? '#334155' : '#f1f5f9' },
+                        border: { display: false },
+                        ticks: { color: document.documentElement.classList.contains('dark') ? '#94a3b8' : '#64748b' }
+                    },
                     y: {
                         beginAtZero: true,
-                        ticks: { precision: 0, stepSize: 2 },
-                        grid: { color: '#e2e8f0', lineWidth: 1 },
+                        ticks: {
+                            precision: 0,
+                            stepSize: 2,
+                            color: document.documentElement.classList.contains('dark') ? '#94a3b8' : '#64748b'
+                        },
+                        grid: { color: document.documentElement.classList.contains('dark') ? '#334155' : '#e2e8f0', lineWidth: 1 },
                         border: { display: false }
                     }
                 },

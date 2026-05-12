@@ -22,13 +22,13 @@
             <p class="text-gray-500 text-sm mt-1">Unique patient record list and latest consultation details</p>
         </div>
         <a href="{{ $patientReportExportUrl }}"
-            class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition">
+            class="px-5 py-2.5 rounded-xl text-sm font-bold transition" style="background-color: #16a34a !important; color: #fff !important;">
             Export Excel
         </a>
     </div>
 
     @if($patientReportPrivacyBhw)
-        <div class="mb-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+        <div class="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
             The table stays blank until you click <strong>Show Patient Records</strong>. Use the filters and search to narrow results, then click <strong>Show Patient Records</strong> to view matching rows (changing a dropdown reloads the page with your choices).
         </div>
     @endif
@@ -39,26 +39,26 @@
                 <div class="flex flex-wrap gap-3 items-end">
                     @if($patientReportPrivacyBhw)
                         <button type="button" id="togglePatientReportBtn"
-                            class="px-4 py-2.5 rounded-xl border border-blue-200 text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition shadow-sm shrink-0">
+                            class="px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-sm shrink-0" style="background-color: #dcfce7 !important; border: 2px solid #86efac !important; color: #16a34a !important;">
                             Show Patient Records
                         </button>
                     @endif
                     <select id="age_group_filter" name="age_group"
-                        class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer">
-                        <option value="all" {{ $ageGroup === 'all' ? 'selected' : '' }}>All Ages</option>
+                        class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-green-400 outline-none shadow-sm cursor-pointer">
+                        <option value="all" disabled {{ $ageGroup === 'all' ? 'selected' : '' }}>All Ages</option>
                         <option value="0-11" {{ $ageGroup === '0-11' ? 'selected' : '' }}>Infants (0-11 months)</option>
                         <option value="12-59" {{ $ageGroup === '12-59' ? 'selected' : '' }}>Children (12-59 months)</option>
                         <option value="senior" {{ $ageGroup === 'senior' ? 'selected' : '' }}>Seniors (60+ years)</option>
                     </select>
                     <select id="gender_filter" name="gender"
-                        class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer">
-                        <option value="all" {{ $gender === 'all' ? 'selected' : '' }}>All Gender</option>
+                        class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-green-400 outline-none shadow-sm cursor-pointer">
+                        <option value="all" disabled {{ $gender === 'all' ? 'selected' : '' }}>All Gender</option>
                         <option value="male" {{ $gender === 'male' ? 'selected' : '' }}>Male</option>
                         <option value="female" {{ $gender === 'female' ? 'selected' : '' }}>Female</option>
                     </select>
                     <select id="address_filter" name="address"
-                        class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer min-w-[180px]">
-                        <option value="all" {{ $address === 'all' ? 'selected' : '' }}>All Address</option>
+                        class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-green-400 outline-none shadow-sm cursor-pointer min-w-[180px]">
+                        <option value="all" disabled {{ $address === 'all' ? 'selected' : '' }}>All Address</option>
                         @foreach(($addressOptions ?? []) as $addressOption)
                             <option value="{{ $addressOption }}" {{ $address === $addressOption ? 'selected' : '' }}>{{ strtoupper($addressOption) }}</option>
                         @endforeach
@@ -68,13 +68,13 @@
                     <div class="relative flex-1 min-w-[min(100%,16rem)] md:max-w-2xl">
                         <input type="text" name="search" id="patient_report_search" value="{{ $search }}"
                             placeholder="Search patient records..."
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm">
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-400 outline-none shadow-sm">
                         <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
                     <button type="submit"
-                        class="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition shrink-0">
+                        class="px-5 py-2.5 rounded-xl text-sm font-bold transition shrink-0" style="background-color: #16a34a !important; color: #fff !important;">
                         Search
                     </button>
                 </div>
@@ -98,13 +98,13 @@
                         $ageYears = (int) $birthDate->diffInYears(now());
                         $ageMonths = (int) $birthDate->diffInMonths(now());
                     @endphp
-                    <tr class="hover:bg-blue-50/30 transition patient-report-row">
+                    <tr class="hover:bg-green-50/30 transition patient-report-row">
                         <td class="px-6 py-4 text-sm text-gray-600 font-medium">
                             {{ \Carbon\Carbon::parse($record->consultation_date)->format('M d, Y') }}
                         </td>
                         <td class="px-6 py-4 text-sm">
                             <div class="font-bold text-gray-800 capitalize">{{ $record->first_name }} {{ $record->last_name }}</div>
-                            <div class="text-[10px] font-bold text-blue-500 uppercase tracking-tight">
+                            <div class="text-[10px] font-bold text-green-500 uppercase tracking-tight">
                                 DOB: {{ $birthDate->format('M d, Y') }}
                             </div>
                         </td>

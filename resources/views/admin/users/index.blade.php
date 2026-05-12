@@ -7,7 +7,7 @@
             <h1 class="text-2xl font-bold text-slate-800">User Management</h1>
             <p class="text-sm text-slate-500">Admin-only account access control center.</p>
         </div>
-        <a href="{{ route('admin.users.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">+ Add User</a>
+        <a href="{{ route('admin.users.create') }}" style="background-color: #16a34a !important; color: #fff !important;" class="px-5 py-2.5 rounded-full font-bold text-sm hover:opacity-90 transition shadow-sm">+ Add User</a>
     </div>
 
     <div class="flex flex-wrap items-end gap-3">
@@ -25,7 +25,8 @@
             </select>
         </div>
         <button type="button" id="toggleUsersBtn"
-            class="px-4 py-2 rounded-xl border border-blue-200 text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition shadow-sm">
+            style="background-color: #dcfce7 !important; border: 2px solid #86efac !important; color: #16a34a !important;"
+            class="px-5 py-2.5 rounded-full text-sm font-bold hover:opacity-90 transition shadow-sm">
             Show Users
         </button>
     </div>

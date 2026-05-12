@@ -43,7 +43,7 @@
                         value="{{ old('email') }}"
                         required
                         placeholder="admin@clinic.local"
-                        class="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-gray-50/50 text-left"
+                        class="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-green-400 focus:ring-4 focus:ring-green-50 outline-none text-base font-medium transition bg-gray-50/50 text-left"
                     >
                 </div>
 
@@ -54,14 +54,14 @@
                         name="password"
                         required
                         placeholder="••••••••"
-                        class="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none text-base font-medium transition bg-gray-50/50 text-left"
+                        class="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-green-400 focus:ring-4 focus:ring-green-50 outline-none text-base font-medium transition bg-gray-50/50 text-left"
                     >
                 </div>
 
                 <div class="pt-6">
                     <button
                         type="submit"
-                        class="w-full py-4 bg-blue-600 text-white text-sm font-black rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition transform hover:-translate-y-0.5 active:scale-95 uppercase tracking-wider text-center"
+                        class="w-full py-4 bg-green-600 text-white text-sm font-black rounded-xl hover:bg-green-700 shadow-lg shadow-green-100 transition transform hover:-translate-y-0.5 active:scale-95 uppercase tracking-wider text-center"
                     >
                         Sign In
                     </button>

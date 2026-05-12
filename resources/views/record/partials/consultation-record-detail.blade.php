@@ -2,6 +2,8 @@
     $hasValue = $hasValue ?? fn ($value) => !is_null($value) && trim((string) $value) !== '' && strtoupper(trim((string) $value)) !== 'N/A';
     $portalPrefix = $portalPrefix ?? null;
     $routeIndex = $portalPrefix ? $portalPrefix . '.record.index' : 'record.index';
+    $routePendingName = $portalPrefix ? $portalPrefix . '.pending.index' : null;
+    $routePending = ($routePendingName && Route::has($routePendingName)) ? $routePendingName : null;
     $routeShow = $portalPrefix ? $portalPrefix . '.record.show' : 'record.show';
     $routePrint = $portalPrefix ? $portalPrefix . '.record.print' : 'record.print';
 @endphp
@@ -29,7 +31,7 @@
         width: 1.75rem;
         height: 1.75rem;
         border-radius: 0.25rem;
-        background: #2f6fed;
+        background: #16a34a;
         color: #fff;
         display: flex;
         align-items: center;
@@ -67,7 +69,7 @@
     {{-- Page header --}}
     <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between no-print">
         <div class="flex items-start gap-3 min-w-0">
-            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-white" aria-hidden="true">
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-600 text-white" aria-hidden="true">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
                         d="M9 12h6m-8 4h11a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12m5 4v-8M9 21l3-3m0 0l3 3m-3-3v8"/>
@@ -81,17 +83,21 @@
         <div class="flex flex-col items-stretch sm:items-end gap-3 shrink-0">
             <div class="flex flex-wrap items-center justify-end gap-2">
                 <a href="{{ route($routePrint, $record->id) }}" target="_blank"
-                    class="inline-flex items-center justify-center rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-700 transition">
+                    class="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700 transition">
                     Print Record
                 </a>
-                <a href="{{ route($routeIndex) }}"
+                @php
+                    $fromPending = request()->query('from') === 'pending';
+                    $backUrl = ($fromPending && $routePending) ? route($routePending) : route($routeIndex);
+                @endphp
+                <a href="{{ $backUrl }}"
                     class="inline-flex items-center justify-center gap-1 rounded-lg border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-200 transition">
                     <span aria-hidden="true">←</span> Back
                 </a>
             </div>
             <div class="text-right">
                 <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Consultation Date</p>
-                <p class="text-base font-semibold text-slate-900">{{ \Carbon\Carbon::parse($record->consultation_date)->format('m/d/Y') }}</p>
+                <p class="text-base font-semibold" style="color: #000000;">{{ \Carbon\Carbon::parse($record->consultation_date)->format('m/d/Y') }}</p>
             </div>
         </div>
     </div>
@@ -145,8 +151,8 @@
                     <div class="space-y-2 max-h-80 overflow-y-auto pr-1">
                         @foreach($history as $visit)
                             <a href="{{ route($routeShow, $visit->id) }}"
-                                class="block rounded-xl border p-3 transition {{ $visit->id == $record->id ? 'border-teal-500 bg-white shadow-sm' : 'border-transparent bg-white/60 hover:bg-white' }}">
-                                <p class="text-xs font-semibold {{ $visit->id == $record->id ? 'text-teal-700' : 'text-slate-600' }}">
+                                class="block rounded-xl border p-3 transition {{ $visit->id == $record->id ? 'border-green-500 bg-white shadow-sm' : 'border-transparent bg-white/60 hover:bg-white' }}">
+                                <p class="text-xs font-semibold {{ $visit->id == $record->id ? 'text-green-700' : 'text-slate-600' }}">
                                     {{ \Carbon\Carbon::parse($visit->consultation_date)->format('M d, Y') }}
                                 </p>
                                 <p class="text-[11px] text-slate-500 truncate mt-0.5">{{ $visit->diagnosis }}</p>
@@ -201,9 +207,9 @@
                             {{ $hasValue($record->display_height ?? null) ? $record->display_height : '—' }}@if($hasValue($record->display_height ?? null))<span class="text-xs"> cm</span>@endif
                         </p>
                     </div>
-                    <div class="rounded-xl border border-blue-100 bg-blue-50 px-2 py-2 text-center">
-                        <p class="text-[9px] font-semibold uppercase text-blue-600">BMI</p>
-                        <p class="text-sm font-semibold text-blue-800 mt-0.5">{{ $record->display_bmi ?: '—' }}</p>
+                    <div class="rounded-xl border border-green-100 bg-green-50 px-2 py-2 text-center">
+                        <p class="text-[9px] font-semibold uppercase text-green-600">BMI</p>
+                        <p class="text-sm font-semibold text-green-800 mt-0.5">{{ $record->display_bmi ?: '—' }}</p>
                     </div>
                 </div>
             </div>
@@ -281,8 +287,8 @@
                 @endif
 
                 @if(!empty($consultationTeam ?? []))
-                    <div class="mt-4 rounded-xl border border-blue-100 bg-blue-50/80 p-3">
-                        <p class="text-[10px] font-semibold uppercase tracking-wider text-blue-600 mb-2">Consultation Team</p>
+                    <div class="mt-4 rounded-xl border border-green-100 bg-green-50/80 p-3">
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-green-600 mb-2">Consultation Team</p>
                         <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                             @foreach(($consultationTeam ?? []) as $member)
                                 @php
@@ -325,7 +331,7 @@
                     <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
                         @foreach($record->laboratoryFiles as $file)
                             <a href="{{ asset('storage/'.$file->path) }}" target="_blank"
-                               class="block overflow-hidden rounded-xl border border-slate-200 bg-slate-50 hover:border-blue-300 transition">
+                               class="block overflow-hidden rounded-xl border border-slate-200 bg-slate-50 hover:border-green-300 transition">
                                 <img src="{{ asset('storage/'.$file->path) }}"
                                      alt="{{ $file->original_name ?? 'Lab' }}"
                                      class="h-24 w-full object-cover"

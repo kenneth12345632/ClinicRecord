@@ -29,14 +29,14 @@
                         <p class="text-xs text-slate-500 mt-0.5">Consultation {{ optional($rec->consultation_date)->format('M d, Y') ?? '—' }}</p>
                     </div>
                     <div class="flex items-center gap-3 shrink-0">
-                        <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">
+                        <span class="text-xs font-bold uppercase tracking-wider text-green-600 bg-green-50 px-2.5 py-1 rounded-lg">
                             @if(($rec->pending_medicine_lines ?? 0) > 0)
                                 {{ $rec->pending_medicine_lines }} line(s)
                             @else
                                 No medicines to release
                             @endif
                         </span>
-                        <span class="text-blue-600 font-bold text-sm">Open →</span>
+                        <span class="text-green-600 font-bold text-sm">Open →</span>
                     </div>
                 </a>
             @empty
