@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">Capstone Clinic Records System Architecture</title>
+  <desc id="desc">Architecture diagram showing clinic staff browsers connecting through the internet to a Laravel web application, database, public file storage, queue, audit logs, and Excel report exports.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#27323a"/>
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#1f2937" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .bg { fill: #f7fafc; }
+      .panel { fill: #ffffff; stroke: #27323a; stroke-width: 3; filter: url(#shadow); }
+      .soft { fill: #eef6ff; stroke: #27323a; stroke-width: 3; filter: url(#shadow); }
+      .accent { fill: #e9f8ef; stroke: #27323a; stroke-width: 3; filter: url(#shadow); }
+      .warn { fill: #fff7e6; stroke: #27323a; stroke-width: 3; filter: url(#shadow); }
+      .store { fill: #f1f5f9; stroke: #27323a; stroke-width: 3; filter: url(#shadow); }
+      .title { font: 700 30px Arial, Helvetica, sans-serif; fill: #111827; }
+      .subtitle { font: 500 16px Arial, Helvetica, sans-serif; fill: #4b5563; }
+      .h { font: 700 20px Arial, Helvetica, sans-serif; fill: #111827; }
+      .label { font: 600 14px Arial, Helvetica, sans-serif; fill: #27323a; }
+      .text { font: 13px Arial, Helvetica, sans-serif; fill: #374151; }
+      .small { font: 12px Arial, Helvetica, sans-serif; fill: #4b5563; }
+      .line { stroke: #27323a; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .thin { stroke: #64748b; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #64748b; stroke-width: 2.5; fill: none; stroke-dasharray: 8 6; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="820"/>
+  <text class="title" x="600" y="48" text-anchor="middle">Capstone Clinic Records System Architecture</text>
+  <text class="subtitle" x="600" y="76" text-anchor="middle">Laravel role-based clinic records, medicine dispensing, inventory, audit logs, and reports</text>
+
+  <!-- User side -->
+  <rect class="panel" x="70" y="160" rx="22" ry="22" width="250" height="210"/>
+  <text class="h" x="195" y="195" text-anchor="middle">Clinic Staff Users</text>
+  <circle cx="135" cy="240" r="22" fill="#dbeafe" stroke="#27323a" stroke-width="2"/>
+  <path d="M120 240 h30 M135 225 v30" stroke="#27323a" stroke-width="2"/>
+  <text class="label" x="175" y="232">Admin</text>
+  <text class="small" x="175" y="250">users, reports, logs</text>
+  <circle cx="135" cy="302" r="22" fill="#dcfce7" stroke="#27323a" stroke-width="2"/>
+  <path d="M124 302 h22 M135 291 v22" stroke="#27323a" stroke-width="2"/>
+  <text class="label" x="175" y="294">BHW</text>
+  <text class="small" x="175" y="312">records, dispensing</text>
+  <text class="label" x="96" y="345">Doctor / Nurse</text>
+  <text class="small" x="96" y="363">consultations and patient views</text>
+
+  <rect class="soft" x="78" y="430" rx="18" ry="18" width="235" height="130"/>
+  <text class="h" x="195" y="463" text-anchor="middle">Web Browser</text>
+  <rect x="115" y="485" width="160" height="46" rx="8" fill="#fff" stroke="#27323a" stroke-width="2"/>
+  <circle cx="132" cy="500" r="4" fill="#ef4444"/>
+  <circle cx="146" cy="500" r="4" fill="#f59e0b"/>
+  <circle cx="160" cy="500" r="4" fill="#22c55e"/>
+  <line x1="115" y1="511" x2="275" y2="511" stroke="#27323a" stroke-width="2"/>
+  <text class="small" x="195" y="548" text-anchor="middle">Blade pages + Alpine/jQuery</text>
+
+  <!-- Internet cloud -->
+  <path class="warn" d="M430 185
+    C410 150 455 122 485 142
+    C500 102 565 105 578 147
+    C615 132 660 160 654 202
+    C695 214 686 272 642 273
+    L459 273
+    C414 273 397 218 430 185 Z"/>
+  <text class="h" x="540" y="207" text-anchor="middle">Internet</text>
+  <text class="small" x="540" y="230" text-anchor="middle">HTTPS requests</text>
+
+  <!-- Application server -->
+  <rect class="accent" x="785" y="135" rx="24" ry="24" width="330" height="310"/>
+  <text class="h" x="950" y="173" text-anchor="middle">Laravel 12 Web App</text>
+  <text class="small" x="950" y="197" text-anchor="middle">PHP 8.2, web.php routes, /up health check</text>
+  <rect x="820" y="220" width="260" height="42" rx="10" fill="#ffffff" stroke="#27323a" stroke-width="2"/>
+  <text class="label" x="950" y="246" text-anchor="middle">Session Auth + Role Middleware</text>
+  <rect x="820" y="276" width="260" height="42" rx="10" fill="#ffffff" stroke="#27323a" stroke-width="2"/>
+  <text class="label" x="950" y="302" text-anchor="middle">Role Controllers</text>
+  <text class="small" x="950" y="337" text-anchor="middle">Admin, BHW, Doctor, Nurse workflows</text>
+  <rect x="820" y="356" width="260" height="42" rx="10" fill="#ffffff" stroke="#27323a" stroke-width="2"/>
+  <text class="label" x="950" y="382" text-anchor="middle">Eloquent Models + Validation</text>
+  <text class="small" x="950" y="417" text-anchor="middle">Clinic records, medicines, users, logs</text>
+
+  <!-- Frontend build -->
+  <rect class="soft" x="785" y="485" rx="20" ry="20" width="330" height="120"/>
+  <text class="h" x="950" y="520" text-anchor="middle">Frontend Assets</text>
+  <text class="text" x="950" y="548" text-anchor="middle">Vite + Tailwind CSS</text>
+  <text class="text" x="950" y="572" text-anchor="middle">Alpine.js, Axios, jQuery, pagination</text>
+
+  <!-- Database -->
+  <g transform="translate(90 620)">
+    <path class="store" d="M0 35 C0 15 55 0 125 0 C195 0 250 15 250 35 V115 C250 135 195 150 125 150 C55 150 0 135 0 115 Z"/>
+    <ellipse cx="125" cy="35" rx="125" ry="35" fill="#e2e8f0" stroke="#27323a" stroke-width="3"/>
+    <path d="M0 75 C0 95 55 110 125 110 C195 110 250 95 250 75" fill="none" stroke="#27323a" stroke-width="2"/>
+    <text class="h" x="125" y="55" text-anchor="middle">Database</text>
+    <text class="text" x="125" y="88" text-anchor="middle">SQLite default</text>
+    <text class="small" x="125" y="112" text-anchor="middle">MySQL/MariaDB supported</text>
+    <text class="small" x="125" y="134" text-anchor="middle">users, clinic_records, medicines</text>
+  </g>
+
+  <!-- Support services -->
+  <rect class="panel" x="430" y="610" rx="22" ry="22" width="330" height="150"/>
+  <text class="h" x="595" y="645" text-anchor="middle">Storage, Jobs, and Audit</text>
+  <text class="text" x="595" y="675" text-anchor="middle">Public disk for profile/lab files</text>
+  <text class="text" x="595" y="702" text-anchor="middle">Database queue table for jobs</text>
+  <text class="text" x="595" y="729" text-anchor="middle">Activity logs for important actions</text>
+
+  <rect class="warn" x="840" y="645" rx="20" ry="20" width="230" height="95"/>
+  <text class="h" x="955" y="680" text-anchor="middle">Excel Reports</text>
+  <text class="text" x="955" y="709" text-anchor="middle">OpenSpout XLSX exports</text>
+
+  <!-- Connections -->
+  <path class="line" d="M320 260 C360 245 390 230 420 220"/>
+  <text class="small" x="360" y="230">login + requests</text>
+
+  <path class="line" d="M657 218 C710 220 742 235 785 250"/>
+  <text class="small" x="714" y="211">HTTPS</text>
+
+  <path class="thin" d="M920 445 C850 540 670 575 345 680"/>
+  <text class="small" x="620" y="548">Eloquent SQL</text>
+
+  <path class="thin" d="M865 445 C790 530 725 580 670 610"/>
+  <text class="small" x="742" y="548">files, jobs, logs</text>
+
+  <path class="thin" d="M1010 445 C1045 515 1030 590 995 645"/>
+  <text class="small" x="1042" y="555">downloads</text>
+
+  <path class="dash" d="M785 545 C695 520 625 470 650 315 C665 236 720 205 785 190"/>
+  <text class="small" x="664" y="482">compiled CSS/JS</text>
+
+  <path class="thin" d="M195 560 C220 600 250 620 300 650"/>
+  <text class="small" x="215" y="610">form data</text>
+
+  <!-- Footer note -->
+  <text class="small" x="600" y="795" text-anchor="middle">Primary flow: Browser -> HTTPS -> Laravel web routes -> role controllers -> Eloquent database, public storage, activity logs, and XLSX reports.</text>
+</svg>
