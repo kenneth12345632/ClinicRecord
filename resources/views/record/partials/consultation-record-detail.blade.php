@@ -53,6 +53,136 @@
         letter-spacing: 0.08em;
         color: #64748b;
     }
+
+    /* Dark mode: align with Individual Treatment Record (dark panels, green accents) */
+    .dark .consultation-record-scope {
+        color: #e2e8f0;
+    }
+    .dark .consultation-record-scope .panel-card {
+        border: 1px solid #22543d !important;
+        background: #0f1d1a !important;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    }
+    .dark .consultation-record-scope .fld {
+        background: #111827 !important;
+        border-color: #334155 !important;
+        color: #f1f5f9 !important;
+    }
+    .dark .consultation-record-scope .section-title {
+        color: #22c55e !important;
+    }
+    .dark .consultation-record-scope .field-label {
+        color: #94a3b8 !important;
+    }
+    .dark .consultation-record-scope .consultation-record-date-value {
+        color: #f1f5f9 !important;
+    }
+    .dark .consultation-record-scope .rounded-xl.border.border-slate-100.bg-slate-50 {
+        background-color: #111827 !important;
+        border-color: #334155 !important;
+    }
+    .dark .consultation-record-scope .rounded-xl.border.border-green-100.bg-green-50 {
+        background-color: #14532d !important;
+        border-color: #166534 !important;
+    }
+    .dark .consultation-record-scope .text-green-600 {
+        color: #86efac !important;
+    }
+    .dark .consultation-record-scope .text-green-800 {
+        color: #ecfdf5 !important;
+    }
+    .dark .consultation-record-scope .border-slate-200.bg-slate-50,
+    .dark .consultation-record-scope .rounded-2xl.border.border-slate-200.bg-slate-50 {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    .dark .consultation-record-scope .border-dashed.border-slate-300.bg-slate-50\/50 {
+        background-color: #111827 !important;
+        border-color: #475569 !important;
+    }
+    .dark .consultation-record-scope .overflow-hidden.rounded-xl.border.border-slate-200 {
+        border-color: #334155 !important;
+        background-color: #111827 !important;
+    }
+    .dark .consultation-record-scope table thead tr {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+    }
+    .dark .consultation-record-scope table thead th {
+        color: #94a3b8 !important;
+        border-color: #334155 !important;
+    }
+    .dark .consultation-record-scope table tbody td {
+        color: #e2e8f0 !important;
+        border-color: #1e293b !important;
+    }
+    .dark .consultation-record-scope table tbody tr {
+        border-color: #334155 !important;
+    }
+    .dark .consultation-record-scope .border-t.border-amber-100,
+    .dark .consultation-record-scope .border-t.border-amber-200 {
+        border-color: #92400e !important;
+    }
+    .dark .consultation-record-scope .bg-amber-50,
+    .dark .consultation-record-scope .bg-amber-50\/60 {
+        background-color: #422006 !important;
+    }
+    .dark .consultation-record-scope .text-amber-800 {
+        color: #fcd34d !important;
+    }
+    .dark .consultation-record-scope .rounded-xl.border.border-green-100.bg-green-50\/80 {
+        background-color: #14532d !important;
+        border-color: #166534 !important;
+    }
+    .dark .consultation-record-scope .rounded-lg.border.border-white\/80.bg-white\/90 {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+    }
+    .dark .consultation-record-scope a.block.rounded-xl.border.p-3 {
+        background-color: #1e293b !important;
+    }
+    .dark .consultation-record-scope a.block.rounded-xl.border.border-green-500 {
+        background-color: #14532d !important;
+        border-color: #22c55e !important;
+    }
+    .dark .consultation-record-scope a.block.rounded-xl.border.border-transparent {
+        background-color: #0f172a !important;
+    }
+    .dark .consultation-record-scope a.block.rounded-xl.border.border-transparent:hover {
+        background-color: #1e293b !important;
+    }
+    .dark .consultation-record-scope .block.overflow-hidden.rounded-xl.border.border-slate-200.bg-slate-50 {
+        background-color: #111827 !important;
+        border-color: #334155 !important;
+    }
+    .dark .consultation-record-scope .truncate.px-2.py-1.bg-white {
+        background-color: #1e293b !important;
+        color: #cbd5e1 !important;
+    }
+    .dark .consultation-record-scope a.rounded-lg.border.border-slate-300.bg-slate-100 {
+        background-color: #1e293b !important;
+        border-color: #475569 !important;
+        color: #f1f5f9 !important;
+    }
+    .dark .consultation-record-scope a.rounded-lg.border.border-slate-300.bg-slate-100:hover {
+        background-color: #334155 !important;
+    }
+    .dark .consultation-record-scope .rounded-2xl.border.border-slate-200.bg-slate-50 h2 {
+        color: #94a3b8 !important;
+    }
+    .dark .consultation-record-scope .text-slate-400.italic {
+        color: #94a3b8 !important;
+    }
+    .dark .consultation-record-scope svg.text-slate-300 {
+        color: #64748b !important;
+    }
+    .dark .consultation-record-scope .border-dashed.border-slate-300 .text-slate-500 {
+        color: #cbd5e1 !important;
+    }
+    .dark .consultation-record-scope .fld .text-slate-400 {
+        color: #94a3b8 !important;
+    }
+
     @media print {
         .consultation-record-scope .no-print { display: none !important; }
         .consultation-record-scope .consultation-grid {
@@ -97,7 +227,7 @@
             </div>
             <div class="text-right">
                 <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Consultation Date</p>
-                <p class="text-base font-semibold" style="color: #000000;">{{ \Carbon\Carbon::parse($record->consultation_date)->format('m/d/Y') }}</p>
+                <p class="consultation-record-date-value text-base font-semibold text-slate-900">{{ \Carbon\Carbon::parse($record->consultation_date)->format('m/d/Y') }}</p>
             </div>
         </div>
     </div>

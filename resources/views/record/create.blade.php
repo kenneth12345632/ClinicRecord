@@ -126,7 +126,8 @@
     }
     .dark .itr-form input::placeholder,
     .dark .itr-form textarea::placeholder {
-        color: #4b5563 !important;
+        color: #f1f5f9 !important;
+        opacity: 1;
     }
     .dark .itr-form input[readonly] {
         border-color: #1f3329 !important;
@@ -163,6 +164,9 @@
     }
     .dark .itr-form .select2-container--default .select2-selection__rendered {
         color: #e2e8f0 !important;
+    }
+    .dark .itr-form .select2-container--default .select2-selection__placeholder {
+        color: #f1f5f9 !important;
     }
     .dark .itr-form .select2-container--default.select2-container--open .select2-selection--single {
         background: #111827 !important;

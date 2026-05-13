@@ -1,5 +1,20 @@
 <!DOCTYPE html>
-<html lang="en" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" :class="{ 'dark': darkMode }">
+<html lang="en"
+    x-data='{
+        darkMode: localStorage.getItem("darkMode") === "true",
+        themeTogglePending: false,
+        scheduleDarkToggle() {
+            if (this.themeTogglePending) return;
+            this.themeTogglePending = true;
+            setTimeout(() => {
+                this.darkMode = !this.darkMode;
+                localStorage.setItem("darkMode", this.darkMode);
+                document.documentElement.classList.toggle("dark", this.darkMode);
+                this.themeTogglePending = false;
+            }, 200);
+        }
+    }'
+    :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -206,50 +221,107 @@
             .clinic-os-pagination .paginationjs-pages { align-self: center; }
         }
 
-        /* Global green button override */
-        #togglePatientsBtn {
-            background-color: #dcfce7 !important;
-            border: 2px solid #86efac !important;
-            color: #16a34a !important;
+        /* Show/Hide toggles — shared pill layout (light + dark themes below) */
+        #togglePatientsBtn,
+        #togglePatientReportBtn,
+        #toggleDiagnosisRowsBtn,
+        #toggleMedicineBtn,
+        #toggleUsersBtn {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 9999px !important;
+            font-weight: 700 !important;
+            font-size: 0.875rem !important;
+            line-height: 1.45 !important;
+            padding: 0.65rem 1.35rem !important;
+            min-height: 2.75rem !important;
+            box-sizing: border-box !important;
+            overflow: visible !important;
         }
-        /* Select2 green theme (global) */
+        /* Light mode: white pill, navy label, light gray border */
+        html:not(.dark) #togglePatientsBtn,
+        html:not(.dark) #togglePatientReportBtn,
+        html:not(.dark) #toggleDiagnosisRowsBtn,
+        html:not(.dark) #toggleMedicineBtn,
+        html:not(.dark) #toggleUsersBtn {
+            background-color: #ffffff !important;
+            border: 1px solid #d1d5db !important;
+            color: #0f172a !important;
+            box-shadow: none !important;
+        }
+        html:not(.dark) #togglePatientsBtn:hover,
+        html:not(.dark) #togglePatientReportBtn:hover,
+        html:not(.dark) #toggleDiagnosisRowsBtn:hover,
+        html:not(.dark) #toggleMedicineBtn:hover,
+        html:not(.dark) #toggleUsersBtn:hover {
+            background-color: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+        /* Dark mode: slate pill, white label */
+        html.dark #togglePatientsBtn,
+        html.dark #togglePatientReportBtn,
+        html.dark #toggleDiagnosisRowsBtn,
+        html.dark #toggleMedicineBtn,
+        html.dark #toggleUsersBtn {
+            background-color: #1e293b !important;
+            border: 1px solid rgba(125, 211, 252, 0.22) !important;
+            color: #ffffff !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        }
+        html.dark #togglePatientsBtn:hover,
+        html.dark #togglePatientReportBtn:hover,
+        html.dark #toggleDiagnosisRowsBtn:hover,
+        html.dark #toggleMedicineBtn:hover,
+        html.dark #toggleUsersBtn:hover {
+            background-color: #334155 !important;
+            border-color: rgba(148, 163, 184, 0.55) !important;
+            color: #ffffff !important;
+        }
+        /* Select2 light theme — white pill, subtle gray border (matches Hide/Show toggles) */
         .select2-container--default .select2-selection--single {
-            background: #fff !important;
-            border: 2px solid #86efac !important;
+            background: #ffffff !important;
+            border: 1px solid #d1d5db !important;
             border-radius: 9999px !important;
             height: 42px !important;
             display: flex !important;
             align-items: center !important;
-            transition: background 0.15s;
+            transition: background 0.15s, border-color 0.15s;
         }
         .select2-container--default.select2-container--open .select2-selection--single {
-            background: #dcfce7 !important;
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
         }
         .select2-container--default .select2-selection__rendered {
-            color: #000 !important;
+            color: #0f172a !important;
             font-weight: 700 !important;
             font-size: 0.875rem !important;
             padding-left: 16px !important;
+        }
+        .select2-container--default .select2-selection__placeholder {
+            color: #64748b !important;
         }
         .select2-container--default .select2-selection__arrow {
             height: 42px !important;
         }
         .select2-dropdown {
-            border: 1px solid #86efac !important;
-            border-radius: 8px !important;
+            background-color: #ffffff !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 12px !important;
         }
         .select2-results__option {
             padding: 8px 12px !important;
             font-weight: 600 !important;
-            color: #000 !important;
+            color: #0f172a !important;
         }
         .select2-results__option--highlighted {
-            background-color: #bbf7d0 !important;
-            color: #000 !important;
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
         }
         .select2-results__option--selected {
-            background-color: #dcfce7 !important;
-            color: #000 !important;
+            background-color: #e2e8f0 !important;
+            color: #0f172a !important;
         }
         .select2-results__option[aria-disabled="true"] {
             display: none !important;
@@ -278,10 +350,39 @@
             background: #f9fefb;
         }
         main table tbody tr:nth-child(odd) {
-            background: #ffffff;
+            background: #F8FAFC;
         }
         main table tbody tr:hover {
             background: #f0fdf4 !important;
+        }
+
+        /* Light mode: cool off-white (#F8FAFC) instead of pure white (panels, cards, utilities) */
+        html:not(.dark) .bg-white {
+            background-color: #F8FAFC !important;
+        }
+
+        /* Light mode: remove muddy gray — cooler borders & neutrals on off-white shell */
+        html:not(.dark) .border-gray-100,
+        html:not(.dark) .border-gray-200,
+        html:not(.dark) .border-slate-100,
+        html:not(.dark) .border-slate-200 {
+            border-color: #e2eaf0 !important;
+        }
+        html:not(.dark) .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+        html:not(.dark) .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+        html:not(.dark) .divide-gray-200 > :not([hidden]) ~ :not([hidden]),
+        html:not(.dark) .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+            border-color: #e8eef4 !important;
+        }
+        html:not(.dark) .border-dashed.border-gray-200,
+        html:not(.dark) .border-dashed.border-slate-200,
+        html:not(.dark) .border-dashed.border-gray-300,
+        html:not(.dark) .border-dashed.border-slate-300 {
+            border-color: #c5e8d8 !important;
+        }
+        html:not(.dark) .bg-gray-50,
+        html:not(.dark) .bg-slate-50 {
+            background-color: #f0f7f4 !important;
         }
 
         /* ===== Dark mode overrides ===== */
@@ -329,6 +430,82 @@
         .dark .text-slate-400,
         .dark .text-gray-400 {
             color: #64748b !important;
+        }
+        /* —— App sidebar: light = mint + forest green; dark = charcoal + white + mint icons (design refs) —— */
+        .app-sidebar {
+            /* Light sidebar base: Tailwind emerald-50 #ecfdf5 (green-50 is #f0fdf4) */
+            color: #166534;
+            box-shadow: 4px 0 24px rgba(15, 23, 42, 0.06);
+        }
+        html.dark .app-sidebar {
+            background-color: #111827 !important;
+            color: #f8fafc;
+            box-shadow: 4px 0 28px rgba(0, 0, 0, 0.45);
+        }
+        .app-sidebar-head {
+            border-bottom: 1px solid rgba(22, 101, 52, 0.18);
+            color: #14532d;
+        }
+        html.dark .app-sidebar-head {
+            border-bottom-color: #1f2937;
+            color: #ffffff;
+        }
+        .app-sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+            border-left: 4px solid transparent;
+            color: #166534;
+            font-weight: 500;
+        }
+        .app-sidebar-nav-link--sub {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            font-size: 0.875rem;
+            border-radius: 0.625rem;
+        }
+        html.dark .app-sidebar-nav-link {
+            color: #ffffff !important;
+        }
+        .app-sidebar-nav-link:hover {
+            background-color: rgba(220, 252, 231, 0.65);
+            color: #14532d;
+        }
+        html.dark .app-sidebar-nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.06);
+            color: #ffffff !important;
+        }
+        .app-sidebar-nav-link.is-active {
+            background-color: #dcfce7;
+            border-left-color: #22c55e;
+            color: #14532d;
+            font-weight: 600;
+        }
+        /*
+         * Dark mode active pill: emerald-50 (#ecfdf5) reads as “white” on #111827.
+         * Use solid green-100 (#dcfce7) — same mint as light sidebar active — so it visibly reads as green.
+         */
+        html.dark .app-sidebar-nav-link.is-active {
+            background-color: #dcfce7 !important;
+            background-image: none !important;
+            border-left-color: #16a34a;
+            color: #14532d !important;
+        }
+        html.dark .app-sidebar-nav-link:not(.is-active) svg {
+            color: #4ade80;
+        }
+        html.dark .app-sidebar-nav-link.is-active svg {
+            color: #166534 !important;
+        }
+        /* .dark span sets #e2e8f0 globally — breaks “Medicine queue” on mint active chip; inherit link color */
+        html.dark .app-sidebar .app-sidebar-nav-link span:not(.text-white) {
+            color: inherit !important;
+        }
+        .app-sidebar-nav-link svg {
+            stroke: currentColor;
         }
         .dark .text-slate-900,
         .dark .text-gray-900 {
@@ -410,7 +587,11 @@
         }
         .dark input::placeholder,
         .dark textarea::placeholder {
-            color: #64748b !important;
+            color: #ffffff !important;
+            opacity: 1;
+        }
+        .dark .select2-container--default .select2-selection__placeholder {
+            color: #ffffff !important;
         }
         .dark input:focus,
         .dark textarea:focus,
@@ -439,14 +620,18 @@
         /* Select2 dark */
         .dark .select2-container--default .select2-selection--single {
             background: #1e293b !important;
-            border-color: #334155 !important;
+            border: 1px solid #334155 !important;
+        }
+        .dark .select2-container--default.select2-container--open .select2-selection--single {
+            background: #1e293b !important;
+            border-color: #475569 !important;
         }
         .dark .select2-container--default .select2-selection__rendered {
             color: #e2e8f0 !important;
         }
         .dark .select2-dropdown {
             background: #1e293b !important;
-            border-color: #334155 !important;
+            border: 1px solid #334155 !important;
         }
         .dark .select2-results__option {
             color: #e2e8f0 !important;
@@ -454,6 +639,10 @@
         .dark .select2-results__option--highlighted {
             background-color: #334155 !important;
             color: #22c55e !important;
+        }
+        .dark .select2-results__option--selected {
+            background-color: #0f172a !important;
+            color: #e2e8f0 !important;
         }
 
         /* Rounded panels / card wrappers */
@@ -519,7 +708,8 @@
         .dark small {
             color: #e2e8f0;
         }
-        .dark a:not([class*="bg-"]):not([class*="text-green"]):not([class*="text-rose"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-blue"]):not([class*="text-emerald"]) {
+        /* Exclude sidebar nav: would otherwise inherit light-blue link color (#93c5fd) over forest/white tones */
+        .dark a:not([class*="bg-"]):not([class*="text-green"]):not([class*="text-rose"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-blue"]):not([class*="text-emerald"]):not(.app-sidebar-nav-link) {
             color: #93c5fd;
         }
         .dark .text-black {
@@ -564,7 +754,10 @@
         .dark .border-red-200 { border-color: #7f1d1d !important; }
         .dark .text-red-700 { color: #fca5a5 !important; }
         .dark .text-red-500 { color: #f87171 !important; }
-        .dark .bg-emerald-50 { background-color: #064e3b !important; }
+        /* Sidebar keeps html.dark .app-sidebar bg; avoid remapping emerald-50 on aside.app-sidebar */
+        .dark .bg-emerald-50:not(.app-sidebar) {
+            background-color: #064e3b !important;
+        }
 
         /* Modals */
         .dark .bg-white.rounded-3xl,
@@ -585,26 +778,36 @@
         .dark .bg-green-50 { background-color: #064e3b !important; }
         .dark .bg-green-100 { background-color: #14532d !important; }
 
+        /* BHW report info strip: bg-green-50 + text-green-900 becomes unreadable in dark mode */
+        .dark .border-green-200.bg-green-50.text-green-900 {
+            background-color: #14532d !important;
+            border-color: #4ade80 !important;
+            color: #ecfdf5 !important;
+        }
+        .dark .border-green-200.bg-green-50.text-green-900 strong {
+            color: #ffffff !important;
+        }
+
         /* Smooth transition for all elements */
         .dark * {
             transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 antialiased transition-colors duration-300">
+<body class="bg-[#F8FAFC] dark:bg-gray-900 antialiased transition-colors duration-300">
     <div class="flex h-screen overflow-hidden">
         
-        <aside class="w-64 bg-green-950 text-white flex flex-col shadow-xl z-10">
-            <div class="p-6 text-xl font-bold border-b border-green-900 flex items-center gap-2">
+        <aside class="app-sidebar bg-emerald-50 w-64 flex flex-col z-10">
+            <div class="app-sidebar-head p-6 text-xl font-bold flex items-center gap-2">
                 @php
                     $clinicName = config('clinic.name');
                     $clinicLogoPath = config('clinic.logo_path');
                     $clinicLogoUrl = $clinicLogoPath ? asset('storage/' . ltrim($clinicLogoPath, '/')) : null;
                 @endphp
                 @if($clinicLogoUrl)
-                    <img src="{{ $clinicLogoUrl }}" alt="Clinic logo" class="w-7 h-7 rounded-md object-cover border border-green-800">
+                    <img src="{{ $clinicLogoUrl }}" alt="Clinic logo" class="w-7 h-7 rounded-md object-cover border border-emerald-300 dark:border-gray-600">
                 @else
-                    <img src="{{ asset('images/login-clinic-logo.png') }}" alt="Clinic logo" class="w-10 h-10 rounded-md object-cover">
+                    <img src="{{ asset('images/login-clinic-logo.png') }}" alt="Clinic logo" class="w-10 h-10 rounded-md object-cover border border-transparent dark:border-gray-600">
                 @endif
                 <span class="leading-tight">{{ $clinicName }}</span>
             </div>
@@ -626,7 +829,7 @@
 
             <nav class="mt-6 flex-1 px-4 space-y-1">
                 <a href="{{ $isAdmin ? route('admin.dashboard') : ($isNurse ? route('nurse.dashboard') : ($role === 'doctor' ? route('doctor.dashboard') : route('bhw.dashboard'))) }}"
-                   class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('dashboard') || request()->routeIs('bhw.dashboard') || request()->routeIs('nurse.dashboard') || request()->routeIs('doctor.dashboard') || request()->routeIs('admin.dashboard') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}">
+                   class="app-sidebar-nav-link {{ request()->routeIs('dashboard') || request()->routeIs('bhw.dashboard') || request()->routeIs('nurse.dashboard') || request()->routeIs('doctor.dashboard') || request()->routeIs('admin.dashboard') ? 'is-active' : '' }}">
                     <span class="mr-2 inline-flex align-middle">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10.5L12 3l9 7.5M5.25 9.75V20a1 1 0 001 1h4.5v-5.25a1 1 0 011-1h.5a1 1 0 011 1V21h4.5a1 1 0 001-1V9.75"/>
@@ -636,7 +839,7 @@
                 
                 {{-- Clinic Records (Using wildcard * to stay active when viewing specific records) --}}
                 <a href="{{ $role === 'doctor' ? route('doctor.record.index') : ($isNurse ? route('nurse.record.index') : ($isBhw ? route('bhw.record.index') : route('record.index'))) }}" 
-                   class="block py-3 px-4 rounded-lg transition {{ ($role === 'doctor' && request()->routeIs('doctor.record.*') && !request()->routeIs('doctor.record.create')) || ($isNurse && request()->routeIs('nurse.record.*') && !request()->routeIs('nurse.record.create')) || ($isBhw && request()->routeIs('bhw.record.*') && !request()->routeIs('bhw.record.create')) || (!$isDoctor && !$isNurse && !$isBhw && request()->routeIs('record.*') && !request()->routeIs('record.create')) ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}">
+                   class="app-sidebar-nav-link {{ ($role === 'doctor' && request()->routeIs('doctor.record.*') && !request()->routeIs('doctor.record.create')) || ($isNurse && request()->routeIs('nurse.record.*') && !request()->routeIs('nurse.record.create')) || ($isBhw && request()->routeIs('bhw.record.*') && !request()->routeIs('bhw.record.create')) || (!$isDoctor && !$isNurse && !$isBhw && request()->routeIs('record.*') && !request()->routeIs('record.create')) ? 'is-active' : '' }}">
                     <span class="mr-2 inline-flex align-middle">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -649,7 +852,7 @@
                         $medicineQueueCount = \App\Models\ClinicRecord::awaitingMedicineDispensing()->count();
                     @endphp
                     <a href="{{ route('bhw.dispensing.index') }}"
-                       class="flex items-center justify-between gap-2 py-3 px-4 rounded-lg transition {{ request()->routeIs('bhw.dispensing.*') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}">
+                       class="app-sidebar-nav-link flex items-center justify-between gap-2 {{ request()->routeIs('bhw.dispensing.*') ? 'is-active' : '' }}">
                         <span class="flex items-center min-w-0">
                             <span class="mr-2 inline-flex align-middle shrink-0 relative">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -666,7 +869,7 @@
 
                 @unless($isBhw)
                     <a href="{{ route('medicines.index') }}"
-                       class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('medicines.*') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}">
+                       class="app-sidebar-nav-link {{ request()->routeIs('medicines.*') ? 'is-active' : '' }}">
                         <span class="mr-2 inline-flex align-middle">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 8.5l7 7m-9.5 1a3.5 3.5 0 010-5l5.5-5.5a3.5 3.5 0 115 5L11 16.5a3.5 3.5 0 01-5 0z"/>
@@ -677,7 +880,7 @@
 
                 @if($isDoctor || $isNurse)
                     <a href="{{ $isDoctor ? route('doctor.pending.index') : route('nurse.pending.index') }}"
-                       class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('doctor.pending.*') || request()->routeIs('nurse.pending.*') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}">
+                       class="app-sidebar-nav-link {{ request()->routeIs('doctor.pending.*') || request()->routeIs('nurse.pending.*') ? 'is-active' : '' }}">
                         <span class="mr-2 inline-flex align-middle">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6m-6 14h6M9 5a1 1 0 000 2h.5a1 1 0 011 1v1.5a3.5 3.5 0 01-1.025 2.475L8.8 13.15a2 2 0 000 2.828l1.175 1.175A3.5 3.5 0 0111 19.628V20a1 1 0 01-1 1H9m6-16a1 1 0 010 2h-.5a1 1 0 00-1 1v1.5a3.5 3.5 0 001.025 2.475L15.2 13.15a2 2 0 010 2.828l-1.175 1.175A3.5 3.5 0 0013 19.628V20a1 1 0 001 1h1"/>
@@ -687,10 +890,10 @@
                 @endif
 
                 @if($isAdmin)
-                    <a href="{{ route('admin.users.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.users.*') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2a3 3 0 00-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span> User Management</a>
-                    <a href="{{ route('admin.reports.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.reports.*') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-3M5 20h14a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg></span> Reports</a>
-                    <a href="{{ route('admin.activity-logs.index') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.activity-logs.*') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span> Activity Logs</a>
-                    <a href="{{ route('admin.inventory.ledger') }}" class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('admin.inventory.*') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m-8-4v10l8 4m-8-14l8 4m0 0v10"/></svg></span> Inventory Ledger</a>
+                    <a href="{{ route('admin.users.index') }}" class="app-sidebar-nav-link {{ request()->routeIs('admin.users.*') ? 'is-active' : '' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2a3 3 0 00-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span> User Management</a>
+                    <a href="{{ route('admin.reports.index') }}" class="app-sidebar-nav-link {{ request()->routeIs('admin.reports.*') ? 'is-active' : '' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-3M5 20h14a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg></span> Reports</a>
+                    <a href="{{ route('admin.activity-logs.index') }}" class="app-sidebar-nav-link {{ request()->routeIs('admin.activity-logs.*') ? 'is-active' : '' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span> Activity Logs</a>
+                    <a href="{{ route('admin.inventory.ledger') }}" class="app-sidebar-nav-link {{ request()->routeIs('admin.inventory.*') ? 'is-active' : '' }}"><span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m-8-4v10l8 4m-8-14l8 4m0 0v10"/></svg></span> Inventory Ledger</a>
                 @endif
 
                 @unless($isDoctor || $isAdmin || $isNurse)
@@ -699,7 +902,7 @@
                     <div class="pt-1">
                         <button type="button"
                             onclick="toggleReportsMenu()"
-                            class="w-full flex justify-between items-center py-3 px-4 rounded-lg transition {{ request()->routeIs('reports.*') || request()->routeIs('bhw.reports.*') || request()->routeIs('bhw.medicines.*') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}">
+                            class="app-sidebar-nav-link w-full flex justify-between items-center">
                             <span>Reports</span>
                             <svg id="reports-arrow" class="w-4 h-4 transition-transform {{ request()->routeIs('reports.*') || request()->routeIs('bhw.reports.*') || request()->routeIs('bhw.medicines.*') ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -707,25 +910,25 @@
                         </button>
                         <div id="reports-menu" class="ml-4 mt-1 space-y-1 {{ request()->routeIs('reports.*') || request()->routeIs('bhw.reports.*') || request()->routeIs('bhw.medicines.*') ? '' : 'hidden' }}">
                             <a href="{{ route('bhw.reports.diagnosis') }}"
-                               class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.diagnosis') || request()->routeIs('bhw.reports.diagnosis') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}">
+                               class="app-sidebar-nav-link app-sidebar-nav-link--sub {{ request()->routeIs('reports.diagnosis') || request()->routeIs('bhw.reports.diagnosis') ? 'is-active' : '' }}">
                                 <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-3M5 20h14a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg></span>Diagnosis Reports
                             </a>
                             <a href="{{ route('bhw.reports.patient_records') }}"
-                               class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('reports.patient_records') || request()->routeIs('bhw.reports.patient_records') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}">
+                               class="app-sidebar-nav-link app-sidebar-nav-link--sub {{ request()->routeIs('reports.patient_records') || request()->routeIs('bhw.reports.patient_records') ? 'is-active' : '' }}">
                                 <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>Patient Records Report
                             </a>
                             <a href="{{ route('bhw.medicines.index') }}"
-                               class="block py-2 px-4 rounded-lg text-sm transition {{ request()->routeIs('bhw.medicines.*') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}">
+                               class="app-sidebar-nav-link app-sidebar-nav-link--sub {{ request()->routeIs('bhw.medicines.*') ? 'is-active' : '' }}">
                                 <span class="mr-2 inline-flex align-middle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 8.5l7 7m-9.5 1a3.5 3.5 0 010-5l5.5-5.5a3.5 3.5 0 115 5L11 16.5a3.5 3.5 0 01-5 0z"/></svg></span>Medicine Inventory
                             </a>
                         </div>
                     </div>
                     @endif
 
-                    <div class="pt-4 mt-4 border-t border-green-900">
+                    <div class="pt-4 mt-4 border-t border-emerald-200/70 dark:border-gray-700">
                         <a href="{{ route('bhw.record.create') }}" 
-                           class="block py-3 px-4 rounded-lg transition {{ request()->routeIs('record.create') || request()->routeIs('bhw.record.create') ? 'bg-green-900 text-white border-l-4 border-green-500' : 'text-slate-400 hover:bg-green-900 hover:text-white' }}">
-                            <span class="mr-2 inline-flex align-middle text-green-500">
+                           class="app-sidebar-nav-link {{ request()->routeIs('record.create') || request()->routeIs('bhw.record.create') ? 'is-active' : '' }}">
+                            <span class="mr-2 inline-flex align-middle text-emerald-600 dark:text-green-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
@@ -736,21 +939,21 @@
 
             </nav>
 
-            <div class="p-4 border-t border-green-900 relative" x-data="{ openUserMenu: false }">
+            <div class="app-sidebar-footer p-4 border-t border-emerald-200/70 dark:border-gray-700 relative" x-data="{ openUserMenu: false }">
                 <div class="flex items-center gap-3">
                     @if($profilePhotoUrl)
-                        <img src="{{ $profilePhotoUrl }}" alt="Profile photo" class="w-9 h-9 rounded-full object-cover border border-green-700">
+                        <img src="{{ $profilePhotoUrl }}" alt="Profile photo" class="w-9 h-9 rounded-full object-cover border border-emerald-300 dark:border-gray-600">
                     @else
-                        <div class="w-9 h-9 rounded-full bg-green-800 text-slate-100 flex items-center justify-center text-xs font-black">
+                        <div class="w-9 h-9 rounded-full bg-emerald-200 text-green-900 dark:bg-gray-700 dark:text-emerald-200 flex items-center justify-center text-xs font-black">
                             {{ $initials }}
                         </div>
                     @endif
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold text-slate-100 truncate">{{ $displayName }}</p>
-                        <p class="text-xs text-slate-400 truncate">{{ $roleLabel }}</p>
+                        <p class="text-sm font-semibold text-green-900 dark:text-white truncate">{{ $displayName }}</p>
+                        <p class="text-xs text-green-800/70 dark:text-slate-400 truncate">{{ $roleLabel }}</p>
                     </div>
                     <button type="button"
-                        class="w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-green-900 transition flex items-center justify-center"
+                        class="w-8 h-8 rounded-lg text-green-800/80 hover:text-green-950 hover:bg-emerald-100/90 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10 transition flex items-center justify-center"
                         @click="openUserMenu = !openUserMenu"
                         aria-label="Open user menu">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -763,12 +966,12 @@
                     @click.away="openUserMenu = false"
                     x-transition
                     style="display:none;"
-                    class="absolute left-4 right-4 bottom-16 bg-green-900 border border-green-800 rounded-xl shadow-2xl overflow-hidden z-50">
-                    <a href="{{ route('profile.show') }}" class="w-full text-left py-3 px-4 text-slate-200 hover:bg-green-800 hover:text-white flex items-center gap-2 transition border-b border-green-800">
+                    class="absolute left-4 right-4 bottom-16 bg-white border border-emerald-100 rounded-xl shadow-2xl overflow-hidden z-50 dark:bg-gray-800 dark:border-gray-600">
+                    <a href="{{ route('profile.show') }}" class="w-full text-left py-3 px-4 text-green-900 hover:bg-emerald-50 flex items-center gap-2 transition border-b border-emerald-100 dark:text-slate-200 dark:hover:bg-gray-700 dark:border-gray-600">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                         View Profile
                     </a>
-                    <a href="{{ route('logout.get') }}" class="w-full text-left py-3 px-4 text-slate-200 hover:bg-green-800 hover:text-white flex items-center gap-2 transition">
+                    <a href="{{ route('logout.get') }}" class="w-full text-left py-3 px-4 text-green-900 hover:bg-emerald-50 flex items-center gap-2 transition dark:text-slate-200 dark:hover:bg-gray-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                         Log Out
                     </a>
@@ -776,21 +979,26 @@
             </div>
         </aside>
 
-        <main class="flex-1 p-10 overflow-y-auto relative bg-slate-50 dark:bg-gray-900 transition-colors duration-300">
-            {{-- Dark Mode Toggle --}}
+        <main class="flex-1 p-10 overflow-y-auto relative bg-[#F8FAFC] dark:bg-gray-900 transition-colors duration-300">
+            {{-- Dark mode toggle: dark pill + outline sun (dark UI); off-white pill + outline moon (light UI) --}}
             <button
-                @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)"
-                class="fixed top-5 right-6 z-50 w-11 h-11 rounded-full flex items-center justify-center shadow-lg border transition-all duration-300"
-                :class="darkMode ? 'bg-gray-800 border-gray-600 text-yellow-400 hover:bg-gray-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-100'"
+                type="button"
+                @click.prevent="scheduleDarkToggle()"
+                :disabled="themeTogglePending"
+                class="fixed top-5 right-6 z-50 w-11 h-11 rounded-full flex items-center justify-center border transition-all duration-300 disabled:opacity-60 disabled:cursor-wait"
+                :class="darkMode
+                    ? 'bg-[#0f172a] border-slate-600/70 text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_1px_2px_rgba(0,0,0,0.35)] hover:bg-slate-900'
+                    : 'bg-[#F8FAFC] border-slate-300/60 text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-100/70'"
+                :aria-busy="themeTogglePending"
                 aria-label="Toggle dark mode"
-                title="Toggle dark mode">
-                {{-- Sun icon (shown in dark mode) --}}
-                <svg x-show="darkMode" x-transition class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+                :title="themeTogglePending ? 'Applying theme…' : 'Toggle dark mode'">
+                {{-- Outline sun (shown in dark mode → click to use light) --}}
+                <svg x-show="darkMode" x-transition class="w-[1.15rem] h-[1.15rem] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
-                {{-- Moon icon (shown in light mode) --}}
-                <svg x-show="!darkMode" x-transition class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+                {{-- Outline moon (shown in light mode → click to use dark) --}}
+                <svg x-show="!darkMode" x-transition class="w-[1.15rem] h-[1.15rem] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
                 </svg>
             </button>
             @if(session('success'))

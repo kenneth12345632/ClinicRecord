@@ -9,6 +9,72 @@
 <style>
     .select2-container--open { z-index: 9999 !important; }
     input[type=number]::-webkit-inner-spin-button { opacity: 1; }
+
+    /* Patient Records — dark mode native filters + search (match BHW toolbar reference) */
+    .dark .patient-records-filters select {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
+    .dark .patient-records-filters select:focus {
+        border-color: #22c55e !important;
+        outline: none !important;
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2) !important;
+    }
+    .dark .patient-records-filters #searchInput {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f1f5f9 !important;
+    }
+    .dark .patient-records-filters #searchInput::placeholder {
+        color: #94a3b8 !important;
+        opacity: 1;
+    }
+    .dark .patient-records-filters .relative svg.text-gray-400 {
+        color: #94a3b8 !important;
+    }
+
+    .dark .doctor-patient-records .patient-name {
+        font-weight: 400 !important;
+    }
+    .dark .doctor-patient-records .patient-age-value {
+        color: #f1f5f9 !important;
+        font-weight: 400 !important;
+    }
+
+    .dark h1.patient-records-heading {
+        color: #f8fafc !important;
+        text-shadow: 0 0 1px rgba(207, 250, 254, 0.45), 0 0 28px rgba(34, 211, 238, 0.12);
+    }
+
+    .dark .patient-records-title-block .patient-records-subtitle {
+        color: #94a3b8 !important;
+    }
+
+    /* Toolbar layout: row1 = CTA + age + gender; row2 = address + wide search */
+    .patient-records-filters {
+        max-width: 42rem;
+    }
+    @media (min-width: 1024px) {
+        .patient-records-filters {
+            max-width: none;
+            width: auto;
+        }
+    }
+    .patient-records-filters-row2 .relative {
+        min-width: 12rem;
+    }
+    @media (min-width: 1024px) {
+        .patient-records-filters-row2 {
+            width: 100%;
+            max-width: 42rem;
+        }
+        .patient-records-filters-row2 .relative {
+            flex: 1 1 0;
+            min-width: 14rem;
+        }
+    }
 </style>
 
 <div id="medicine-data" data-medicines="{{ json_encode($allMedicines ?? []) }}"></div>
@@ -34,46 +100,50 @@
         </div>
     @endif
 
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 mt-8">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800">Patient Records</h1>
-            <p class="text-gray-500 text-sm mt-1">Showing unique patient history</p>
+    <div class="patient-records-page-header flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 mb-8 mt-8">
+        <div class="patient-records-title-block shrink-0 min-w-0 pr-2 lg:max-w-xl">
+            <h1 class="patient-records-heading text-3xl font-bold text-gray-800 whitespace-nowrap">Patient Records</h1>
+            <p class="patient-records-subtitle text-gray-500 text-sm mt-1.5 leading-relaxed">Showing unique patient history</p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            <button type="button" id="togglePatientsBtn"
-                class="px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-sm" style="background-color: #dcfce7 !important; border: 2px solid #86efac !important; color: #16a34a !important;">
-                Show Patient Records
-            </button>
+        <div class="patient-records-filters flex w-full flex-col gap-3 lg:w-auto lg:items-end">
+            <div class="patient-records-filters-row1 flex flex-wrap items-center gap-3 lg:justify-end">
+                <button type="button" id="togglePatientsBtn"
+                    class="px-5 py-2.5 rounded-full text-sm font-bold transition shrink-0">
+                    Show Patient Records
+                </button>
 
-            <select id="ageFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-green-500 outline-none shadow-sm cursor-pointer">
-                <option value="all" disabled selected>All Ages</option>
-                <option value="0-11">Infants (0-11 months)</option>
-                <option value="12-59">Children (12-59 months)</option>
-                <option value="senior">Seniors (60+ years)</option>
-            </select>
+                <select id="ageFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold bg-white focus:ring-2 focus:ring-green-500 outline-none shadow-sm cursor-pointer min-w-[9.5rem]">
+                    <option value="all" disabled selected>All Ages</option>
+                    <option value="0-11">Infants (0-11 months)</option>
+                    <option value="12-59">Children (12-59 months)</option>
+                    <option value="senior">Seniors (60+ years)</option>
+                </select>
 
-            <select id="genderFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-green-500 outline-none shadow-sm cursor-pointer">
-                <option value="all" disabled selected>All Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-            </select>
+                <select id="genderFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold bg-white focus:ring-2 focus:ring-green-500 outline-none shadow-sm cursor-pointer min-w-[9.5rem]">
+                    <option value="all" disabled selected>All Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
 
-            <select id="addressFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium bg-white focus:ring-2 focus:ring-green-500 outline-none shadow-sm cursor-pointer min-w-[180px]">
-                <option value="all" disabled selected>All Address</option>
-            </select>
+            <div class="patient-records-filters-row2 flex flex-wrap items-center gap-3 lg:justify-end">
+                <select id="addressFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold bg-white focus:ring-2 focus:ring-green-500 outline-none shadow-sm cursor-pointer w-full min-w-0 sm:w-auto sm:min-w-[180px] shrink-0">
+                    <option value="all" disabled selected>All Address</option>
+                </select>
 
-            <div class="relative flex-grow md:flex-grow-0">
-                <input type="text" id="searchInput" placeholder="Search patient records..." 
-                    class="pl-10 pr-4 py-2.5 w-full md:w-64 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-500 outline-none shadow-sm">
-                <svg class="w-5 h-5 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
+                <div class="relative w-full min-w-0 sm:flex-1 sm:min-w-[12rem]">
+                    <input type="text" id="searchInput" placeholder="Search patient records..."
+                        class="pl-10 pr-4 py-2.5 w-full rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-500 outline-none shadow-sm">
+                    <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="doctor-patient-records bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <table class="min-w-full divide-y divide-gray-100">
             <thead class="bg-gray-50/50">
                 <tr>
@@ -104,14 +174,14 @@
                     </td>
                     
                     <td class="px-6 py-4 text-sm">
-                        <div class="font-bold text-gray-800 capitalize patient-name">{{ $record->first_name }} {{ $record->last_name }}</div>
+                        <div class="font-normal text-gray-800 capitalize patient-name">{{ $record->first_name }} {{ $record->last_name }}</div>
                         <div class="text-[10px] font-bold text-blue-500 uppercase tracking-tight">
                             DOB: {{ $birthDate->format('M d, Y') }}
                         </div>
                     </td>
 
                     <td class="px-6 py-4 text-sm text-gray-500">
-                        <span class="font-bold text-gray-700">
+                        <span class="text-gray-700 patient-age-value">
                             @if($ageMonths < 12)
                                 {{ $ageMonths }} {{ $ageMonths === 1 ? 'month' : 'months' }}
                             @else

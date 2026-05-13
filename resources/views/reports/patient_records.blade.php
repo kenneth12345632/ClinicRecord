@@ -39,7 +39,7 @@
                 <div class="flex flex-wrap gap-3 items-end">
                     @if($patientReportPrivacyBhw)
                         <button type="button" id="togglePatientReportBtn"
-                            class="px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-sm shrink-0" style="background-color: #dcfce7 !important; border: 2px solid #86efac !important; color: #16a34a !important;">
+                            class="px-5 py-2.5 rounded-full text-sm font-bold transition shrink-0">
                             Show Patient Records
                         </button>
                     @endif

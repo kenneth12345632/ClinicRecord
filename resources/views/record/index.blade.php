@@ -19,44 +19,42 @@
         align-items: center;
     }
     .select2-container--open { z-index: 9999 !important; }
-    #togglePatientsBtn {
-        background-color: #dcfce7 !important;
-        border: 2px solid #86efac !important;
-        color: #16a34a !important;
-    }
 
-    /* Select2 green theme */
+    /* Patient Records — Select2 filters: match Hide/Show pill (white, gray border, navy text) */
     .green-select2 + .select2-container .select2-selection--single {
-        background: #fff !important;
-        border: 2px solid #86efac !important;
+        background: #ffffff !important;
+        border: 1px solid #d1d5db !important;
         border-radius: 9999px !important;
         height: 42px !important;
         display: flex !important;
         align-items: center !important;
     }
+    .green-select2 + .select2-container.select2-container--open .select2-selection--single {
+        background: #f8fafc !important;
+        border-color: #cbd5e1 !important;
+    }
     .green-select2 + .select2-container .select2-selection__rendered {
-        color: #000 !important;
+        color: #0f172a !important;
         font-weight: 700 !important;
         font-size: 0.875rem !important;
         padding-left: 16px !important;
     }
     .select2-results__option--highlighted {
-        background-color: #bbf7d0 !important;
-        color: #000 !important;
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
     }
     .select2-results__option--selected {
-        background-color: #dcfce7 !important;
-        color: #000 !important;
+        background-color: #e2e8f0 !important;
+        color: #0f172a !important;
     }
     .select2-results__option {
-        color: #000 !important;
+        color: #0f172a !important;
         font-weight: 600 !important;
         padding: 8px 12px !important;
     }
     .select2-dropdown {
-        border: 1px solid #86efac !important;
+        border: 1px solid #d1d5db !important;
         border-radius: 12px !important;
-        overflow: hidden !important;
     }
     input[type=number]::-webkit-inner-spin-button { opacity: 1; }
 
@@ -97,6 +95,7 @@
         font-size: 1.02rem;
         line-height: 1.2;
         letter-spacing: 0.01em;
+        font-weight: 400;
         color: #0f172a !important;
     }
     .patient-records-table .patient-dob {
@@ -112,8 +111,9 @@
     .patient-records-table .patient-age-gender {
         font-size: 0.9rem !important;
     }
-    .patient-records-table .patient-age-gender strong {
+    .patient-records-table .patient-age-gender .patient-age-value {
         font-size: 0.95rem;
+        font-weight: 400;
         color: #111827;
     }
     .patient-records-table .patient-address {
@@ -123,12 +123,100 @@
     .patient-records-table .action-btn {
         border: 1px solid #d1fae5;
     }
+
+    /*
+     * Dark mode: .patient-name / .patient-dob / .patient-vitals use !important colors for light rows.
+     * Those beat `.dark main table tbody td`, so names stayed nearly black on dark zebra rows.
+     */
+    .dark .patient-records-table thead th {
+        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+        color: #94a3b8 !important;
+        border-bottom-color: #334155 !important;
+    }
+    .dark .patient-records-table tbody td {
+        color: #e2e8f0 !important;
+        border-bottom-color: #334155 !important;
+    }
+    .dark .patient-records-table tbody tr:nth-child(even) {
+        background: #162032 !important;
+    }
+    .dark .patient-records-table tbody tr:nth-child(odd) {
+        background: #0f172a !important;
+    }
+    .dark .patient-records-table tbody tr:hover {
+        background: #1e293b !important;
+    }
+    .dark .patient-records-table .patient-name {
+        color: #f8fafc !important;
+        font-weight: 400 !important;
+    }
+    .dark .patient-records-table .patient-dob {
+        color: #86efac !important;
+    }
+    .dark .patient-records-table .patient-vitals {
+        color: #cbd5e1 !important;
+    }
+    .dark .patient-records-table .patient-address {
+        color: #e2e8f0 !important;
+    }
+    .dark .patient-records-table .patient-age-gender {
+        color: #94a3b8 !important;
+    }
+    .dark .patient-records-table .patient-age-gender .patient-age-value {
+        color: #f8fafc !important;
+        font-weight: 400 !important;
+    }
+    .dark .patient-records-table .action-btn {
+        border-color: #334155 !important;
+    }
+
+    /* Patient Records — dark mode toolbar (reference: mint CTA + slate filters/search) */
+    .dark .patient-records-filters .green-select2 + .select2-container .select2-selection--single {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+        border-radius: 0.75rem !important;
+    }
+    .dark .patient-records-filters .green-select2 + .select2-container .select2-selection__rendered {
+        color: #ffffff !important;
+    }
+    .dark .patient-records-filters .green-select2 + .select2-container.select2-container--open .select2-selection--single {
+        border-color: #64748b !important;
+        background: #1e293b !important;
+    }
+    .dark .patient-records-filters #searchInput {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f1f5f9 !important;
+    }
+    .dark .patient-records-filters #searchInput::placeholder {
+        color: #94a3b8 !important;
+        opacity: 1;
+    }
+    .dark .patient-records-filters .relative svg.text-gray-400 {
+        color: #94a3b8 !important;
+    }
+    .dark .select2-dropdown {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+    }
+    .dark .select2-results__option {
+        background-color: #1e293b !important;
+        color: #f1f5f9 !important;
+    }
+    .dark .select2-results__option--highlighted {
+        background-color: #334155 !important;
+        color: #ffffff !important;
+    }
+    .dark .select2-results__option--selected {
+        background-color: #14532d !important;
+        color: #ecfdf5 !important;
+    }
 </style>
 
 {{-- Hidden data container --}}
 <div id="medicine-data" data-medicines="{{ json_encode($allMedicines ?? []) }}"></div>
 
-<div class="max-w-7xl mx-auto pb-20 px-4 sm:px-6 lg:px-8"> 
+<div class="max-w-7xl mx-auto pb-20 px-4 sm:px-6 lg:px-8">
 
     @if (session('success'))
         <div class="mt-8 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800 shadow-sm">
@@ -172,10 +260,9 @@
             @endif
         </div>
 
-        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <div class="patient-records-filters flex flex-wrap items-center gap-3 w-full md:w-auto">
             <button type="button" id="togglePatientsBtn"
-                style="background-color: #dcfce7 !important; border: 2px solid #86efac !important; color: #16a34a !important;"
-                class="px-5 py-2.5 rounded-full text-sm font-bold hover:opacity-90 transition shadow-sm">
+                class="px-5 py-2.5 rounded-full text-sm font-bold transition">
                 Show Patient Records
             </button>
 
@@ -198,7 +285,7 @@
 
             <div class="relative flex-grow md:flex-grow-0">
                 <input type="text" id="searchInput" placeholder="Search patient records..." 
-                    class="pl-10 pr-4 py-2.5 w-full md:w-64 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-300 focus:border-green-400 outline-none shadow-sm">
+                    class="pl-10 pr-4 py-2.5 w-full md:w-64 rounded-full border border-gray-200 text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-200 focus:border-slate-400 outline-none shadow-sm bg-white">
                 <svg class="w-5 h-5 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
@@ -239,20 +326,20 @@
                     </td>
                     
                     <td class="px-6 py-4 text-sm">
-                        <div class="font-bold text-gray-800 capitalize patient-name">{{ $record->first_name }} {{ $record->last_name }}</div>
+                        <div class="font-normal text-gray-800 capitalize patient-name">{{ $record->first_name }} {{ $record->last_name }}</div>
                         <div class="text-[10px] font-bold text-blue-500 uppercase tracking-tight patient-dob">
                             DOB: {{ $birthDate->format('M d, Y') }}
                         </div>
                     </td>
 
                     <td class="px-6 py-4 text-sm text-gray-500 patient-age-gender">
-                        <strong class="font-bold text-gray-700">
+                        <span class="text-gray-700 patient-age-value">
                             @if($ageMonths < 12)
                                 {{ $ageMonths }} {{ $ageMonths === 1 ? 'month' : 'months' }}
                             @else
                                 {{ $ageYears }} {{ $ageYears === 1 ? 'year' : 'years' }}
                             @endif
-                        </strong> <span class="text-gray-300 mx-1">|</span> {{ $record->gender }}
+                        </span> <span class="text-gray-300 mx-1">|</span> {{ $record->gender }}
                     </td>
                     
                     <td class="px-6 py-4 text-sm text-gray-600 patient-address">{{ $record->address_purok }}</td>

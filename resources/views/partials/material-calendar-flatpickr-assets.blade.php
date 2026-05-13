@@ -450,5 +450,132 @@
         margin: 1px 0 !important;
         font-size: 0.75rem !important;
     }
+
+    /* —— Dark mode (html.dark = Tailwind class on documentElement) —— */
+    html.dark .flatpickr-calendar.fp-material-calendar {
+        color-scheme: dark;
+        --fp-green: #22c55e;
+        --fp-green-rgb: 34, 197, 94;
+        background: #0f172a !important;
+        border-color: #334155 !important;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45) !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-months {
+        background: #1e293b !important;
+        border-bottom-color: #334155 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-month {
+        color: #f1f5f9 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-months .flatpickr-prev-month,
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-months .flatpickr-next-month {
+        fill: #cbd5e1 !important;
+        color: #cbd5e1 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-months .flatpickr-prev-month::after,
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-months .flatpickr-next-month::after {
+        color: #94a3b8 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-months .flatpickr-prev-month:hover,
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-months .flatpickr-next-month:hover {
+        background: rgba(34, 197, 94, 0.15) !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-current-month {
+        color: #f8fafc !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-current-month .flatpickr-monthDropdown-months {
+        color: #f1f5f9 !important;
+        background-color: transparent !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .fp-year-nav {
+        fill: #cbd5e1 !important;
+        color: #94a3b8 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .fp-year-nav:hover {
+        background: rgba(34, 197, 94, 0.15) !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .fp-year-label {
+        color: #e2e8f0 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-current-month .numInputWrapper .numInput.cur-year {
+        color: #e2e8f0 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-weekdays {
+        background: #1e293b !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar span.flatpickr-weekday {
+        color: #94a3b8 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-innerContainer,
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-days {
+        background: #0f172a !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-day {
+        color: #f1f5f9 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-day.prevMonthDay,
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-day.nextMonthDay {
+        color: #475569 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-day.today:not(.selected) {
+        color: #f8fafc !important;
+        border-color: rgba(34, 197, 94, 0.65) !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-day:hover:not(.flatpickr-disabled):not(.selected) {
+        background: rgba(34, 197, 94, 0.12) !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-day.flatpickr-disabled,
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-day.prevMonthDay.flatpickr-disabled,
+    html.dark .flatpickr-calendar.fp-material-calendar .flatpickr-day.nextMonthDay.flatpickr-disabled {
+        color: #334155 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar.fp-medicine-inventory-picker .flatpickr-current-month .flatpickr-monthDropdown-months {
+        color: #f1f5f9 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar.fp-medicine-inventory-picker .flatpickr-current-month .numInputWrapper .numInput.cur-year {
+        color: #e2e8f0 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar.fp-medicine-inventory-picker .fp-inv-year-direct {
+        color: #e2e8f0 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar.fp-medicine-neutral-admin .flatpickr-months .flatpickr-prev-month:hover,
+    html.dark .flatpickr-calendar.fp-material-calendar.fp-medicine-neutral-admin .flatpickr-months .flatpickr-next-month:hover {
+        background: rgba(59, 130, 246, 0.18) !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar.fp-medicine-neutral-admin .flatpickr-weekdays {
+        background: #172554 !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar.fp-medicine-neutral-admin span.flatpickr-weekday {
+        color: #93c5fd !important;
+    }
+
+    html.dark .flatpickr-calendar.fp-material-calendar.fp-medicine-neutral-admin .flatpickr-day:hover:not(.flatpickr-disabled):not(.selected) {
+        background: rgba(59, 130, 246, 0.15) !important;
+    }
 </style>
 @endonce

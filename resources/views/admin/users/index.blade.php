@@ -25,8 +25,7 @@
             </select>
         </div>
         <button type="button" id="toggleUsersBtn"
-            style="background-color: #dcfce7 !important; border: 2px solid #86efac !important; color: #16a34a !important;"
-            class="px-5 py-2.5 rounded-full text-sm font-bold hover:opacity-90 transition shadow-sm">
+            class="px-5 py-2.5 rounded-full text-sm font-bold transition">
             Show Users
         </button>
     </div>

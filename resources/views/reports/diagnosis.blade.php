@@ -71,7 +71,7 @@
                     </a>
                     @if($diagnosisPrivacyBhw)
                         <button type="button" id="toggleDiagnosisRowsBtn"
-                            class="px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-sm" style="background-color: #dcfce7 !important; border: 2px solid #86efac !important; color: #16a34a !important;">
+                            class="px-5 py-2.5 rounded-full text-sm font-bold transition">
                             Show Patient Records
                         </button>
                     @endif

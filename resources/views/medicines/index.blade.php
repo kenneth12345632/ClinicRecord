@@ -54,8 +54,7 @@
         </div>
         <div class="w-full sm:w-auto shrink-0">
             <button type="button" id="toggleMedicineBtn"
-                style="background-color: #dcfce7 !important; border: 2px solid #86efac !important; color: #16a34a !important;"
-                class="px-5 py-2.5 rounded-full text-sm font-bold hover:opacity-90 transition shadow-sm">
+                class="px-5 py-2.5 rounded-full text-sm font-bold transition">
                 Show Medicine
             </button>
         </div>
