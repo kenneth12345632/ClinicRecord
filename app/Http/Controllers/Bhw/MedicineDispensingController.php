@@ -98,17 +98,15 @@ class MedicineDispensingController extends Controller
         $validated = $request->validate([
             'dispense_quantities' => ['nullable', 'array'],
             'dispense_quantities.*' => ['nullable', 'integer', 'min:0'],
-            'release_note' => ['nullable', 'string', 'max:1000'],
         ]);
         $requestedQuantities = collect($validated['dispense_quantities'] ?? [])
             ->mapWithKeys(fn ($qty, $rowId) => [(int) $rowId => (int) $qty]);
-        $manualReleaseNote = trim((string) ($validated['release_note'] ?? ''));
 
         $summary = [];
         $partialSummary = [];
         $hasAnyReleased = false;
 
-        DB::transaction(function () use ($record, $requestedQuantities, $manualReleaseNote, &$summary, &$partialSummary, &$hasAnyReleased) {
+        DB::transaction(function () use ($record, $requestedQuantities, &$summary, &$partialSummary, &$hasAnyReleased) {
             $rows = DB::table('clinic_record_medicine')
                 ->where('clinic_record_id', $record->id)
                 ->whereNull('dispensed_at')
@@ -259,9 +257,8 @@ class MedicineDispensingController extends Controller
             if ($summary !== []) {
                 $bhwName = $this->bhwDisplayName();
                 $record->refresh();
-                $releaseNoteText = $manualReleaseNote !== '' ? (' | BHW note: ' . $manualReleaseNote) : '';
                 $record->update([
-                    'medicines_given' => 'Released by BHW: ' . $bhwName . ' on ' . now()->format('M d, Y g:i A') . $releaseNoteText,
+                    'medicines_given' => 'Released by BHW: ' . $bhwName . ' on ' . now()->format('M d, Y g:i A'),
                     'published_to_registry_at' => now(),
                 ]);
             }

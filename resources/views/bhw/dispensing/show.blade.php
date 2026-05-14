@@ -31,65 +31,56 @@
         <div class="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">{{ session('info') }}</div>
     @endif
 
-    {{-- Plan / Medicines style panel --}}
+    {{-- Plan / Medicines style panel (light: green card; dark: navy + forest header per design) --}}
     <form action="{{ route($dispensingRoutePrefix . '.dispensing.dispense', $record) }}" method="POST" onsubmit="return confirm(@json($pendingMedicines->isNotEmpty() ? 'Record entered quantities as given and deduct from inventory?' : 'Add this visit to Clinic Records for this patient?'));"
-        class="rounded-2xl border-2 border-green-500 bg-white shadow-lg shadow-green-500/10 overflow-hidden">
+        class="rounded-2xl border-2 border-green-500 bg-white shadow-lg shadow-green-500/10 overflow-hidden dark:border-[#1f5c3d] dark:bg-[#0f151c] dark:shadow-xl dark:shadow-black/50">
         @csrf
-        <div class="px-5 py-3.5 border-b-2 border-green-500 bg-green-50/90 flex items-center justify-between gap-3">
+        <div class="px-5 py-3.5 border-b-2 border-green-500 bg-green-50/90 flex items-center justify-between gap-3 dark:border-[#2a6b45] dark:bg-[#0c2216]">
             <div class="flex items-center gap-2">
-                <span class="bg-green-600 text-white w-7 h-7 flex items-center justify-center rounded font-bold text-xs shrink-0">P</span>
+                <span class="bg-green-600 text-white w-7 h-7 flex items-center justify-center rounded font-bold text-xs shrink-0 dark:bg-green-500 dark:shadow-[0_0_0_1px_rgba(74,222,128,0.35)]">P</span>
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-green-700">Plan / Medicines</p>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Edit quantity if releasing less than prescribed, then confirm to finalize this visit.</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-green-700 dark:text-white">Plan / Medicines</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5 dark:text-green-100/45">Edit quantity if releasing less than prescribed, then confirm to finalize this visit.</p>
                 </div>
             </div>
         </div>
 
-        <div class="divide-y divide-green-100">
+        <div class="divide-y divide-green-100 dark:divide-[#1a3d2c]/90 dark:bg-[#0a1018]">
             @forelse($pendingMedicines as $med)
-                <div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 dark:bg-[#0a1018]">
                     <div class="min-w-0">
-                        <p class="text-sm font-bold text-slate-900">{{ $med->name }}</p>
+                        <p class="text-sm font-bold text-slate-900 dark:text-white">{{ $med->name }}</p>
                         @if($med->batch_number)
-                            <p class="text-[11px] text-slate-500 mt-0.5">Batch {{ $med->batch_number }}</p>
+                            <p class="text-[11px] text-slate-500 mt-0.5 dark:text-slate-400">Batch {{ $med->batch_number }}</p>
                         @endif
                     </div>
                     <div class="flex items-center gap-6 shrink-0 text-sm">
                         <div>
-                            <label for="dispense-qty-{{ $med->pivot->id }}" class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Quantity</label>
+                            <label for="dispense-qty-{{ $med->pivot->id }}" class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block dark:text-slate-500">Quantity</label>
                             <input id="dispense-qty-{{ $med->pivot->id }}"
                                    type="number"
                                    name="dispense_quantities[{{ $med->pivot->id }}]"
                                    value="{{ old('dispense_quantities.' . $med->pivot->id, (int) $med->pivot->quantity) }}"
                                    min="0"
                                    max="{{ (int) $med->pivot->quantity }}"
-                                   class="mt-1 w-24 rounded-lg border border-slate-200 px-3 py-1.5 font-bold text-slate-800 focus:border-green-400 focus:outline-none">
-                            <p class="text-[10px] text-slate-400 mt-1">Prescribed: {{ (int) $med->pivot->quantity }}</p>
+                                   class="mt-1 w-24 rounded-lg border border-slate-200 px-3 py-1.5 font-bold text-slate-800 focus:border-green-400 focus:outline-none dark:border-white/40 dark:bg-[#050a12] dark:text-white dark:[color-scheme:dark] dark:focus:border-green-400 dark:focus:ring-1 dark:focus:ring-green-500/40">
+                            <p class="text-[10px] text-slate-400 mt-1 dark:text-slate-500">Prescribed: {{ (int) $med->pivot->quantity }}</p>
                         </div>
                         <div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Expiry</span>
-                            <span class="font-semibold text-slate-700">{{ optional($med->expiration_date)->format('M d, Y') ?? '—' }}</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block dark:text-slate-500">Expiry</span>
+                            <span class="font-semibold text-slate-700 dark:text-white">{{ optional($med->expiration_date)->format('M d, Y') ?? '—' }}</span>
                         </div>
                     </div>
                 </div>
             @empty
-                <div class="px-5 py-6 text-sm text-slate-600 leading-relaxed">
-                    No medicines were prescribed on this visit. Confirm below to <span class="font-semibold text-slate-800">add it to Clinic Records</span> for this patient.
+                <div class="px-5 py-6 text-sm text-slate-600 leading-relaxed dark:bg-[#0a1018] dark:text-slate-300">
+                    No medicines were prescribed on this visit. Confirm below to <span class="font-semibold text-slate-800 dark:text-white">add it to Clinic Records</span> for this patient.
                 </div>
             @endforelse
         </div>
 
-        @if($pendingMedicines->isNotEmpty())
-            <div class="px-5 py-4 border-t border-green-100 bg-green-50/40">
-                <label for="release_note" class="text-[11px] font-bold uppercase tracking-wider text-green-700 block mb-1">BHW note</label>
-                <textarea id="release_note" name="release_note" rows="2"
-                    placeholder="Type reason for limited release (optional), e.g. Supply is limited today; partial quantity given."
-                    class="w-full rounded-xl border border-green-200 px-3 py-2 text-sm text-slate-700 focus:border-green-400 focus:outline-none">{{ old('release_note') }}</textarea>
-            </div>
-        @endif
-
-        <div class="px-5 py-4 border-t border-green-100 bg-white">
-            <button type="submit" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-green-600 text-white font-bold text-sm shadow-md hover:bg-green-700 transition">
+        <div class="px-5 py-4 border-t border-green-100 bg-white dark:border-t dark:border-[#1a3d2c]/90 dark:bg-[#0f151c]">
+            <button type="submit" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-green-600 text-white font-bold text-sm shadow-md hover:bg-green-700 transition dark:bg-green-500 dark:hover:bg-green-400 dark:shadow-lg dark:shadow-green-900/40">
                 {{ $pendingMedicines->isNotEmpty() ? 'Confirm entered quantities' : 'Confirm visit on Clinic Records' }}
             </button>
         </div>
